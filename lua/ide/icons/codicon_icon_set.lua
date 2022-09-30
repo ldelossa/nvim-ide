@@ -1,0 +1,86 @@
+local icon_set = require('ide.icons.icon_set')
+
+CodiconIconSet = {}
+
+local prototype = {
+    icons = {
+        Account        = '',
+        Array          = "",
+        Bookmark       = "",
+        Boolean        = "",
+        Calendar       = '',
+        Check          = '',
+        CheckAll       = '',
+        Circle         = '',
+        CircleFilled   = '',
+        CirclePause    = '',
+        CircleSlash    = '',
+        CircleStop     = '',
+        Class          = "",
+        Collapsed      = "",
+        Color          = "",
+        Comment        = '',
+        CommentExclaim = '',
+        Constant       = "",
+        Constructor    = "",
+        DiffAdded      = '',
+        Enum           = "",
+        EnumMember     = "",
+        Event          = "",
+        Expanded       = "",
+        Field          = "",
+        File           = "",
+        Folder         = "",
+        Function       = "",
+        GitBranch      = '',
+        GitCommit      = '',
+        GitCompare     = '',
+        GitIssue       = '',
+        GitMerge       = '',
+        GitPullRequest = '',
+        GitRepo        = '',
+        History        = '',
+        IndentGuide    = "⎸",
+        Info           = '',
+        Interface      = "",
+        Key            = "",
+        Keyword        = "",
+        Method         = "",
+        Module         = "",
+        MultiComment   = '',
+        Namespace      = "",
+        Notebook       = "",
+        Notification   = '',
+        Null           = "",
+        Number         = "",
+        Object         = "",
+        Operator       = "",
+        Package        = "",
+        Pass           = '',
+        PassFilled     = '',
+        Pencil         = '',
+        Property       = "",
+        Reference      = "",
+        RequestChanges = '',
+        Separator      = "•",
+        Snippet        = "",
+        Space          = " ",
+        String         = "",
+        Struct         = "",
+        Sync           = '',
+        Text           = "",
+        Terminal       = "",
+        TypeParameter  = "",
+        Unit           = "",
+        Value          = "",
+        Variable       = "",
+    }
+}
+
+CodiconIconSet.new = function()
+    local self = icon_set.new()
+    self.icons = prototype.icons
+    return self
+end
+
+return CodiconIconSet

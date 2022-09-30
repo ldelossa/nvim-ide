@@ -1,229 +1,421 @@
-local M = {}
+local registry = require('ide.panels.panel_registry')
+local component_tracker = require('ide.panels.component_tracker')
+local libwin = require('ide.lib.win')
 
--- Panel_Registry_t is a registry of Panel_t instances which ensures only a single 
--- panel for each M.PANEL_POSITIONS can be created on a given tab.
-M.Panel_Registry_t = {
-    panels = {
-        ['1'] = nil
-    }
-}
-
-function M.Panel_Registry_t:new()
-    local t = {}
-    setmetatable(t, self)
-    self.__index = self
-    return t
-end
-
-function M.Panel_Registry_t:register(Panel_t)
-    local panels = self.panels[Panel_t.tab]
-
-    if panels == nil then
-        self.panels[Panel_t.tab] = {Panel_t}
-        return true
-    end
-
-    for _, p in ipairs(panels) do
-        if p.position == Panel_t.position then
-            return false, "duplicate panel at position " .. p.position
-        end
-    end
-    table.insert(self.panels[Panel_t.tab], Panel_t)
-    return true
-end
-
--- A global Panel_Registry used on Panel_t construction.
-M.Panel_Registry = M.Panel_Registry_t:new()
+local Panel = {}
 
 -- Panel Position Enum
-M.PANEL_POS_TOP = "top"
-M.PANEL_POS_LEFT = "left"
-M.PANEL_POS_RIGHT = "right"
-M.PANEL_POS_BOTTOM = "bottom"
-M.PANEL_POSITIONS = {
-    M.PANEL_POS_TOP, M.PANEL_POS_LEFT, M.PANEL_POS_RIGHT, M.PANEL_POS_BOTTOM
+Panel.PANEL_POS_TOP = "top"
+Panel.PANEL_POS_LEFT = "left"
+Panel.PANEL_POS_RIGHT = "right"
+Panel.PANEL_POS_BOTTOM = "bottom"
+Panel.PANEL_POSITIONS = {
+    Panel.PANEL_POS_TOP, Panel.PANEL_POS_LEFT, Panel.PANEL_POS_RIGHT, Panel.PANEL_POS_BOTTOM
 }
 
--- A Panel_t is a controlling container over several Component_i implementations,
--- acting a single window abstraction over multiple Component windows.
+-- Construct a new Panel for a given tab and position.
 --
--- The Panel_t uses a desired state algorithm to determine which windows must be
--- opened and closed to achieve displaying the panel correctly.
-M.Panel_t = {
-    -- the tab which owns this panel
-    tab = nil,
-    -- the position where this panel will be displayed.
-    position = "left",
-    -- the initial size of the panel.
-    size = 15,
-    -- an array of registered Component_i implementations.
-    components = {},
-    -- the panel's current layout, an array of Component_i implementations.
-    layout = {},
-}
+-- A Panel is an abstraction of a set of windows and buffers, each of which are
+-- created by a registered Component.
+--
+-- A Panel can be displayed at the top, left, right, or bottom of a tabpage.
+-- One panel for each position can be registered per-tab page.
+Panel.new = function(tab, position, components)
+    assert(tab ~= nil, "cannot construct a panel without an associated tab")
+    assert(vim.api.nvim_tabpage_is_valid(tab), "cannot construct a panel without an invalid tab")
+    assert(position ~= nil, "cannot construct a panel without a position")
+    local self = {
+        -- the tab which owns this panel
+        tab = nil,
+        -- the position where this panel will be displayed.
+        position = "left",
+        -- the initial size of the panel.
+        size = 30,
+        -- an array of registered Component_i implementations.
+        components = {},
+        -- a @ComponentTracker which tracks stateful information about components.
+        component_tracker = nil,
+        -- the panel's current layout, an array of Component_i implementations.
+        layout = {},
+        -- the workspace this panel is associated with.
+        workspace = nil,
+    }
+    self.component_tracker = component_tracker.new(self)
+    self.tab = tab
 
--- Constructs a new Panel_t type.
---
--- A Panel_t implements a panel of components which can be displayed on the
--- provided tab.
---
--- @tab - a valid tab id (required)
--- @position - a PANEL_POSITIONS enum value specifying where this panel will 
--- be displayed. (required)
--- @components - a list of Component_t types registered to this Panel_t.
--- (optional)
-function M.Panel_t:new(tab, position, components)
-        local t = {}
-        setmetatable(t, self)
-        self.__index = self
+    -- construction validation
+    for _, pos in ipairs(Panel.PANEL_POSITIONS) do
+        if position == pos then
+            self.position = position
+        end
+    end
 
-        assert(tab ~= nil, "cannot construct a panel without an associated tab")
-        assert(vim.api.nvim_tabpage_is_valid(tab), "cannot construct a panel without an invalid tab")
-        assert(position ~= nil, "cannot construct a panel without a position")
-        for _, pos in ipairs(M.PANEL_POSITIONS) do
-            if position == pos then
-                self.position = position
+    if
+        self.position == Panel.PANEL_POS_BOTTOM or
+        self.position == Panel.PANEL_POS_TOP
+    then
+        self.size = 15
+    else
+        self.size = 30
+    end
+
+    if components ~= nil and #components > 0 then
+        self.components = components
+        for _, comp in ipairs(components) do
+            comp.panel = self
+        end
+    end
+
+
+    -- Register a new Component_i implementation into this Panel_t.
+    -- see ide/panels/component.lua for Component_i declaration.
+    --
+    -- @return - void
+    function self.register_component(Component)
+        Component.panel = self
+        table.insert(self.components, Component)
+    end
+
+    -- Determine if the Panel is opened.
+    --
+    -- Since a Panel is an abstraction over several Component windows, this method
+    -- simply checks if all Component windows are invalid or nil.
+    --
+    -- @return - void
+    function self.is_open()
+        for _, c in ipairs(self.components) do
+            if c.is_displayed() then
+                return true
             end
         end
-        if components ~= nil and #components > 0 then
-            self.components = components
+        return false
+    end
+
+    -- Closes the panel by closing all current Component windows.
+    --
+    -- @return - void
+    function self.close()
+        if not self.is_open() then
+            return
         end
-        self.tab = tab
+        for _, c in ipairs(self.layout) do
+            if c.is_valid() and c.is_displayed() then
+                vim.api.nvim_win_close(c.win, true)
+            end
+        end
+    end
 
-        local ok, err = M.Panel_Registry:register(self)
-        if not ok then
-            assert(M.Panel_Registry:register(self), err)
+    local function _set_default_win_opts(pos, win, name)
+        libwin.set_winbar_title(win, name)
+        vim.api.nvim_win_set_option(win, 'number', false)
+        vim.api.nvim_win_set_option(win, 'cursorline', true)
+        vim.api.nvim_win_set_option(win, 'relativenumber', false)
+        vim.api.nvim_win_set_option(win, 'signcolumn', 'no')
+        vim.api.nvim_win_set_option(win, 'wrap', false)
+        vim.api.nvim_win_set_option(win, 'winfixwidth', true)
+        vim.api.nvim_win_set_option(win, 'winfixheight', true)
+        vim.api.nvim_win_set_option(win, 'winhighlight', 'Normal:NormalSB')
+    end
+
+    local function _attach_component(Component)
+        local panel_win = vim.api.nvim_get_current_win()
+
+        local buf = Component.open()
+
+        vim.api.nvim_win_set_buf(panel_win, buf)
+
+        Component.win = panel_win
+        Component.buf = buf
+
+        vim.api.nvim_buf_set_name(buf, string.format("component://%s:%d:%d", Component.name, panel_win, self.tab))
+
+        -- refresh the component tracker since new component has been opened.
+        self.component_tracker.refresh()
+
+        -- restore previous cursor if applicable
+        Component.state["cursor"].restore()
+
+        _set_default_win_opts(self.position, panel_win, Component.name)
+
+        table.insert(self.layout, Component)
+
+        -- set size of window, use the last recorded dimensions if possible.
+        local size = self.size
+        local dimensions = nil
+        if Component.state["dimensions"] ~= nil then
+            dimensions = Component.state["dimensions"]
         end
 
-        return t
-end
+        if self.position == Panel.PANEL_POS_LEFT then
+            vim.cmd("vertical resize " ..
+                size)
+        elseif self.position == Panel.PANEL_POS_RIGHT then
+            vim.cmd("vertical resize " ..
+                size)
+        elseif self.position == Panel.PANEL_POS_TOP then
+            vim.cmd("resize " ..
+                size)
+        elseif self.position == Panel.PANEL_POS_BOTTOM then
+            vim.cmd("resize " ..
+                size)
+        end
 
--- Register a new Component_i implementation into this Panel_t.
--- see ide/panels/component.lua for Component_i declaration.
-function M.Panel_t:register_component(Component_t)
-    table.insert(self.components, Component_t)
-end
+        -- component may want to edit new win options/settings so call their 
+        -- callback.
+        Component.post_win_create()
+    end
 
--- Determine if the Panel_t is opened. 
---
--- Since a Panel_t is an abstraction over several Component_t windows, this method
--- simply checks if all Component_t windows are invalid or nil.
-function M.Panel_t:is_open()
-    for _, c in ipairs(self.components) do
+    -- Opens the panel by displaying all registered Component windows that
+    -- are not hidden.
+    --
+    -- @return void
+    function self.open()
+        if self.is_open() then
+            return
+        end
+
+        local restores = {}
+
+        -- make all windows across vim unfixed
+        for _, w in ipairs(vim.api.nvim_list_wins()) do
+            table.insert(restores, libwin.set_option_with_restore(w, "winfixwidth", false))
+            table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", false))
+        end
+
+        -- make a copy of the last layout, we'll use it to determine if we can
+        -- restore dimensions.
+        local old_layout = vim.deepcopy(self.layout)
+
+        -- if all components are hidden, don't open the panel at all.
+        local continue = false
+        for i, rc in ipairs(self.components) do
+            if not rc.is_hidden() then
+                continue = true
+            end
+        end
+        if not continue then
+            return
+        end
+
+        -- if we are configuring a top or bottom panel, we want to split right
+        -- for vsplits to preserve config's ordering.
+        --
+        -- provide a restore function to restore the original option, it will 
+        -- no-op if this is not a top or bottom panel
+        local restore = (function()
+            if self.position == Panel.PANEL_POS_BOTTOM or
+                self.position == Panel.PANEL_POS_TOP
+            then
+                local original = vim.o.splitright
+                vim.o.splitright = true
+                return function()
+                    vim.o.splitright = original
+                end
+            end
+            return function() end
+        end)()
+
+        -- run all win creation commands with no autocmd, so they won't get
+        -- tracked as visited windows in @Workspace.
+        if self.position == Panel.PANEL_POS_LEFT then
+            vim.cmd("noautocmd topleft vsplit")
+            vim.cmd("vertical resize " ..
+                self.size)
+        elseif self.position == Panel.PANEL_POS_RIGHT then
+            vim.cmd("noautocmd botright vsplit")
+            vim.cmd("vertical resize " ..
+                self.size)
+        elseif self.position == Panel.PANEL_POS_TOP then
+            vim.cmd("noautocmd topleft split")
+            vim.cmd("resize " ..
+                self.size)
+        elseif self.position == Panel.PANEL_POS_BOTTOM then
+            vim.cmd("noautocmd botright split")
+            vim.cmd("resize " ..
+                self.size)
+        end
+
+        -- place non-hidden components, we already have the sidebar window, so 
+        -- only split after the first attached component.
+        local attached = 1
+        for _, rc in ipairs(self.components) do
+            if not rc.is_hidden() then
+                if attached ~= 1 then
+                    if self.position == Panel.PANEL_POS_LEFT then
+                        vim.cmd("noautocmd below split")
+                    elseif self.position == Panel.PANEL_POS_RIGHT then
+                        vim.cmd("noautocmd below split")
+                    elseif self.position == Panel.PANEL_POS_TOP then
+                        vim.cmd("noautocmd vsplit")
+                    elseif self.position == Panel.PANEL_POS_BOTTOM then
+                        vim.cmd("noautocmd vsplit")
+                    end
+                end
+                _attach_component(rc)
+                attached = attached + 1
+            end
+        end
+
+        self.workspace.normalize_panels(self.position)
+
+        -- if the layout is exactly the same as previous, restore dimensions.
+        local restore_dimensions = true
+        for i, c in ipairs(old_layout) do
+            if self.layout[i].name ~= c.name then
+                restore_dimensions = false
+            end
+        end
+        if restore_dimensions then
+            for _, c in ipairs(self.layout) do
+                if c.is_displayed() then
+                    c.restore_dimensions()
+                end
+            end
+        end
+
+        restore()
+        for _, f in ipairs(restores) do
+            f()
+        end
+    end
+
+    -- Opens the panel and focuses the Component identified by `name`
+    --
+    -- @name    - the unique name of a registered component
+    -- @return  - void
+    function self.open_component(name)
+        local c = nil
+
+        for _, rc in ipairs(self.components) do
+            if rc.name == name then
+                c = rc
+            end
+        end
+        -- not a registered component, return
+        if c == nil then
+            return
+        end
+
+        -- component is currently displayed, focus it and return.
         if c.is_displayed() then
-            return true
-        end
-    end
-    return false
-end
-
--- attach a registered Component_t to this Panel_t.
-function M.Panel_t:_attach_component(Component_t)
-    local panel_win = vim.api.nvim_get_current_win()
-    local buf = Component_t:request_buf_create()
-    vim.api.nvim_win_set_buf(buf)
-    Component_t.win = panel_win
-    Component_t.buf = buf
-    Component_t:post_win_create()
-    table.insert(self.layout, Component_t)
-end
-
-function M.Panel_t:close_panel()
-    if not self:is_open() then
-        return
-    end
-    for _, c in ipairs(self.layout) do
-        if c:is_valid() then
-            vim.api.nvim_win_close(c.win)
-        end
-    end
-end
-
--- open this Panel_t, displaying all registered Component_t that are not hidden.
-function M.Panel_t:open_panel()
-    if self:is_open() then
-        return
-    end
-
-    self.layout = (function() return {} end)()
-
-    -- create a new split for our panel.
-    if self.position == M.PANEL_POS_LEFT then
-        vim.cmd("topleft vsplit")
-        vim.cmd("vertical resize " ..
-                    self.size)
-    elseif self.position == M.PANEL_POS_RIGHT then
-        vim.cmd("botright vsplit")
-        vim.cmd("vertical resize " ..
-                    self.size)
-    elseif self.position == M.PANEL_POS_TOP then
-        vim.cmd("topleft split")
-        vim.cmd("resize " ..
-                    self.size)
-    elseif self.position == M.PANEL_POS_BOTTOM  then
-        vim.cmd("botright split")
-        vim.cmd("resize " ..
-                    self.size)
-    end
-
-    -- place non-hidden components 
-    for i, rc in ipairs(self.components) do
-        if rc:is_hidden() then
-            goto continue
+            c.focus()
+            return
         end
 
-        self:_attach_component(rc)
+        -- if the panel isn't opened, set the desired component hidden to false
+        -- and open the panel, the component will be opened with other non-hidden ones.
+        if not self.is_open() then
+            c.hide(false)
+            self.open()
+            return
+        end
 
-        if i ~= #self.components then
-            if self.position == M.PANEL_POS_LEFT then
-                vim.cmd("below split")
-            elseif self.position == M.PANEL_POS_RIGHT then
-                vim.cmd("below split")
-            elseif self.position == M.PANEL_POS_TOP then
-                vim.cmd("vsplit")
-            elseif self.position == M.PANEL_POS_TOP then
-                vim.cmd("vsplit")
+        -- place ourselves inside first valid panel window
+        for _, rc in ipairs(self.components) do
+            if rc.is_valid() then
+                rc.focus()
+                break
             end
         end
-        ::continue::
+
+        -- refresh the component tracker as some component windows may have 
+        -- changed
+        self.component_tracker.refresh()
     end
-end
 
-function M.Panel_t:open_component(name)
-    local c = nil
+    -- Hides a currently displayed Component. 
+    --
+    -- @name    - the unique name of a registered component
+    -- @return  - void
+    function self.hide_component(name)
+        local c = nil
 
-    for _, rc in ipairs(self.components) do
-        if rc.name == name then
-            c = rc
+        for _, rc in ipairs(self.components) do
+            if rc.name == name then
+                c = rc
+            end
+        end
+
+        -- not a registered component, return
+        if c == nil then
+            return
+        end
+
+        c.hide(true)
+
+        -- remove from layout.
+        local new_layout = {}
+        for _, cc in ipairs(self.layout) do
+            if cc.Name ~= name then
+                table.insert(new_layout, cc)
+            end
+        end
+        self.layout = (function() return {} end)
+        self.layout = new_layout
+    end
+
+    -- Returns an array of any registered components.
+    --
+    -- @return - @table, an array of @Component(s) registered to this panel.
+    function self.get_components()
+        return self.components
+    end
+
+    function self.set_workspace(Workspace)
+        for _, c in ipairs(self.components) do
+            c.workspace = Workspace
+        end
+        self.workspace = Workspace
+    end
+
+    function self.get_workspace(Workspace)
+        return self.workspace
+    end
+
+    function self.reset_panel_dimensions()
+        for _, c in ipairs(self.components) do
+            c.restore_dimensions()
         end
     end
-    -- not a registered component, return
-    if c == nil then
-        return
-    end
 
-    -- component is currently displayed, focus it and return.
-    if c:is_displayed() then
-        c:focus()
-        return
-    end
+    function self.equal()
+        if not self.is_open() then
+            return
+        end
+        local restores = {}
 
-    -- if the panel isn't opened, set the desired component hidden to false
-    -- and open the panel, the component will be opened with other non-hidden ones.
-    if not self:is_opened() then
-        c.hidden = false
-        self:open_panel()
-        return
-    end
+        -- make all windows across vim fixed (unaffected by "=")
+        for _, w in ipairs(vim.api.nvim_list_wins()) do
+            table.insert(restores, libwin.set_option_with_restore(w, "winfixwidth", true))
+            table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", true))
+        end
 
-    -- place ourselves inside first valid panel window
-    for _, rc in ipairs(self.components) do
-        if rc:is_valid() then
-            rc:focus()
-            break
+        -- set any of our open component windows to false.
+        for _, c in ipairs(self.components) do
+            if c.is_displayed() then
+                if self.position == Panel.PANEL_POS_BOTTOM or self.position == Panel.PANEL_POS_TOP then
+                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", false))
+                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", true))
+                else
+                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", true))
+                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", false))
+                end
+            end
+        end
+
+        vim.cmd("wincmd =")
+
+        -- restore all fixes to their original values
+        for _, r in ipairs(restores) do
+            r()
         end
     end
 
+    -- attempt panel registration, this may fail if another Panel is registered
+    -- for the supplied tab.
+    registry.register(self)
+
+    return self
 end
 
-return M
+return Panel
