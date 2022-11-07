@@ -23,6 +23,7 @@ local config_prototype = {
         commit = "c",
         jump = "<CR>",
         jump_tab = "t",
+        toggle_view = "v",
         hide = "<C-[>",
         close = "X",
         maximize = "+",
@@ -48,6 +49,8 @@ ChangesComponent.new = function(name, config)
 
     self.config = vim.deepcopy(config_prototype)
 
+    self.view = "list"
+
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
         local buf = vim.api.nvim_create_buf(false, true)
@@ -61,18 +64,32 @@ ChangesComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.restore, "", {silent=true, callback=function() self.restore ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.add, "", {silent=true, callback=function() self.add ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.amend, "", {silent=true, callback=function() self.amend ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "", {silent=true, callback=function() self.commit ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_statusnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_statusnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.restore, "",
+                { silent = true, callback = function() self.restore({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.add, "",
+                { silent = true, callback = function() self.add({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.amend, "",
+                { silent = true, callback = function() self.amend({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "",
+                { silent = true, callback = function() self.commit({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_statusnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_statusnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.toggle_view, "",
+                { silent = true, callback = function() self.toggle_view() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -85,7 +102,7 @@ ChangesComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({no_guides_leaf = true})
+            self.tree.marshal({ no_guides_leaf = true })
         end
         return self.buf
     end
@@ -115,7 +132,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.expand_node(node)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -129,7 +146,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_node(node)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -143,33 +160,115 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
-    function _build_tree(stats)
+    function _build_tree_recursive(tree, root, index, paths, stat, staged)
+        if index == #paths then
+            local to_use = nil
+            if staged == "staged" then
+                to_use = stat.staged_status
+            end
+            if staged == "unstaged" then
+                to_use = stat.unstaged_status
+            end
+            if staged == "untracked" then
+                to_use = stat.unstaged_status
+            end
+
+            local node = statusnode.new(to_use, stat.path, staged)
+            self.tree.add_node(root, {node}, { append = true })
+            return
+        end
+
+        local key = ""
+        for i = 1, index, 1 do
+            key = key .. paths[i] .. "/"
+        end
+        key = staged .. ":" .. key
+
+        local node = tree.search_key(key)
+
+        if node == nil then
+            local path = vim.fn.split(key, ":")[2]
+            local sn = statusnode.new("", path, staged)
+            sn.is_dir = true
+            tree.add_node(root, {sn}, { append = true })
+            _build_tree_recursive(tree, sn, index + 1, paths, stat, staged)
+            return
+        end
+        _build_tree_recursive(tree, node, index + 1, paths, stat, staged)
+    end
+
+    local function _build_tree_view(stats)
         local root = statusnode.new("", vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), false, 0)
         local staged = statusnode.new("", "Staged Changes", false)
         local unstaged = statusnode.new("", "Unstaged Changes", false)
         local untracked = statusnode.new("", "Untracked Changes", false)
-        local children = {staged, unstaged, untracked}
+        local children = { staged, unstaged, untracked }
         self.tree.add_node(root, children)
+
+        local staged_stats = {}
+        local unstaged_stats = {}
+        local untracked_stats = {}
 
         for _, stat in ipairs(stats) do
             if stat.unstaged_status == "?" or stat.staged_status == "?" then
-                self.tree.add_node(untracked, {statusnode.new(stat.unstaged_status, stat.path, false)}, {append=true})
+                table.insert(untracked_stats, stat)
                 goto continue
             end
             if stat.staged_status ~= " " then
-                self.tree.add_node(staged, {statusnode.new(stat.staged_status, stat.path, true)}, {append=true})
+                table.insert(staged_stats, stat)
             end
             if stat.unstaged_status ~= " " then
-                self.tree.add_node(unstaged, {statusnode.new(stat.unstaged_status, stat.path, false)}, {append=true})
+                table.insert(unstaged_stats, stat)
             end
             ::continue::
         end
 
-        self.tree.marshal({no_guides_leaf = true})
+        for _, stat in ipairs(unstaged_stats) do
+            local paths = vim.fn.split(stat.path, "/")
+            _build_tree_recursive(self.tree, unstaged, 1, paths, stat, "unstaged")
+        end
+
+        for _, stat in ipairs(staged_stats) do
+            local paths = vim.fn.split(stat.path, "/")
+            _build_tree_recursive(self.tree, staged, 1, paths, stat, "staged")
+        end
+
+        for _, stat in ipairs(untracked_stats) do
+            local paths = vim.fn.split(stat.path, "/")
+            _build_tree_recursive(self.tree, untracked, 1, paths, stat, "untracked")
+        end
+
+        self.tree.marshal({ no_guides_leaf = true })
+        self.state["cursor"].restore()
+    end
+
+    local function _build_list_view(stats)
+        local root = statusnode.new("", vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), false, 0)
+        local staged = statusnode.new("", "Staged Changes", false)
+        local unstaged = statusnode.new("", "Unstaged Changes", false)
+        local untracked = statusnode.new("", "Untracked Changes", false)
+        local children = { staged, unstaged, untracked }
+        self.tree.add_node(root, children)
+
+        for _, stat in ipairs(stats) do
+            if stat.unstaged_status == "?" or stat.staged_status == "?" then
+                self.tree.add_node(untracked, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
+                goto continue
+            end
+            if stat.staged_status ~= " " then
+                self.tree.add_node(staged, { statusnode.new(stat.staged_status, stat.path, true) }, { append = true })
+            end
+            if stat.unstaged_status ~= " " then
+                self.tree.add_node(unstaged, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
+            end
+            ::continue::
+        end
+
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -178,10 +277,11 @@ ChangesComponent.new = function(name, config)
             if stats == nil then
                 return
             end
-            -- if vim.api.nvim_get_current_win() == self.win then
-            --     return
-            -- end
-            _build_tree(stats)
+            if self.view == "list" then
+                _build_list_view(stats)
+            else
+                _build_tree_view(stats)
+            end
         end)
     end
 
@@ -193,7 +293,7 @@ ChangesComponent.new = function(name, config)
             return
         end
 
-        git.git_add(node.path, function() 
+        git.git_add(node.path, function()
             self.event_handler()
         end)
     end
@@ -206,7 +306,7 @@ ChangesComponent.new = function(name, config)
             return
         end
 
-        git.git_restore(node.staged, node.path, function() 
+        git.git_restore(node.staged, node.path, function()
             self.event_handler()
         end)
     end
@@ -253,7 +353,7 @@ ChangesComponent.new = function(name, config)
         if node.status == "?" or node.status == "A" then
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines({}, "a", o)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
@@ -276,13 +376,23 @@ ChangesComponent.new = function(name, config)
             end
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file, "a", o)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
 
             vim.api.nvim_set_current_win(self.win)
         end)
+    end
+
+    function self.toggle_view()
+        if self.view == "list" then
+            self.view = "tree"
+            self.event_handler()
+        else
+            self.view = "list"
+            self.event_handler()
+        end
     end
 
     function self.get_commands()

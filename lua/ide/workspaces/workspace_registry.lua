@@ -5,6 +5,12 @@ local panel_registry = require("ide.panels.panel_registry")
 -- It is a global singleton which other components may use after import.
 WorkspaceRegistry = {}
 
+-- Get the current workspace for the given tab.
+function WorkspaceRegistry.current_workspace()
+    local tab = vim.api.nvim_get_current_tabpage()
+    return WorkspaceRegistry.get_workspace(tab)
+end
+
 local registry = {
     ['1'] = nil
 }

@@ -19,8 +19,11 @@ function M.test_functionality()
     --         print(vim.inspect(commits))
     --     end
     -- )
-    client.status(function(stats)
-        print(vim.inspect(stats))
+    -- client.status(function(stats)
+    --     print(vim.inspect(stats))
+    -- end)
+    client.branch(function(branches)
+        print(vim.inspect(branches))
     end)
 end
 
