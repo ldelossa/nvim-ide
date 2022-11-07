@@ -31,7 +31,7 @@ local config_prototype = {
     },
 }
 
--- CommitsComponent is a derived @Component implementing a tree of incoming 
+-- CommitsComponent is a derived @Component implementing a tree of incoming
 -- or outgoing calls.
 -- Must implement:
 --  @Component.open
@@ -55,10 +55,10 @@ CommitsComponent.new = function(name, config)
     -- page.
     self.paging = {}
 
-    -- keep track of last created commits, and don't refresh listing 
+    -- keep track of last created commits, and don't refresh listing
     self.last_commits = ""
 
-    self.hidden = true
+    self.hidden = false
 
     -- The callback used to load more git commits into the Commits when the
     -- bottom of the buffer is hit.
@@ -83,8 +83,8 @@ CommitsComponent.new = function(name, config)
                 local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
                 table.insert(children, node)
             end
-            self.tree.add_node(self.tree.root, children, {append=true})
-            self.tree.marshal({no_guides_leafs=true, virt_text_pos="eol"})
+            self.tree.add_node(self.tree.root, children, { append = true })
+            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
             if #children > 0 then
                 self.paging[name] = self.paging[name] + 25
             end
@@ -109,16 +109,26 @@ CommitsComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_commitnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_commitnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "", {silent=true, callback=function() self.get_commits() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {silent=true, callback=function() self.details() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_commitnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_commitnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "",
+                { silent = true, callback = function() self.get_commits() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "",
+                { silent = true, callback = function() self.details() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -166,7 +176,7 @@ CommitsComponent.new = function(name, config)
             end
         end
         commitnode.expand(function()
-            self.tree.marshal({no_guides_leafs=true, virt_text_pos="eol"})
+            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
             self.state["cursor"].restore()
         end)
     end
@@ -188,7 +198,7 @@ CommitsComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(commitnode)
-        self.tree.marshal({no_guides_leafs=true, virt_text_pos="eol"})
+        self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
         self.state["cursor"].restore()
     end
 
@@ -207,7 +217,7 @@ CommitsComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({no_guides_leafs=true, virt_text_pos="eol"})
+        self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
         self.state["cursor"].restore()
     end
 
@@ -217,12 +227,7 @@ CommitsComponent.new = function(name, config)
         if self.workspace.tab ~= cur_tab then
             return
         end
-        -- if not libbuf.is_regular_buffer(cur_buf) then
-        --     return
-        -- end
-        -- if libbuf.is_component_buf(cur_buf) then
-        --     return
-        -- end
+        local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
         git.log_commits(0, 25, function(commits)
             if commits == nil then
                 return
@@ -232,9 +237,9 @@ CommitsComponent.new = function(name, config)
                 local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
                 table.insert(children, node)
             end
-            local root = commitnode.new("", "", name, "", "", 0)
+            local root = commitnode.new("", "", repo, "", "", 0)
             self.tree.add_node(root, children)
-            self.tree.marshal({no_guides_leafs=true, virt_text_pos="eol"})
+            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
             self.paging[name] = 25
             self.last_commits = name
         end)
@@ -250,12 +255,12 @@ CommitsComponent.new = function(name, config)
 
         -- we need to find the parent node, but this is a list where all commits
         -- are at depth one,
-        local _, i = self.tree.depth_table.search(1, node.key)
+        local _, i = self.tree.depth_table.search(2, node.key)
         if i == nil then
             error("failed to find index of node in depth table")
         end
 
-        local pnode = self.tree.depth_table.table[1][i+1]
+        local pnode = self.tree.depth_table.table[2][i + 1]
 
         function do_diff(file_a, file_b, sha_a, sha_b, path)
             local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
@@ -274,7 +279,7 @@ CommitsComponent.new = function(name, config)
 
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file_a, "a", o)
             dbuff.write_lines(file_b, "b", o)
 

@@ -1,11 +1,11 @@
-local base = require('ide.panels.component')
-local tree = require('ide.trees.tree')
+local base     = require('ide.panels.component')
+local tree     = require('ide.trees.tree')
 local filenode = require('ide.components.explorer.filenode')
 local commands = require('ide.components.explorer.commands')
-local libwin = require('ide.lib.win')
-local libbuf  = require('ide.lib.buf')
-local logger = require('ide.logger.logger')
-local prompts = require('ide.components.explorer.prompts')
+local libwin   = require('ide.lib.win')
+local libbuf   = require('ide.lib.buf')
+local logger   = require('ide.logger.logger')
+local prompts  = require('ide.components.explorer.prompts')
 local icon_set = require('ide.icons').global_icon_set
 
 ExplorerComponent = {}
@@ -50,7 +50,7 @@ ExplorerComponent.new = function(name, config)
     local self = base.new(name)
     -- a @Tree containing files and directories of the current workspace.
     self.tree = nil
-    -- a list of selected nodes, if a selection exists then the next method 
+    -- a list of selected nodes, if a selection exists then the next method
     -- invoked (mv, rename, cp, etc..) will be invoked for each node.
     self.selected = {}
     -- a logger that will be used across this class and its base class methods.
@@ -80,26 +80,37 @@ ExplorerComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'swapfile', false)
         vim.api.nvim_buf_set_option(buf, 'textwidth', 0)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
-    
-        if not self.config.disable_keymaps then 
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=self.expand})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=self.collapse})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=self.collapse_all})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit, "", {silent=true, callback=function() self.open_filenode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_split, "", {silent=true, callback=function() self.open_filenode({fargs={"split"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_vsplit, "", {silent=true, callback=function() self.open_filenode({fargs={"vsplit"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_tab, "", {silent=true, callback=function() self.open_filenode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=self.hide})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_file, "", {silent=true, callback=self.touch})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete_file, "", {silent=true, callback=self.rm})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_dir, "", {silent=true, callback=self.mkdir})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.rename_file, "", {silent=true, callback=self.rename})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.move_file, "", {silent=true, callback=self.mv})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.copy_file, "", {silent=true, callback=self.cp})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.select_file, "", {silent=true, callback=self.select})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.deselect_file, "", {silent=true, callback=self.unselect})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+
+        if not self.config.disable_keymaps then
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", { silent = true, callback = self.expand })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", { silent = true,
+                callback = self.collapse })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = self.collapse_all })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit, "",
+                { silent = true, callback = function() self.open_filenode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_split, "",
+                { silent = true, callback = function() self.open_filenode({ fargs = { "split" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_vsplit, "",
+                { silent = true, callback = function() self.open_filenode({ fargs = { "vsplit" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_tab, "",
+                { silent = true, callback = function() self.open_filenode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", { silent = true, callback = self.hide })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_file, "", { silent = true, callback = self.touch })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete_file, "", { silent = true, callback = self.rm })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_dir, "", { silent = true, callback = self.mkdir })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.rename_file, "",
+                { silent = true, callback = self.rename })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.move_file, "", { silent = true, callback = self.mv })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.copy_file, "", { silent = true, callback = self.cp })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.select_file, "",
+                { silent = true, callback = self.select })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.deselect_file, "",
+                { silent = true, callback = self.unselect })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -296,10 +307,10 @@ ExplorerComponent.new = function(name, config)
                 return
             end
             prompts.get_file_rename(
-            fnode.path,
-            function(input)
-                fnode.rename(input)
-            end)
+                fnode.path,
+                function(input)
+                    fnode.rename(input)
+                end)
         end
 
         if #self.selected > 0 then
@@ -327,10 +338,10 @@ ExplorerComponent.new = function(name, config)
                 return
             end
             prompts.should_delete(
-            fnode.path,
-            function()
-                fnode.rm()
-            end)
+                fnode.path,
+                function()
+                    fnode.rm()
+                end)
 
         end
 
@@ -502,8 +513,8 @@ ExplorerComponent.new = function(name, config)
                 if current == dest then
                     if libwin.win_is_valid(self.win) then
                         self.tree.marshal()
-                        vim.api.nvim_win_set_cursor(self.win, {root.line, 1})
-                        vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line-1, 0, -1)
+                        vim.api.nvim_win_set_cursor(self.win, { root.line, 1 })
+                        vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line - 1, 0, -1)
                     end
                     return
                 end

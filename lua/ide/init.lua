@@ -3,7 +3,7 @@ local M = {}
 -- The default config which will be merged with the `config` provided to setup()
 --
 -- Modules can read from this field to get config values. For example
--- require('ide').config. 
+-- require('ide').config.
 M.config = {
     -- the global icon set to use.
     -- values: "nerd", "codicon", "default"

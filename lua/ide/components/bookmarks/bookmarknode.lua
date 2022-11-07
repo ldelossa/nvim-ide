@@ -13,7 +13,7 @@ function BookmarkNode.unmarshal_text(line)
     end
     local bm = BookmarkNode.new(parts[1], parts[2], parts[3], parts[4], parts[5])
     -- When we are marhsalling from a line, its assumed we are reading directly
-    -- from a file, so dirty is false and record the original_start_line to 
+    -- from a file, so dirty is false and record the original_start_line to
     -- determine if we are back to the disk's representation if the bookmark moves.
     bm.dirty = false
     bm.original_start_line = bm.start_line

@@ -60,14 +60,22 @@ BookmarksComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_bookmarknode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_bookmarknode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_bookmarknode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -96,7 +104,7 @@ BookmarksComponent.new = function(name, config)
             return
         end
         self.notebook.tree.expand_node(node)
-        self.notebook.tree.marshal({no_guides_leaf = true})
+        self.notebook.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -110,7 +118,7 @@ BookmarksComponent.new = function(name, config)
             return
         end
         self.notebook.tree.collapse_node(node)
-        self.notebook.tree.marshal({no_guides_leaf = true})
+        self.notebook.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -124,7 +132,7 @@ BookmarksComponent.new = function(name, config)
             return
         end
         self.notebook.tree.collapse_subtree(self.notebook.tree.root)
-        self.notebook.tree.marshal({no_guides_leaf = true})
+        self.notebook.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -133,7 +141,6 @@ BookmarksComponent.new = function(name, config)
 
         local node = self.notebook.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
-            print("nope")
             return
         end
 
@@ -178,10 +185,29 @@ BookmarksComponent.new = function(name, config)
         return notebooks
     end
 
-    function self.remove_notebook(args)
+    function self.open_notebook(args, name)
         local notebooks = _ls_notebooks()
         local on_choice = function(item)
+            local notebooks_dir = _get_notebooks_dir()
+            local notebook_file = notebooks_dir .. "/" .. item
+            local name = vim.fn.fnamemodify(item, ":t")
+            if self.notebook ~= nil then
+                self.notebook.close()
+            end
+            self.notebook = notebook.new(self.buf, name, notebook_file)
+            self.focus()
         end
+
+        if name ~= nil then
+            for _, notebook in ipairs(notebooks) do
+                if name == notebook then
+                    on_choice(name)
+                    return
+                end
+            end
+            return
+        end
+
         vim.ui.select(
             notebooks,
             {
@@ -194,10 +220,7 @@ BookmarksComponent.new = function(name, config)
         )
     end
 
-    function self.test(args)
-    end
-
-    function self.open_notebook(args)
+    function self.remove_notebook(args, name)
         local notebooks = _ls_notebooks()
         local on_choice = function(item)
             local notebooks_dir = _get_notebooks_dir()
@@ -206,9 +229,20 @@ BookmarksComponent.new = function(name, config)
             if self.notebook ~= nil then
                 self.notebook.close()
             end
-            self.notebook = notebook.new(self.buf, name, notebook_file)
-            self.focus()
+            print(vim.inspect(notebook_file))
+            vim.fn.delete(notebook_file, "rf")
         end
+
+        if name ~= nil then
+            for _, notebook in ipairs(notebooks) do
+                if name == notebook then
+                    on_choice(name)
+                    return
+                end
+            end
+            return
+        end
+
         vim.ui.select(
             notebooks,
             {
@@ -222,8 +256,8 @@ BookmarksComponent.new = function(name, config)
     end
 
     function self.create_notebook(args)
-        local on_confirm = function(input)
-            if input == nil or input == "" then
+        local on_confirm = function(name)
+            if name == nil or name == "" then
                 return
             end
             -- get notebook directory for current project, create if not exists.
@@ -232,9 +266,10 @@ BookmarksComponent.new = function(name, config)
                 vim.fn.mkdir(notebook_dir)
             end
             -- create notebook file
-            local notebook_file = notebook_dir .. "/" .. input
-            print(notebook_file)
+            local notebook_file = notebook_dir .. "/" .. name
             vim.fn.mkdir(notebook_file)
+            -- open it
+            self.open_notebook(nil, name)
         end
         vim.ui.input({
             prompt = "Name this notebook: "

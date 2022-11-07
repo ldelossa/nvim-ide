@@ -42,7 +42,7 @@ DoomScrollBuffer.new = function(on_scroll, buf, listed, scratch)
     autocmd.buf_enter_and_leave(
         self.buf,
         function()
-            self.on_scroll_aucmd = vim.api.nvim_create_autocmd({"CursorHold"}, {
+            self.on_scroll_aucmd = vim.api.nvim_create_autocmd({ "CursorHold" }, {
                 callback = self.doomscroll_aucmd
             })
         end,

@@ -50,8 +50,7 @@ DiffBuffer.new = function(path_a, path_b)
 
         -- close all other wins
         for _, w in ipairs(wins) do
-            if
-                w ~= wins[1] and
+            if w ~= wins[1] and
                 libwin.win_is_valid(w)
             then
                 vim.api.nvim_win_close(w, true)
@@ -130,11 +129,10 @@ DiffBuffer.new = function(path_a, path_b)
     -- Perform a vimdiff over win_a and win_b in their current configuration.
     --
     -- The caller should have either written content to buffer_a and buffer_b, or
-    -- opened a file in win_a or win_b, or some combination of both, before 
+    -- opened a file in win_a or win_b, or some combination of both, before
     -- calling this.
     function self.diff()
-        if
-            not libwin.win_is_valid(self.win_a) or
+        if not libwin.win_is_valid(self.win_a) or
             not libwin.win_is_valid(self.win_b)
         then
             return
@@ -146,8 +144,7 @@ DiffBuffer.new = function(path_a, path_b)
     end
 
     function self.end_diff()
-        if
-            not libwin.win_is_valid(self.win_a) or
+        if not libwin.win_is_valid(self.win_a) or
             not libwin.win_is_valid(self.win_b)
         then
             return

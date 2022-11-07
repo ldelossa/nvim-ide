@@ -7,14 +7,16 @@ local libwin             = require('ide.lib.win')
 local logger             = require('ide.logger.logger')
 
 -- default components
-local explorer      = require('ide.components.explorer')
-local outline       = require('ide.components.outline')
-local callhierarchy = require('ide.components.callhierarchy')
-local timeline      = require('ide.components.timeline')
-local terminal      = require('ide.components.terminal')
+local explorer        = require('ide.components.explorer')
+local outline         = require('ide.components.outline')
+local callhierarchy   = require('ide.components.callhierarchy')
+local timeline        = require('ide.components.timeline')
+local terminal        = require('ide.components.terminal')
 local terminalbrowser = require('ide.components.terminal.terminalbrowser')
-local changes       = require('ide.components.changes')
-local bookmarks     = require('ide.components.bookmarks')
+local changes         = require('ide.components.changes')
+local commits         = require('ide.components.commits')
+local branches        = require('ide.components.branches')
+local bookmarks       = require('ide.components.bookmarks')
 
 Workspace = {}
 
@@ -25,20 +27,17 @@ Workspace = {}
 local config_prototype = {
     -- A unique name for this workspace
     name = nil,
-    -- Defines which panels will be displayed in this workspace along with
-    -- a list of component names to register to the displayed panel.
-    --
-    -- Each key associates a list of component names that should we registered
-    -- for that panel.
-    --
-    -- If the associated list is empyt for a panel at a given position it is
-    -- assumed a panel at that position will not be used and the @Workspace will
-    -- not instantiate a panel there.
+    -- default panel groups to display on left and right.
     panels = {
-        top = {},
-        left = { outline.Name, explorer.Name, callhierarchy.Name, changes.Name, timeline.Name, terminalbrowser.Name},
-        right = { bookmarks.Name },
-        bottom = { terminal.Name }
+        left = "explorer",
+        right = "bookmarks"
+    },
+    -- panels defined by groups of components.
+    panel_groups = {
+        explorer = { outline.Name, explorer.Name, callhierarchy.Name, terminalbrowser.Name },
+        bookmarks = { bookmarks.Name },
+        terminal = { terminal.Name },
+        git = { explorer.Name, changes.Name, commits.Name, timeline.Name, branches.Name, terminalbrowser.Name }
     }
 }
 
@@ -61,13 +60,15 @@ Workspace.new = function(tab, config)
     local self = {
         -- the tab which owns this workspace
         tab = nil,
-        -- the constructed @Panel objects for this workspace.
+        -- the active @Panel(s) for the workspace.
         panels = {
             top = nil,
             left = nil,
             right = nil,
             bottom = nil,
         },
+        -- a map between initialized panels and their panel-group name.
+        panel_groups = {},
         -- the Workspace config which constructs the Workspace to initialize specific
         -- panels and components.
         config = vim.deepcopy(config_prototype),
@@ -121,37 +122,83 @@ Workspace.new = function(tab, config)
             end
         end
     end
+
+    function self.swap_panel(position, panel_group)
+        if self.panels[position] ~= nil then
+            self.panels[position].close()
+        end
+        if self.panel_groups[panel_group] == nil then
+            error(string.format("panel group %s does not exist", panel_group))
+        end
+        self.panels[position] = self.panel_groups[panel_group]
+        self.panels[position].set_position(position)
+        self.panels[position].open()
+        self.equal_components()
+    end
+
+    function self.select_swap_panel(args)
+        local groups = {}
+        for group, _ in pairs(self.panel_groups) do
+            if -- filter our groups we don't want to let users swap.
+            group ~= "terminal"
+            then
+                table.insert(groups, group)
+            end
+        end
+        vim.ui.select(
+            groups,
+            {
+                prompt = "Pick a panel group: "
+            },
+            function(group)
+                if group == nil or group == "" then
+                    return
+                end
+                vim.ui.select(
+                    { "left", "right" },
+                    {
+                        prompt = "Swap to position: "
+                    },
+                    function(position)
+                        if position == nil or position == "" then
+                            return
+                        end
+                        self.swap_panel(position, group)
+                    end
+                )
+            end
+        )
+    end
+
     -- Initialize the workspace, creating the necessary @Panel(s) and registering
     -- the appropriate @Component(s).
     --
     -- Must be called after construction such that the Workspace's tab and config
     -- fields are set.
     function self.init()
-        local function init_panel(pos)
-            if #self.config.panels[pos] ~= 0 then
+        local function init_panels()
+            for i, group in pairs(self.config.panel_groups) do
                 local components = {}
-                for _, c_name in ipairs(self.config.panels[pos]) do
-                    local constructor = component_factory.get_constructor(c_name)
-                    if constructor == nil then
-                        -- noop
-                    else
-                        table.insert(components, constructor(c_name))
+                for _, name in ipairs(group) do
+                    local constructor = component_factory.get_constructor(name)
+                    if constructor ~= nil then
+                        table.insert(components, constructor(name))
                     end
                 end
-                self.panels[pos] = panel.new(self.tab, pos, components)
-                self.panels[pos].set_workspace(self)
-                self.panels[pos].open()
-                self.normalize_panels(pos)
+                self.panel_groups[i] = panel.new(self.tab, nil, components)
+                self.panel_groups[i].set_workspace(self)
             end
         end
 
-        -- order matters here, since we want left and right to take full height.
-        -- TODO: enforce this in workspace.open_panel(), as it has a full view
-        -- of available opened panels.
-        init_panel(panel.PANEL_POS_TOP)
-        init_panel(panel.PANEL_POS_BOTTOM)
-        init_panel(panel.PANEL_POS_LEFT)
-        init_panel(panel.PANEL_POS_RIGHT)
+        init_panels()
+
+        -- bottom panel is always terminal, user cannot swap this.
+        self.swap_panel(panel.PANEL_POS_BOTTOM, "terminal")
+
+        for pos, group in pairs(self.config.panels) do
+            self.swap_panel(pos, group)
+        end
+
     end
 
     -- Closes the workspace.
@@ -167,7 +214,6 @@ Workspace.new = function(tab, config)
         unregister_panel(panel.PANEL_POS_RIGHT)
         unregister_panel(panel.PANEL_POS_BOTTOM)
     end
-
 
     -- Open a panel at the provided position.
     --

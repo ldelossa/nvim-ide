@@ -1,7 +1,7 @@
 local node     = require('ide.trees.node')
 local icon_set = require('ide.icons').global_icon_set
 local logger   = require('ide.logger.logger')
-local git = require('ide.lib.git.client').new()
+local git      = require('ide.lib.git.client').new()
 local libpopup = require('ide.lib.popup')
 
 CommitNode = {}
@@ -35,12 +35,11 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
     --          @details - @string, the details of the call hierarchy item
     function self.marshal()
         local icon = icon_set.get_icon("GitCommit")
-        -- root is the file we are displaying the timeline for.
-        if self.depth == 0 then
-            icon = icon_set.get_icon("File")
-        end
         if self.author == "" then
             icon = icon_set.get_icon("File")
+        end
+        if self.depth == 0 then
+            icon = icon_set.get_icon("GitRepo")
         end
 
         local name = string.format("%s", self.subject)
@@ -48,7 +47,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
         if self.is_file then
             return icon, name, detail, ""
         end
-        
+
         return icon, name, detail
     end
 
@@ -64,9 +63,9 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
             end
 
             local lines = {}
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("GitCommit"), commit.sha))
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("Account"), commit.author))
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("Calendar"), commit.date))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("GitCommit"), commit.sha))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("Account"), commit.author))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("Calendar"), commit.date))
             table.insert(lines, "")
 
             local subject = vim.fn.split(commit.subject, "\n")
@@ -84,7 +83,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
     end
 
     function self.expand(cb)
-        if self.is_file then 
+        if self.is_file then
             return
         end
         git.show_ref_paths(self.sha, function(paths)
@@ -95,6 +94,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
             local children = {}
             for _, path in ipairs(paths) do
                 local file = CommitNode.new(path.ref, path.path, path.path, "", "")
+                print(vim.inspect(file))
                 file.is_file = true
                 table.insert(children, file)
             end

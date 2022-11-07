@@ -23,7 +23,6 @@ Panel.PANEL_POSITIONS = {
 Panel.new = function(tab, position, components)
     assert(tab ~= nil, "cannot construct a panel without an associated tab")
     assert(vim.api.nvim_tabpage_is_valid(tab), "cannot construct a panel without an invalid tab")
-    assert(position ~= nil, "cannot construct a panel without a position")
     local self = {
         -- the tab which owns this panel
         tab = nil,
@@ -44,25 +43,27 @@ Panel.new = function(tab, position, components)
     self.tab = tab
 
     -- construction validation
-    for _, pos in ipairs(Panel.PANEL_POSITIONS) do
-        if position == pos then
-            self.position = position
-        end
-    end
-
-    if
-        self.position == Panel.PANEL_POS_BOTTOM or
-        self.position == Panel.PANEL_POS_TOP
-    then
-        self.size = 15
-    else
-        self.size = 30
-    end
-
     if components ~= nil and #components > 0 then
         self.components = components
         for _, comp in ipairs(components) do
             comp.panel = self
+        end
+    end
+
+    function self.set_position(position)
+        for _, pos in ipairs(Panel.PANEL_POSITIONS) do
+            if position == pos then
+                self.position = position
+            end
+        end
+
+        if
+            self.position == Panel.PANEL_POS_BOTTOM or
+            self.position == Panel.PANEL_POS_TOP
+        then
+            self.size = 15
+        else
+            self.size = 30
         end
     end
 
@@ -252,6 +253,9 @@ Panel.new = function(tab, position, components)
                     end
                 end
                 _attach_component(rc)
+                -- equal things ot, so we don't run our of space splitting 
+                -- smaller and smaller windows up.
+                self.equal()
                 attached = attached + 1
             end
         end
@@ -411,9 +415,9 @@ Panel.new = function(tab, position, components)
         end
     end
 
-    -- attempt panel registration, this may fail if another Panel is registered
-    -- for the supplied tab.
-    registry.register(self)
+    -- -- attempt panel registration, this may fail if another Panel is registered
+    -- -- for the supplied tab.
+    -- registry.register(self)
 
     return self
 end

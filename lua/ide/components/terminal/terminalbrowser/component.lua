@@ -39,13 +39,20 @@ TerminalBrowserComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new, "", {silent=true, callback=function() self.new_term() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.rename, "", {silent=true, callback=function() self.rename_term() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump() end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete, "", {silent=true, callback=function() self.delete_term() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new, "",
+                { silent = true, callback = function() self.new_term() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.rename, "",
+                { silent = true, callback = function() self.rename_term() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete, "",
+                { silent = true, callback = function() self.delete_term() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -66,7 +73,7 @@ TerminalBrowserComponent.new = function(name, config)
         end
         local root = termnode.new(0, "terminals", 0)
         self.tree.add_node(root, children)
-        self.tree.marshal({no_guides=true})
+        self.tree.marshal({ no_guides = true })
         if self.state["cursor"] ~= nil then
             self.state["cursor"].restore()
         end
@@ -90,7 +97,7 @@ TerminalBrowserComponent.new = function(name, config)
         local term = tc.component.new_term(name, command)
         self.refresh()
         local aucmd = nil
-        aucmd = vim.api.nvim_create_autocmd({"TermClose"}, {
+        aucmd = vim.api.nvim_create_autocmd({ "TermClose" }, {
             callback = function(e)
                 if e.buf == term.buf then
                     tc.component.delete_term(term.id)
@@ -161,4 +168,3 @@ TerminalBrowserComponent.new = function(name, config)
 end
 
 return TerminalBrowserComponent
-

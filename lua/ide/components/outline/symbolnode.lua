@@ -6,7 +6,7 @@ local SymbolNode = {}
 SymbolNode.new = function(document_symbol, depth)
     -- extends 'ide.trees.Node' fields.
 
-    -- range should not be nil per LSP spec, but some LSPs will return nil 
+    -- range should not be nil per LSP spec, but some LSPs will return nil
     -- range, if so fill it in so we can create a unique key.
     if document_symbol.range == nil then
         document_symbol.range = {
@@ -21,7 +21,8 @@ SymbolNode.new = function(document_symbol, depth)
         }
     end
 
-    local key = string.format("%s:%s:%s", document_symbol.name, document_symbol.range["start"], document_symbol.range["end"])
+    local key = string.format("%s:%s:%s", document_symbol.name, document_symbol.range["start"],
+        document_symbol.range["end"])
     local self = node.new("symbol", document_symbol.name, key, depth)
 
     -- clear the child's field of document_symbol, it'll be duplicate info once
@@ -40,7 +41,7 @@ SymbolNode.new = function(document_symbol, depth)
         local icon = "s"
         local kind = vim.lsp.protocol.SymbolKind[self.document_symbol.kind]
         if kind ~= "" then
-            icon = icon_set.get_icon(kind) or  "[" .. kind .. "]"
+            icon = icon_set.get_icon(kind) or "[" .. kind .. "]"
         end
 
         local name = self.document_symbol.name

@@ -36,7 +36,6 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         return full_path
     end
 
-
     function _remove_extmark(node)
         if self.tracking[node.file] == nil then
             return
@@ -62,18 +61,18 @@ Notebook.new = function(buf, name, file, bookmarks_component)
             0,
             {
                 virt_text_pos = "right_align",
-                virt_text = {{ icon_set.get_icon("Bookmark") .. " " .. bm.title, "Keyword"}},
+                virt_text = { { icon_set.get_icon("Bookmark") .. " " .. bm.title, "Keyword" } },
                 hl_mode = "combine"
             }
         )
-        bm.mark = {buf, mark, bookmarks_ns}
+        bm.mark = { buf, mark, bookmarks_ns }
         if self.tracking[bm.file] == nil then
             self.tracking[bm.file] = {}
         end
         table.insert(self.tracking[bm.file], bm)
     end
 
-    -- Loads bookmarks from a notebook directory. 
+    -- Loads bookmarks from a notebook directory.
     --
     -- A notebook directory organizes bookmarks in a per-buffer fashion.
     -- Thus, the notebook directory is read and each file is a particular
@@ -93,7 +92,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         end
         local root = bookmarknode.new("root", 0, 0, name, "", 0)
         self.tree.add_node(root, nodes)
-        self.tree.marshal({no_guides=true})
+        self.tree.marshal({ no_guides = true })
     end
 
     -- Do an initial loading of bookmarks on creation.
@@ -118,8 +117,8 @@ Notebook.new = function(buf, name, file, bookmarks_component)
                     return
                 end
                 local bm = bookmarknode.new(file, cursor[1], cursor[1], input)
-                self.tree.add_node(self.tree.root, {bm}, {append=true})
-                self.tree.marshal({no_guides=true})
+                self.tree.add_node(self.tree.root, { bm }, { append = true })
+                self.tree.marshal({ no_guides = true })
                 _create_extmark(buf, bm)
             end
         )
@@ -140,7 +139,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         -- remove from memory
         self.tree.root.children = (function() return {} end)()
         self.tree.add_node(self.tree.root, new_children)
-        self.tree.marshal({no_guides=true})
+        self.tree.marshal({ no_guides = true })
         _remove_extmark(node)
 
         -- remove from disk
@@ -159,7 +158,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
     -- Bookmarks are organized by buffer such that saving a buffer persists any
     -- bookmarks created for the buffer.
     --
-    -- This allows for bookmarks to move around and be tracked in-memory but 
+    -- This allows for bookmarks to move around and be tracked in-memory but
     -- their ultimate position only persisted to disk when the buffer is also
     -- written.
     function self.write_bookmarks(buf_name)
@@ -178,7 +177,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         local bookmark_file = _get_bookmark_file_full(buf_name)
         vim.fn.writefile({}, bookmark_file)
         vim.fn.writefile(lines, bookmark_file)
-        self.tree.marshal({no_guides=true})
+        self.tree.marshal({ no_guides = true })
     end
 
     -- For the given buffer name, update any in-memory bookmark positions and dirty
@@ -202,7 +201,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
 
     end
 
-    function _sync_removed_bookmarks(buf_name) 
+    function _sync_removed_bookmarks(buf_name)
         if self.tracking[buf_name] == nil then
             return
         end
@@ -255,7 +254,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         _sync_missing_bookmarks(buf, buf_name)
 
         -- marshal any updated node positions.
-        self.tree.marshal({no_guides=true})
+        self.tree.marshal({ no_guides = true })
     end
 
     -- Sync the current buffer with any available bookmarks, creating a right
@@ -266,11 +265,11 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         _buf_sync_bookmarks(buf, buf_name)
     end
 
-    self.sync_aucmd = vim.api.nvim_create_autocmd({"BufEnter", "CursorHold", "CursorHoldI"}, {
+    self.sync_aucmd = vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI" }, {
         callback = self.buf_sync_bookmarks
     })
 
-    self.write_aucmd = vim.api.nvim_create_autocmd({"BufWrite"}, {
+    self.write_aucmd = vim.api.nvim_create_autocmd({ "BufWrite" }, {
         callback = function(args)
             self.write_bookmarks(args.file)
         end

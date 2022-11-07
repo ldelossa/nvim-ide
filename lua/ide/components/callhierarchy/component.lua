@@ -1,11 +1,11 @@
-local base = require('ide.panels.component')
-local tree = require('ide.trees.tree')
+local base     = require('ide.panels.component')
+local tree     = require('ide.trees.tree')
 local callnode = require('ide.components.callhierarchy.callnode')
 local commands = require('ide.components.callhierarchy.commands')
-local libwin = require('ide.lib.win')
-local libbuf  = require('ide.lib.buf')
-local liblsp  = require('ide.lib.lsp')
-local logger = require('ide.logger.logger')
+local libwin   = require('ide.lib.win')
+local libbuf   = require('ide.lib.buf')
+local liblsp   = require('ide.lib.lsp')
+local logger   = require('ide.logger.logger')
 local icon_set = require('ide.icons').global_icon_set
 
 CallHierarchyComponent = {}
@@ -28,7 +28,7 @@ local config_prototype = {
     },
 }
 
--- CallHierarchyComponent is a derived @Component implementing a tree of incoming 
+-- CallHierarchyComponent is a derived @Component implementing a tree of incoming
 -- or outgoing calls.
 -- Must implement:
 --  @Component.open
@@ -66,17 +66,28 @@ CallHierarchyComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_callnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "", {silent=true, callback=function() self.jump_callnode({fargs={"split"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "", {silent=true, callback=function() self.jump_callnode({fargs={"vsplit"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_callnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.next_reference, "", {silent=true, callback=function() self.next_reference() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_callnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "",
+                { silent = true, callback = function() self.jump_callnode({ fargs = { "split" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "",
+                { silent = true, callback = function() self.jump_callnode({ fargs = { "vsplit" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_callnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.next_reference, "",
+                { silent = true, callback = function() self.next_reference() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -229,7 +240,7 @@ CallHierarchyComponent.new = function(name, config)
         log.debug("retrieved TextDocumentPositionParam")
 
         log.debug("performing textDocument/prepareCallHierarchy LSP request")
-        liblsp.make_prepare_call_hierarchy_request(nil, {buf=cur_buf}, function(call_hierarchy_items, client_id)
+        liblsp.make_prepare_call_hierarchy_request(nil, { buf = cur_buf }, function(call_hierarchy_items, client_id)
             if call_hierarchy_items == nil then
                 return
             end
@@ -241,7 +252,7 @@ CallHierarchyComponent.new = function(name, config)
             self.state["invoking_buf"] = cur_buf
             self.state["invoking_win"] = cur_win
             self.state["client_id"] = client_id
-            -- send the cur_buf, since these are async, user may change buffer 
+            -- send the cur_buf, since these are async, user may change buffer
             -- on us before this async chain resolves.
             call_hierarchy_request(client_id, cur_buf, call_hierarchy_items[1])
         end)
@@ -256,7 +267,7 @@ CallHierarchyComponent.new = function(name, config)
         end
 
         _call_hierarchy_prepare("incoming", function(client_id, buf, call_hierarchy_item)
-            liblsp.make_incoming_calls_request(call_hierarchy_item, {buf = buf}, callback)
+            liblsp.make_incoming_calls_request(call_hierarchy_item, { buf = buf }, callback)
         end)
     end
 
@@ -269,7 +280,7 @@ CallHierarchyComponent.new = function(name, config)
         end
 
         _call_hierarchy_prepare("outgoing", function(client_id, buf, call_hierarchy_item)
-            liblsp.make_outgoing_calls_request(call_hierarchy_item, {buf = buf}, callback)
+            liblsp.make_outgoing_calls_request(call_hierarchy_item, { buf = buf }, callback)
         end)
     end
 
@@ -281,12 +292,14 @@ CallHierarchyComponent.new = function(name, config)
         if self.state["reference_index"] > #callnode.call_hierarchy_item_call.fromRanges then
             self.state["reference_index"] = 1
         end
-        local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(callnode.direction, callnode.call_hierarchy_item_call)
+        local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(callnode.direction,
+            callnode.call_hierarchy_item_call)
         if call_hierarchy_item == nil then
             return
         end
         vim.api.nvim_set_current_win(self.state["win_with_reference"])
-        vim.lsp.util.jump_to_location({uri = call_hierarchy_item.uri, range = call_hierarchy_item.selectionRange}, 'utf-8', true)
+        vim.lsp.util.jump_to_location({ uri = call_hierarchy_item.uri, range = call_hierarchy_item.selectionRange },
+            'utf-8', true)
         vim.api.nvim_set_current_win(self.win)
     end
 
@@ -338,7 +351,8 @@ CallHierarchyComponent.new = function(name, config)
             win_to_use = self.workspace.get_win()
         end
 
-        local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(callnode.direction, callnode.call_hierarchy_item_call)
+        local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(callnode.direction,
+            callnode.call_hierarchy_item_call)
         if call_hierarchy_item == nil then
             return
         end
@@ -349,18 +363,21 @@ CallHierarchyComponent.new = function(name, config)
             -- for outgoint calls, they fromRanges are always relative to the parent node, to grab the parent
             -- to use for the actual file to jump to.
             local parent = callnode.parent
-            local parent_call_hierarchy_item = liblsp.call_hierarchy_call_to_item(parent.direction, parent.call_hierarchy_item_call)
+            local parent_call_hierarchy_item = liblsp.call_hierarchy_call_to_item(parent.direction,
+                parent.call_hierarchy_item_call)
             if parent_call_hierarchy_item == nil then
                 return
             end
 
             vim.cmd("edit " .. vim.fn.fnamemodify(vim.uri_to_fname(parent_call_hierarchy_item.uri), ":."))
-            vim.lsp.util.jump_to_location({uri = parent_call_hierarchy_item.uri, range = callnode.call_hierarchy_item_call.fromRanges[1]})
+            vim.lsp.util.jump_to_location({ uri = parent_call_hierarchy_item.uri,
+                range = callnode.call_hierarchy_item_call.fromRanges[1] })
             self.state["reference_index"] = 2
             self.state["ranges"] = callnode.call_hierarchy_item_call.fromRanges
         else
             vim.cmd("edit " .. vim.fn.fnamemodify(vim.uri_to_fname(call_hierarchy_item.uri), ":."))
-            vim.lsp.util.jump_to_location({uri = call_hierarchy_item.uri, range = call_hierarchy_item.selectionRange}, 'utf-8')
+            vim.lsp.util.jump_to_location({ uri = call_hierarchy_item.uri, range = call_hierarchy_item.selectionRange },
+                'utf-8')
             self.state["reference_index"] = 1
             self.state["ranges"] = callnode.call_hierarchy_item_call.fromRanges
             table.insert(self.state["ranges"], call_hierarchy_item.selectionRange)
@@ -371,11 +388,11 @@ CallHierarchyComponent.new = function(name, config)
 
         -- one time autocmd which clears the jumped node after cursor move.
         -- the idea here is that they are in the CallHierarchy UI, issue a jump
-        -- then issue subsequent "next_reference" calls. Once the source buffer 
+        -- then issue subsequent "next_reference" calls. Once the source buffer
         -- is there they want, they'll jump out of the UI and into it, un-jumping
         -- this node.
         local id = nil
-        id = vim.api.nvim_create_autocmd({"CursorMoved"}, {
+        id = vim.api.nvim_create_autocmd({ "CursorMoved" }, {
             callback = function()
                 self.state["jumped_win"] = nil
                 self.state["reference_index"] = nil

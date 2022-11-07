@@ -11,37 +11,37 @@ Commands.new = function(terminal)
 
     -- returns a list of @Command(s) defined in 'ide.lib.commands'
     --
-    -- @return: @table, an array of @Command(s) which export an Terminal's 
+    -- @return: @table, an array of @Command(s) which export an Terminal's
     -- command set.
     function self.get()
         local commands = {
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "TerminalFocus",
-                 "Focus",
-                 self.terminal.focus,
-                {desc = "Open and focus the Terminal."}
+                libcmd.KIND_ACTION,
+                "TerminalFocus",
+                "Focus",
+                self.terminal.focus,
+                { desc = "Open and focus the Terminal." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "TerminalHide",
-                 "Hide",
-                 self.terminal.hide,
-                {desc = "Hide the terminal in its current panel. Use Focus to unhide."}
+                libcmd.KIND_ACTION,
+                "TerminalHide",
+                "Hide",
+                self.terminal.hide,
+                { desc = "Hide the terminal in its current panel. Use Focus to unhide." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "TerminalMinimize",
-                 "Minimize",
-                 self.terminal.minimize,
-                {desc = "Minimize the terminal window in its panel."}
+                libcmd.KIND_ACTION,
+                "TerminalMinimize",
+                "Minimize",
+                self.terminal.minimize,
+                { desc = "Minimize the terminal window in its panel." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "TerminalMaximize",
-                 "Maximize",
-                 self.terminal.maximize,
-                {desc = "Maximize the terminal window in its panel."}
+                libcmd.KIND_ACTION,
+                "TerminalMaximize",
+                "Maximize",
+                self.terminal.maximize,
+                { desc = "Maximize the terminal window in its panel." }
             ),
         }
         return commands

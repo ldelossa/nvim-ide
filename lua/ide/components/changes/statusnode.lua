@@ -19,16 +19,16 @@ StatusNode.new = function(status, path, staged, depth)
         local icon = ""
         -- use webdev icons if possible
         if pcall(require, "nvim-web-devicons") then
-            icon = require("nvim-web-devicons").get_icon(self.path, nil, {default=true})
-        end
-        if self.depth == 0 then
-            icon = icon_set.get_icon("GitRepo")
+            icon = require("nvim-web-devicons").get_icon(self.path, nil, { default = true })
         end
         if self.depth == 1 then
             icon = icon_set.get_icon("GitCompare")
         end
         if vim.fn.isdirectory(self.path) ~= 0 then
             icon = icon_set.get_icon("Folder")
+        end
+        if self.depth == 0 then
+            icon = icon_set.get_icon("GitRepo")
         end
         local name = self.path
         local detail = self.status

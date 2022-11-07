@@ -16,23 +16,23 @@ Command.KIND_ACTION = "action"
 -- its callback field is invoked.
 Command.KIND_SUBCOMMAND = "subcommand"
 
--- A command is a description of a user command. 
+-- A command is a description of a user command.
 --
 -- Commands have a `kind` field informing callers how to handle the specific
 -- command.
 --
 -- @kind        - @string, one of the above KIND_* enums
--- @name        - @string, a unique name for the command outside the context of a 
+-- @name        - @string, a unique name for the command outside the context of a
 --                submenu
 -- @shortname   - @string, a non-unique name for the command in the context of a
 --                submenu
--- @callback    - a callback function to invoke the command. 
+-- @callback    - a callback function to invoke the command.
 --                typically, if this is an "action" the function will receive the
 --                'args' field explained in ":h nvim_create_user_command".
---                if the type of "subcommand" the callback will return a list of 
+--                if the type of "subcommand" the callback will return a list of
 --                @Command.prototype tables describing a another set of commands
 --                that exist under @Command.name.
--- @opts        - an options table as described in ":h nvim_create_user_command". 
+-- @opts        - an options table as described in ":h nvim_create_user_command".
 Command.new = function(kind, name, shortname, callback, opts)
     local self = vim.deepcopy(prototype)
     self.kind = kind

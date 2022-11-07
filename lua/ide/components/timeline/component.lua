@@ -3,7 +3,7 @@ local tree = require('ide.trees.tree')
 local ds_buf = require('ide.buffers.doomscrollbuffer')
 local diff_buf = require('ide.buffers.diffbuffer')
 local git = require('ide.lib.git.client').new()
-local commitnode = require('ide.components.timeline.commitnode')
+local timelinenode = require('ide.components.timeline.timelinenode')
 local commands = require('ide.components.timeline.commands')
 local libwin = require('ide.lib.win')
 local libbuf = require('ide.lib.buf')
@@ -30,7 +30,7 @@ local config_prototype = {
     },
 }
 
--- TimelineComponent is a derived @Component implementing a tree of incoming 
+-- TimelineComponent is a derived @Component implementing a tree of incoming
 -- or outgoing calls.
 -- Must implement:
 --  @Component.open
@@ -54,10 +54,8 @@ TimelineComponent.new = function(name, config)
     -- page.
     self.paging = {}
 
-    -- keep track of last created timeline, and don't refresh listing 
+    -- keep track of last created timeline, and don't refresh listing
     self.last_timeline = ""
-
-    self.hidden = true
 
     -- The callback used to load more git commits into the Timeline when the
     -- bottom of the buffer is hit.
@@ -79,11 +77,11 @@ TimelineComponent.new = function(name, config)
             end
             local children = {}
             for _, commit in ipairs(commits) do
-                local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
+                local node = timelinenode.new(commit.sha, name, commit.subject, commit.author, commit.date)
                 table.insert(children, node)
             end
-            self.tree.add_node(self.tree.root, children, {append=true})
-            self.tree.marshal({no_guides=true})
+            self.tree.add_node(self.tree.root, children, { append = true })
+            self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
             if #children > 0 then
                 self.paging[name] = self.paging[name] + 25
             end
@@ -108,15 +106,24 @@ TimelineComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_commitnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_commitnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {silent=true, callback=function() self.details() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_timelinenode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_timelinenode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "",
+                { silent = true, callback = function() self.details() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -150,42 +157,42 @@ TimelineComponent.new = function(name, config)
     -- Expand the @CallNode at the current cursor location
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
-    -- @commitnode - @CallNode, an override which expands the given @CallNode, ignoring the
+    -- @timelinenode - @CallNode, an override which expands the given @CallNode, ignoring the
     --          node under the current position.
-    function self.expand(args, commitnode)
+    function self.expand(args, timelinenode)
         local log = self.logger.logger_from(nil, "Component.expand")
         if not libwin.win_is_valid(self.win) then
             return
         end
-        if commitnode == nil then
-            commitnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
-            if commitnode == nil then
+        if timelinenode == nil then
+            timelinenode = self.tree.unmarshal(self.state["cursor"].cursor[1])
+            if timelinenode == nil then
                 return
             end
         end
-        commitnode.expand()
-        self.tree.marshal()
+        timelinenode.expand()
+        self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
         self.state["cursor"].restore()
     end
 
     -- Collapse the @CallNode at the current cursor location
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
-    -- @commitnode - @CallNode, an override which collapses the given @CallNode, ignoring the
+    -- @timelinenode - @CallNode, an override which collapses the given @CallNode, ignoring the
     --           node under the current position.
-    function self.collapse(args, commitnode)
+    function self.collapse(args, timelinenode)
         log = self.logger.logger_from(nil, "Component.collapse")
         if not libwin.win_is_valid(self.win) then
             return
         end
-        if commitnode == nil then
-            commitnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
-            if commitnode == nil then
+        if timelinenode == nil then
+            timelinenode = self.tree.unmarshal(self.state["cursor"].cursor[1])
+            if timelinenode == nil then
                 return
             end
         end
-        self.tree.collapse_subtree(commitnode)
-        self.tree.marshal()
+        self.tree.collapse_subtree(timelinenode)
+        self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
         self.state["cursor"].restore()
     end
 
@@ -197,14 +204,14 @@ TimelineComponent.new = function(name, config)
         if not libwin.win_is_valid(self.win) then
             return
         end
-        if commitnode == nil then
-            commitnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
-            if commitnode == nil then
+        if timelinenode == nil then
+            timelinenode = self.tree.unmarshal(self.state["cursor"].cursor[1])
+            if timelinenode == nil then
                 return
             end
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal()
+        self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
         self.state["cursor"].restore()
     end
 
@@ -234,19 +241,19 @@ TimelineComponent.new = function(name, config)
             end
             local children = {}
             for _, commit in ipairs(commits) do
-                local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
+                local node = timelinenode.new(commit.sha, name, commit.subject, commit.author, commit.date)
                 table.insert(children, node)
             end
-            local root = commitnode.new("", "", name, "", "", 0)
+            local root = timelinenode.new("", "", name, "", "", 0)
             self.tree.add_node(root, children)
-            self.tree.marshal({no_guides=true})
+            self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
             self.paging[name] = 25
             self.last_timeline = name
         end)
     end
 
-    function self.jump_commitnode(args)
-        log = self.logger.logger_from(nil, "Component.jump_commitnode")
+    function self.jump_timelinenode(args)
+        log = self.logger.logger_from(nil, "Component.jump_timelinenode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
@@ -260,7 +267,7 @@ TimelineComponent.new = function(name, config)
             error("failed to find index of node in depth table")
         end
 
-        local pnode = self.tree.depth_table.table[1][i+1]
+        local pnode = self.tree.depth_table.table[1][i + 1]
 
         function do_diff(file_a, file_b)
             local tab = false
@@ -276,19 +283,19 @@ TimelineComponent.new = function(name, config)
 
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file_a, "a", o)
             dbuff.write_lines(file_b, "b", o)
             dbuff.diff()
         end
 
-        -- we 
+        -- we
         if pnode == nil then
             git.show_file(node.sha, node.file, function(file_b)
                 if file_b == nil then
                     return
                 end
-                do_diff({""}, file_b)
+                do_diff({ "" }, file_b)
             end)
             return
         end
@@ -321,7 +328,7 @@ TimelineComponent.new = function(name, config)
         node.details()
     end
 
-    vim.api.nvim_create_autocmd({"BufEnter"}, {
+    vim.api.nvim_create_autocmd({ "BufEnter" }, {
         callback = self.on_buf_enter
     })
 

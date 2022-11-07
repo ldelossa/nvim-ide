@@ -116,7 +116,7 @@ IconSet.new = function()
             end
             hi = "Identifier"
             vim.cmd(string.format("syn match %s /%s/", hi, icon))
-           ::continue::
+            ::continue::
         end
     end
 

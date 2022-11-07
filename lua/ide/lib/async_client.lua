@@ -52,26 +52,27 @@ Client.new = function(cmd)
     -- helper functions to create a formatted string for logging a req.
     function self.log_req(req, with_output)
         if with_output then
-            return string.format("\n [pid]: %s [cmd]: %s [args]: %s [error]: %s [reason]: %s [exit_code]: %s [signal]: %s \n [stderr]:\n%s \n [stdout]:\n%s",
-             vim.inspect(req.pid),
-             req.cmd,
-             req.args,
-             vim.inspect(req.error),
-             req.reason,
-             vim.inspect(req.exit_code),
-             req.signal,
-             req.stderr,
-             req.stdout
+            return string.format("\n [pid]: %s [cmd]: %s [args]: %s [error]: %s [reason]: %s [exit_code]: %s [signal]: %s \n [stderr]:\n%s \n [stdout]:\n%s"
+                ,
+                vim.inspect(req.pid),
+                req.cmd,
+                req.args,
+                vim.inspect(req.error),
+                req.reason,
+                vim.inspect(req.exit_code),
+                req.signal,
+                req.stderr,
+                req.stdout
             )
         end
         return string.format("\n [pid]: %s [cmd]: %s [args]: %s [error]: %s [reason]: %s [exit_code]: %s [signal]: %s",
-         vim.inspect(req.pid),
-         req.cmd,
-         req.args,
-         vim.inspect(req.error),
-         req.reason,
-         vim.inspect(req.exit_code),
-         req.signal
+            vim.inspect(req.pid),
+            req.cmd,
+            req.args,
+            vim.inspect(req.error),
+            req.reason,
+            vim.inspect(req.exit_code),
+            req.signal
         )
 
     end
@@ -79,10 +80,10 @@ Client.new = function(cmd)
     -- makes an async request with the given arguments.
     --
     -- @args        - (@table|@string), if a table, an array of arguments.
-    --              if a string is provided it will be split on white-space to 
+    --              if a string is provided it will be split on white-space to
     --              resolve an array of arguments.
     -- @opts        - @table, - options for future usage.
-    -- @callback    - @function(@table), A callback issued on request finish, 
+    -- @callback    - @function(@table), A callback issued on request finish,
     --                called with a `request` table.
     --                request table fields:
     --                  cmd - @string, the cli command
@@ -147,7 +148,7 @@ Client.new = function(cmd)
         handle, pid = uv.spawn(
             self.cmd,
             {
-                stdio = {nil, stdout, stderr},
+                stdio = { nil, stdout, stderr },
                 args = args,
                 verbatim = true
             },

@@ -11,37 +11,37 @@ Commands.new = function(commits)
 
     -- returns a list of @Command(s) defined in 'ide.lib.commands'
     --
-    -- @return: @table, an array of @Command(s) which export an Commits's 
+    -- @return: @table, an array of @Command(s) which export an Commits's
     -- command set.
     function self.get()
         local commands = {
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "CommitsFocus",
-                 "Focus",
-                 self.commits.focus,
-                {desc = "Open and focus the Commits."}
+                libcmd.KIND_ACTION,
+                "CommitsFocus",
+                "Focus",
+                self.commits.focus,
+                { desc = "Open and focus the Commits." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "CommitsHide",
-                 "Hide",
-                 self.commits.hide,
-                {desc = "Hide the commits in its current panel. Use Focus to unhide."}
+                libcmd.KIND_ACTION,
+                "CommitsHide",
+                "Hide",
+                self.commits.hide,
+                { desc = "Hide the commits in its current panel. Use Focus to unhide." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "CommitsMinimize",
-                 "Minimize",
-                 self.commits.minimize,
-                {desc = "Minimize the commits window in its panel."}
+                libcmd.KIND_ACTION,
+                "CommitsMinimize",
+                "Minimize",
+                self.commits.minimize,
+                { desc = "Minimize the commits window in its panel." }
             ),
             libcmd.new(
-                 libcmd.KIND_ACTION,
-                 "CommitsMaximize",
-                 "Maximize",
-                 self.commits.maximize,
-                {desc = "Maximize the commits window in its panel."}
+                libcmd.KIND_ACTION,
+                "CommitsMaximize",
+                "Maximize",
+                self.commits.maximize,
+                { desc = "Maximize the commits window in its panel." }
             ),
         }
         return commands

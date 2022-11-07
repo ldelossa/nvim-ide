@@ -9,7 +9,6 @@ function LSP.request_all_first_result(resp)
     return nil
 end
 
-
 function LSP.call_hierarchy_call_to_item(direction, call)
     if direction == "incoming" then
         return call["from"]
@@ -20,7 +19,7 @@ function LSP.call_hierarchy_call_to_item(direction, call)
     return nil
 end
 
-function LSP.item_to_call_hierarchy_call(direction, item) 
+function LSP.item_to_call_hierarchy_call(direction, item)
     if direction == "incoming" then
         return {
             from = item,
@@ -92,7 +91,7 @@ function LSP.make_call_hierarchy_request(direction, call_hierarchy_item, opts, c
     end
     assert(call_hierarchy_item ~= nil, "call_hierarcy_item cannot be nil")
 
-    local params = {item=call_hierarchy_item}
+    local params = { item = call_hierarchy_item }
 
     -- perform on current buffer
     if opts == nil then
@@ -143,10 +142,10 @@ function LSP.highlight_call_hierarchy_call(buf, direction, call_hierarchy_item_c
         return
     end
 
-    table.insert(highlights, {range=call_hierarchy_item.selectionRange})
+    table.insert(highlights, { range = call_hierarchy_item.selectionRange })
 
     for _, range in ipairs(call_hierarchy_item_call.fromRanges) do
-        table.insert(highlights, {range=range})
+        table.insert(highlights, { range = range })
     end
 
     vim.lsp.util.buf_highlight_references(buf, highlights, 'utf-8')
@@ -154,7 +153,7 @@ function LSP.highlight_call_hierarchy_call(buf, direction, call_hierarchy_item_c
     return function() vim.lsp.util.buf_clear_references(buf) end
 end
 
-function LSP.get_document_symbol_range(document_symbol) 
+function LSP.get_document_symbol_range(document_symbol)
     if document_symbol.selectionRange ~= nil then
         return document_symbol.selectionRange
     end

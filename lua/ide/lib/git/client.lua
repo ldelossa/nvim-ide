@@ -14,6 +14,7 @@ Client.new = function()
                 return
             end
             if req.exit_code ~= 0 then
+                vim.notify(string.format("git: %s", req.stderr), vim.log.levels.ERROR)
                 callback(nil)
                 return
             end
@@ -24,9 +25,9 @@ Client.new = function()
     -- issues a git log with a specified --format string.
     --
     -- the @format param must be an array of format specifiers as outlined in
-    -- `man git log`. 
+    -- `man git log`.
     --
-    -- each format specifier will be concat'd into a format string with the 
+    -- each format specifier will be concat'd into a format string with the
     -- ASCII record separator character "␞" as a delimiter.
     --
     -- the returned output can then be split on the record separator character
@@ -34,7 +35,7 @@ Client.new = function()
     --
     -- @format - @table, an array of format specifies as outlined in `man git log`
     -- @args   - @string, any additional arguments to supply to the `git log` command.
-    -- @cb     - @function(table|nil) - an array of `git log` lines or nil if 
+    -- @cb     - @function(table|nil) - an array of `git log` lines or nil if
     --           if a non zero exit code was encountered.
     function self.log_format(format, args, cb)
         local separated = ""
@@ -54,9 +55,9 @@ Client.new = function()
     -- Return the information retrieved by a default `git log` command.
     --
     -- @rev - @string, a git revision as described by `man gitrevision.7`
-    -- @n   - @int, the number of commits to retrieve starting from `rev`. 
+    -- @n   - @int, the number of commits to retrieve starting from `rev`.
     --        -1 can be used to return all commits relative to `rev`.
-    -- @cb  - function(table|nil) - an array of tables with the following 
+    -- @cb  - function(table|nil) - an array of tables with the following
     --        fields:
     --        - sha     - @string, the full commit sha
     --        - author  - @sting, the author's full name
@@ -66,7 +67,7 @@ Client.new = function()
     --        - body    - @string, body of the commit
     function self.log(rev, n, cb)
         local separated = ""
-        local format = {"%H", "%an", "%ae", "%aD", "%s", "%b"}
+        local format = { "%H", "%an", "%ae", "%aD", "%s", "%b" }
         for i, fspec in ipairs(format) do
             separated = separated .. fspec
             if i ~= #format then
@@ -76,37 +77,37 @@ Client.new = function()
             end
         end
         self.make_request(
-        string.format("log -n %d --format=%s %s", n, separated, rev),
-        nil,
-        function(resp)
-            if resp == nil then
-                cb(nil)
-            end
-            local out = {}
-            local commits = vim.fn.split(resp.stdout, Client.GROUP_SEP)
-            for _, commit in ipairs(commits) do
-                local parts = vim.fn.split(commit, Client.RECORD_SEP)
-                if #parts ~= 6 then
-                    goto continue
+            string.format("log -n %d --format=%s %s", n, separated, rev),
+            nil,
+            function(resp)
+                if resp == nil then
+                    cb(nil)
                 end
-                table.insert(out, {
-                    sha = parts[1],
-                    author = parts[2],
-                    email = parts[3],
-                    date = parts[4],
-                    subject = parts[5],
-                    body = parts[6]
-                })
-                ::continue::
-            end
-            cb(out)
-        end)
+                local out = {}
+                local commits = vim.fn.split(resp.stdout, Client.GROUP_SEP)
+                for _, commit in ipairs(commits) do
+                    local parts = vim.fn.split(commit, Client.RECORD_SEP)
+                    if #parts ~= 6 then
+                        goto continue
+                    end
+                    table.insert(out, {
+                        sha = parts[1],
+                        author = parts[2],
+                        email = parts[3],
+                        date = parts[4],
+                        subject = parts[5],
+                        body = parts[6]
+                    })
+                    ::continue::
+                end
+                cb(out)
+            end)
     end
 
     function self.log_commits(skip, n, cb)
         self.log_format(
-            -- abbrev sha, author name, subject, relative date.
-            {"%H", "%an", "%s", "%cr"},
+        -- abbrev sha, author name, subject, relative date.
+            { "%H", "%an", "%s", "%cr" },
             string.format("--skip=%d -n %d", skip, n),
             function(stdout)
                 if stdout == nil then
@@ -127,7 +128,7 @@ Client.new = function()
     -- Get all commits with have manipulated the file at `path` in reverse
     -- chronological order.
     --
-    -- @path - @string, a path, relative to the root of the git repository, 
+    -- @path - @string, a path, relative to the root of the git repository,
     -- @skip - @int, the number of returned commits to skip, used for paging.
     -- @n    - @int, the number of commits to return, used for paging.
     -- @cb   - function(table|nil), a callback function issued with the results.
@@ -142,8 +143,8 @@ Client.new = function()
     --                    the commit was created.
     function self.log_file_history(path, skip, n, cb)
         self.log_format(
-            -- abbrev sha, author name, subject, relative date.
-            {"%H", "%an", "%s", "%cr"},
+        -- abbrev sha, author name, subject, relative date.
+            { "%H", "%an", "%s", "%cr" },
             string.format("--skip=%d -n %d -- %s", skip, n, path),
             function(stdout)
                 if stdout == nil then
@@ -163,7 +164,7 @@ Client.new = function()
 
     -- Returns the contents of file `path` at `rev` as an array of lines.
     --
-    -- @rev     - @string, a git revision as defined in `man gitrevision.7` 
+    -- @rev     - @string, a git revision as defined in `man gitrevision.7`
     -- @path    - @string, a path, relative to the root, of the repository of a file
     --            to display at `rev`.
     -- @cb      - function(table|nil), a callback called with an array of strings,
@@ -265,6 +266,51 @@ Client.new = function()
         )
     end
 
+    function self.branch(cb)
+        local function parse(refs)
+            local branches = {}
+            local head_sha = ""
+            for _, ref in ipairs(refs) do
+                local is_head = false
+                local parts = vim.fn.split(ref)
+                local sha = parts[1]
+                local branch = vim.fn.split(parts[2], "refs/heads/")[1]
+                if branch == "HEAD" then
+                    head_sha = sha
+                    goto continue
+                end
+                if sha == head_sha then
+                    is_head = true
+                end
+                table.insert(branches, {
+                    sha = sha,
+                    branch = branch,
+                    is_head = is_head
+                })
+                ::continue::
+            end
+
+            return branches
+        end
+
+        self.make_nl_request(
+            "show-ref --heads --head",
+            nil,
+            handle_req(function(refs)
+                cb(parse(refs))
+            end)
+        )
+    end
+
+    function self.checkout(ref, cb)
+        self.make_request(
+            string.format("checkout %s", ref),
+            nil,
+            handle_req(function(data)
+                cb(data)
+            end)
+        )
+    end
 
     return self
 end

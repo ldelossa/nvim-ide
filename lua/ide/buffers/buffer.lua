@@ -79,7 +79,7 @@ Buffer.new = function(buf, listed, scratch)
         end
         local restore = _modifiable_with_restore()
         local buf_end = vim.api.nvim_buf_line_count(self.buf)
-        local o = {start=buf_end, ['end']=buf_end+#lines-1, strict=false}
+        local o = { start = buf_end, ['end'] = buf_end + #lines - 1, strict = false }
         if self.first_write then
             o.start = 0
         end
@@ -109,7 +109,7 @@ Buffer.new = function(buf, listed, scratch)
             return
         end
         local buf_end = vim.api.nvim_buf_line_count(self.buf)
-        local o = {start=0, ['end']=buf_end, strict=false}
+        local o = { start = 0, ['end'] = buf_end, strict = false }
         o = options.merge(
             o,
             opts

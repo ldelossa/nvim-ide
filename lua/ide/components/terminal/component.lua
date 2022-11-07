@@ -33,7 +33,7 @@ TerminalComponent.new = function(name, config)
         end
     end
 
-    function self.open() 
+    function self.open()
         if #self.terminals == 0 then
             return vim.api.nvim_create_buf(false, true)
         end
@@ -55,7 +55,7 @@ TerminalComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    local opts = {noremap = true, silent=true}
+    local opts = { noremap = true, silent = true }
     local function terminal_buf_setup(buf)
         vim.api.nvim_buf_set_keymap(buf, 't', "<C-w>n", "<C-\\><C-n>", opts)
         vim.api.nvim_buf_set_keymap(buf, 't', "<C-w>h", "<C-\\><C-n><C-w>h", opts)
@@ -92,7 +92,7 @@ TerminalComponent.new = function(name, config)
         vim.cmd("wincmd =")
 
         self.current_term = self.counter
-        self.counter = self.counter+1
+        self.counter = self.counter + 1
         return term
     end
 
@@ -103,7 +103,7 @@ TerminalComponent.new = function(name, config)
         end
 
         -- subtlety, do this before deleting the buffer so the TermClose aucmd
-        -- TerminalBrowser uses doesn't try to delete the term as well 
+        -- TerminalBrowser uses doesn't try to delete the term as well
         -- (it will be missing from the inventory already.)
         local terms = {}
         for _, t in ipairs(self.terminals) do
@@ -115,7 +115,7 @@ TerminalComponent.new = function(name, config)
         self.terminals = terms
 
         vim.api.nvim_buf_set_option(term.buf, "modified", false)
-        vim.api.nvim_buf_delete(term.buf, {force=true})
+        vim.api.nvim_buf_delete(term.buf, { force = true })
     end
 
     function self.get_terms()

@@ -1,12 +1,12 @@
-local base = require('ide.panels.component')
-local tree = require('ide.trees.tree')
-local commands = require('ide.components.outline.commands')
-local logger = require('ide.logger.logger')
-local libwin = require('ide.lib.win')
-local libbuf = require('ide.lib.buf')
-local liblsp  = require('ide.lib.lsp')
+local base       = require('ide.panels.component')
+local tree       = require('ide.trees.tree')
+local commands   = require('ide.components.outline.commands')
+local logger     = require('ide.logger.logger')
+local libwin     = require('ide.lib.win')
+local libbuf     = require('ide.lib.buf')
+local liblsp     = require('ide.lib.lsp')
 local symbolnode = require('ide.components.outline.symbolnode')
-local icon_set = require('ide.icons').global_icon_set
+local icon_set   = require('ide.icons').global_icon_set
 
 OutlineComponent = {}
 
@@ -63,16 +63,26 @@ OutlineComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_symbolnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "", {silent=true, callback=function() self.jump_symbolnode({fargs={"split"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "", {silent=true, callback=function() self.jump_symbolnode({fargs={"vsplit"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_symbolnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_symbolnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "",
+                { silent = true, callback = function() self.jump_symbolnode({ fargs = { "split" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "",
+                { silent = true, callback = function() self.jump_symbolnode({ fargs = { "vsplit" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_symbolnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -88,7 +98,7 @@ OutlineComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({no_guides_leaf = true, virt_text_pos = 'eol'})
+            self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
         end
         return self.buf
     end
@@ -143,7 +153,7 @@ OutlineComponent.new = function(name, config)
 
         _build_outline_recursive(root, document_symbols)
 
-        self.tree.marshal({no_guides_leaf = true, virt_text_pos = 'eol'})
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
         self.state["cursor"].restore()
     end
 
@@ -239,10 +249,10 @@ OutlineComponent.new = function(name, config)
             { range["start"]["line"] + 1, range["start"]["character"] + 1 }
         )
 
-        vim.lsp.util.buf_highlight_references(outlined_buf, {{range = range}}, 'utf-8')
+        vim.lsp.util.buf_highlight_references(outlined_buf, { { range = range } }, 'utf-8')
 
         local id = nil
-        id = vim.api.nvim_create_autocmd({"BufLeave", "CursorMoved"}, {
+        id = vim.api.nvim_create_autocmd({ "BufLeave", "CursorMoved" }, {
             callback = function()
                 vim.lsp.util.buf_clear_references(outlined_buf)
                 vim.api.nvim_del_autocmd(id)
@@ -288,8 +298,8 @@ OutlineComponent.new = function(name, config)
             if libwin.win_is_valid(self.win) then
                 vim.api.nvim_win_set_cursor(self.win, { exact_match.line, 1 })
             end
-        -- didn't find an exact match, so grab the closet node and find its parent
-        -- to keep the symbol buffer in scope.
+            -- didn't find an exact match, so grab the closet node and find its parent
+            -- to keep the symbol buffer in scope.
         elseif prev_node ~= nil then
             if libwin.win_is_valid(self.win) then
                 if prev_node.parent.depth ~= 0 then
@@ -330,7 +340,7 @@ OutlineComponent.new = function(name, config)
             return
         end
         self.tree.expand_node(node)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -344,7 +354,7 @@ OutlineComponent.new = function(name, config)
             return
         end
         self.tree.collapse_node(node)
-        self.tree.marshal({no_guides_leaf = true, virt_text_pos = 'eol'})
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
         self.state["cursor"].restore()
     end
 
@@ -358,7 +368,7 @@ OutlineComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({no_guides_leaf = true, virt_text_pos = 'eol'})
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
         self.state["cursor"].restore()
     end
 
@@ -419,7 +429,7 @@ OutlineComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    vim.api.nvim_create_autocmd({ "CursorHold", "LspAttach", "TextChanged", "BufEnter" },
+    vim.api.nvim_create_autocmd({ "CursorHold", "LspAttach", "BufEnter" },
         { callback = self.event_handler })
 
     return self

@@ -3,9 +3,9 @@ local M = {}
 
 function M.test_functionality()
     local buf = buffer.new(false, false)
-    buf.write_lines({"first"})
-    buf.write_lines({"second"})
-    buf.write_lines({"third"})
+    buf.write_lines({ "first" })
+    buf.write_lines({ "second" })
+    buf.write_lines({ "third" })
 
     local lines = buf.read_lines()
     assert(lines[1] == "first")

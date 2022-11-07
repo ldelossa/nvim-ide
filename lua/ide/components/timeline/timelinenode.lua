@@ -1,17 +1,17 @@
 local node     = require('ide.trees.node')
 local icon_set = require('ide.icons').global_icon_set
 local logger   = require('ide.logger.logger')
-local git = require('ide.lib.git.client').new()
+local git      = require('ide.lib.git.client').new()
 local libpopup = require('ide.lib.popup')
 
-CommitNode = {}
+TimelineNode = {}
 
-CommitNode.new = function(sha, file, subject, author, date, depth)
+TimelineNode.new = function(sha, file, subject, author, date, depth)
     -- extends 'ide.trees.Node' fields.
 
     local self = node.new("git_commit", sha, sha, depth)
 
-    -- CommitNodes make a list, not a tree, so just always expand and we'll set
+    -- TimelineNodes make a list, not a tree, so just always expand and we'll set
     -- the tree to marshal with no leave guides.
     self.expanded = true
     self.sha = sha
@@ -20,7 +20,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
     self.author = author
     self.date = date
 
-    -- Marshal a commitnode into a buffer line.
+    -- Marshal a timelinenode into a buffer line.
     --
     -- @return: @icon - @string, icon used for call hierarchy item
     --          @name - @string, the name of the call hierarchy item
@@ -48,9 +48,9 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
             end
 
             local lines = {}
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("GitCommit"), commit.sha))
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("Account"), commit.author))
-            table.insert(lines, string.format("%s %s",  icon_set.get_icon("Calendar"), commit.date))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("GitCommit"), commit.sha))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("Account"), commit.author))
+            table.insert(lines, string.format("%s %s", icon_set.get_icon("Calendar"), commit.date))
             table.insert(lines, "")
 
             local subject = vim.fn.split(commit.subject, "\n")
@@ -70,4 +70,4 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
     return self
 end
 
-return CommitNode
+return TimelineNode

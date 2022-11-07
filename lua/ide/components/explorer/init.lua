@@ -11,12 +11,12 @@ local function register_component()
         -- setup the dir icon and file type.
         local devicons = require("nvim-web-devicons")
         require("nvim-web-devicons").set_icon({
-          ["dir"] = {
-            icon = "",
-            color = "#6d8086",
-            cterm_color = "108",
-            name = "Directory",
-          },
+            ["dir"] = {
+                icon = "",
+                color = "#6d8086",
+                cterm_color = "108",
+                name = "Directory",
+            },
         })
         devicons.set_up_highlights()
     end

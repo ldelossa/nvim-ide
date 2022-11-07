@@ -1,8 +1,8 @@
-local node = require('ide.trees.node')
+local node     = require('ide.trees.node')
 local icon_set = require('ide.icons').global_icon_set
-local liblsp  = require('ide.lib.lsp')
-local prompts = require('ide.components.explorer.prompts')
-local logger = require('ide.logger.logger')
+local liblsp   = require('ide.lib.lsp')
+local prompts  = require('ide.components.explorer.prompts')
+local logger   = require('ide.logger.logger')
 
 CallNode = {}
 
@@ -12,7 +12,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
     local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(direction, call_hierarchy_item_call)
     assert(call_hierarchy_item ~= nil, "could not extract a CallHierarchyItem from the provided CallHierarhcyCall")
 
-    -- range should not be nil per LSP spec, but some LSPs will return nil 
+    -- range should not be nil per LSP spec, but some LSPs will return nil
     -- range, if so fill it in so we can create a unique key.
     if call_hierarchy_item.range == nil then
         call_hierarchy_item.range = {
@@ -27,9 +27,10 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
         }
     end
 
-    local key = string.format("%s:%s:%s", call_hierarchy_item.name, call_hierarchy_item.range["start"], call_hierarchy_item.range["end"])
+    local key = string.format("%s:%s:%s", call_hierarchy_item.name, call_hierarchy_item.range["start"],
+        call_hierarchy_item.range["end"])
 
-    local self = node.new(direction.."_call_hierarchy", call_hierarchy_item.name, key, depth)
+    local self = node.new(direction .. "_call_hierarchy", call_hierarchy_item.name, key, depth)
 
     -- important, the base class defaults to nodes being expanded on creation.
     -- we don't want this for CallNodes, since we dynamically fill a CallNode's
@@ -59,7 +60,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
         local icon = "s"
         local kind = vim.lsp.protocol.SymbolKind[call_hierarchy_item.kind]
         if kind ~= "" then
-            icon = icon_set.get_icon(kind) or  "[" .. kind .. "]"
+            icon = icon_set.get_icon(kind) or "[" .. kind .. "]"
         end
 
         local name = call_hierarchy_item.name
@@ -71,7 +72,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
         return icon, name, detail, guide
     end
 
-    -- Expands a callnode. 
+    -- Expands a callnode.
     -- This will perform an additional callHierarchy/* call and and its children
     -- to self.
     --
@@ -80,7 +81,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
     -- return: void
     function self.expand(opts)
         local item = liblsp.call_hierarchy_call_to_item(self.direction, self.call_hierarchy_item_call)
-        local callback = function(direction, call_hierarchy_item, call_hierarchy_calls) 
+        local callback = function(direction, call_hierarchy_item, call_hierarchy_calls)
             if call_hierarchy_calls == nil then
                 self.expanded = true
                 self.tree.marshal()
@@ -97,11 +98,11 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
             self.component.state["cursor"].restore()
         end
         if self.direction == "incoming" then
-            liblsp.make_incoming_calls_request(item, {client_id = self.component.state["client_id"]}, callback)
+            liblsp.make_incoming_calls_request(item, { client_id = self.component.state["client_id"] }, callback)
             return
         end
         if self.direction == "outgoing" then
-            liblsp.make_outgoing_calls_request(item, {client_id = self.component.state["client_id"]}, callback)
+            liblsp.make_outgoing_calls_request(item, { client_id = self.component.state["client_id"] }, callback)
             return
         end
     end

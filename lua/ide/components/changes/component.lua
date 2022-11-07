@@ -61,18 +61,30 @@ ChangesComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {silent=true, callback=function() self.expand() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {silent=true, callback=function() self.collapse() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",{silent=true, callback=function() self.collapse_all() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.restore, "", {silent=true, callback=function() self.restore ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.add, "", {silent=true, callback=function() self.add ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.amend, "", {silent=true, callback=function() self.amend ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "", {silent=true, callback=function() self.commit ({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {silent=true, callback=function() self.jump_statusnode({fargs={}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {silent=true, callback=function() self.jump_statusnode({fargs={"tab"}}) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {silent=true, callback=function() self.hide() end})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {silent=true, callback=self.maximize})
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {silent=true, callback=self.minimize})
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = function() self.expand() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "",
+                { silent = true, callback = function() self.collapse() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
+                { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.restore, "",
+                { silent = true, callback = function() self.restore({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.add, "",
+                { silent = true, callback = function() self.add({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.amend, "",
+                { silent = true, callback = function() self.amend({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "",
+                { silent = true, callback = function() self.commit({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.jump_statusnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.jump_statusnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
+                { silent = true, callback = function() self.hide() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
+                callback = self.maximize })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
+                callback = self.minimize })
         end
 
         return buf
@@ -85,7 +97,7 @@ ChangesComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({no_guides_leaf = true})
+            self.tree.marshal({ no_guides_leaf = true })
         end
         return self.buf
     end
@@ -115,7 +127,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.expand_node(node)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -129,7 +141,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_node(node)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -143,7 +155,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({no_guides_leaf = true})
+        self.tree.marshal({ no_guides_leaf = true })
         self.state["cursor"].restore()
     end
 
@@ -152,25 +164,27 @@ ChangesComponent.new = function(name, config)
         local staged = statusnode.new("", "Staged Changes", false)
         local unstaged = statusnode.new("", "Unstaged Changes", false)
         local untracked = statusnode.new("", "Untracked Changes", false)
-        local children = {staged, unstaged, untracked}
+        local children = { staged, unstaged, untracked }
         self.tree.add_node(root, children)
 
         for _, stat in ipairs(stats) do
             if stat.unstaged_status == "?" or stat.staged_status == "?" then
-                self.tree.add_node(untracked, {statusnode.new(stat.unstaged_status, stat.path, false)}, {append=true})
+                self.tree.add_node(untracked, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
                 goto continue
             end
             if stat.staged_status ~= " " then
-                self.tree.add_node(staged, {statusnode.new(stat.staged_status, stat.path, true)}, {append=true})
+                self.tree.add_node(staged, { statusnode.new(stat.staged_status, stat.path, true) }, { append = true })
             end
             if stat.unstaged_status ~= " " then
-                self.tree.add_node(unstaged, {statusnode.new(stat.unstaged_status, stat.path, false)}, {append=true})
+                self.tree.add_node(unstaged, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
             end
             ::continue::
         end
 
-        self.tree.marshal({no_guides_leaf = true})
-        self.state["cursor"].restore()
+        self.tree.marshal({ no_guides_leaf = true })
+        if self.is_displayed() then
+            self.state["cursor"].restore()
+        end
     end
 
     function self.event_handler(args)
@@ -193,7 +207,7 @@ ChangesComponent.new = function(name, config)
             return
         end
 
-        git.git_add(node.path, function() 
+        git.git_add(node.path, function()
             self.event_handler()
         end)
     end
@@ -206,7 +220,7 @@ ChangesComponent.new = function(name, config)
             return
         end
 
-        git.git_restore(node.staged, node.path, function() 
+        git.git_restore(node.staged, node.path, function()
             self.event_handler()
         end)
     end
@@ -253,7 +267,7 @@ ChangesComponent.new = function(name, config)
         if node.status == "?" or node.status == "A" then
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines({}, "a", o)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
@@ -276,7 +290,7 @@ ChangesComponent.new = function(name, config)
             end
             local dbuff = diff_buf.new()
             dbuff.setup()
-            local o = {listed = false, scratch = true, modifiable = false}
+            local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file, "a", o)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()

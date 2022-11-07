@@ -28,7 +28,7 @@ FileNode.new = function(path, kind, perms, depth)
     -- @return: @icon - @string, icon used for file entry
     --          @name - @string, the name of the file
     --          @details - @string, the permissions of the file
-    --          @guide - @string, a guide override, if a file (leaf) then an 
+    --          @guide - @string, a guide override, if a file (leaf) then an
     --                   empty expand guide is returned
     function self.marshal()
         local guide = " " -- only dirs will have a guide
@@ -44,7 +44,7 @@ FileNode.new = function(path, kind, perms, depth)
         local icon = ""
         -- use webdev icons if possible
         if pcall(require, "nvim-web-devicons") then
-            icon = require("nvim-web-devicons").get_icon(self.name, nil, {default=true})
+            icon = require("nvim-web-devicons").get_icon(self.name, nil, { default = true })
             if self.kind == "dir" then
                 icon = require("nvim-web-devicons").get_icon("dir")
             end
@@ -66,13 +66,13 @@ FileNode.new = function(path, kind, perms, depth)
         end
     end
 
-    -- Expands a filenode. 
+    -- Expands a filenode.
     -- This can also be used to refresh the contents of a directory.
     --
     -- @opts - @table, options for the expand
     --         refresh_only - @bool, if true only refresh node's children, do not
     --                        set the node's expanded field to true.
-    -- 
+    --
     -- return: void
     function self.expand(opts)
         local log = self.logger.logger_from("explorer", "FileNode.expand")
@@ -108,7 +108,7 @@ FileNode.new = function(path, kind, perms, depth)
 
     -- If self is a directory, create a file within it.
     --
-    -- @name - @string, the name of the file to create as a child to this 
+    -- @name - @string, the name of the file to create as a child to this
     --         directory
     --
     -- return: void
@@ -144,13 +144,14 @@ FileNode.new = function(path, kind, perms, depth)
             -- child file.
             self.expand()
         end
+
         local child_path = self.path .. "/" .. name
         touch(child_path, false)
     end
 
     -- If self is a directory, create a directory within it.
     --
-    -- @name - @string, the name of the directory to create as a child to this 
+    -- @name - @string, the name of the directory to create as a child to this
     --         directory
     --
     -- return: void
@@ -218,7 +219,7 @@ FileNode.new = function(path, kind, perms, depth)
         log.debug("delection successful. expanding parent to get latest listing.", self.path)
         self.parent.expand()
     end
-    
+
     -- Recursively copy this filenode to the provided directory filenode.
     --
     -- @dir_node - @FileNode - the FileNode, which must be a directory, to copy
