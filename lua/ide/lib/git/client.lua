@@ -267,37 +267,32 @@ Client.new = function()
     end
 
     function self.branch(cb)
-        local function parse(refs)
-            local branches = {}
-            local head_sha = ""
-            for _, ref in ipairs(refs) do
+        local function parse(branches)
+            local out = {}
+            for _, b in ipairs(branches) do
+                local parts = vim.fn.split(b)
                 local is_head = false
-                local parts = vim.fn.split(ref)
-                local sha = parts[1]
-                local branch = vim.fn.split(parts[2], "refs/heads/")[1]
-                if branch == "HEAD" then
-                    head_sha = sha
-                    goto continue
-                end
-                if sha == head_sha then
+                local i = 1
+                if parts[i] == "*" then
                     is_head = true
+                    i = i + 1
                 end
-                table.insert(branches, {
+                local branch = parts[i]
+                local sha = parts[i + 1]
+                table.insert(out, {
                     sha = sha,
                     branch = branch,
                     is_head = is_head
                 })
-                ::continue::
             end
-
-            return branches
+            return out
         end
 
         self.make_nl_request(
-            "show-ref --heads --head",
+            "branch -v",
             nil,
-            handle_req(function(refs)
-                cb(parse(refs))
+            handle_req(function(branches)
+                cb(parse(branches))
             end)
         )
     end
@@ -305,6 +300,16 @@ Client.new = function()
     function self.checkout(ref, cb)
         self.make_request(
             string.format("checkout %s", ref),
+            nil,
+            handle_req(function(data)
+                cb(data)
+            end)
+        )
+    end
+
+    function self.checkout_branch(branch, cb)
+        self.make_request(
+            string.format("checkout -b %s", branch),
             nil,
             handle_req(function(data)
                 cb(data)

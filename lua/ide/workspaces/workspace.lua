@@ -30,14 +30,13 @@ local config_prototype = {
     -- default panel groups to display on left and right.
     panels = {
         left = "explorer",
-        right = "bookmarks"
+        right = "git"
     },
     -- panels defined by groups of components.
     panel_groups = {
-        explorer = { outline.Name, explorer.Name, callhierarchy.Name, terminalbrowser.Name },
-        bookmarks = { bookmarks.Name },
+        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
-        git = { explorer.Name, changes.Name, commits.Name, timeline.Name, branches.Name, terminalbrowser.Name }
+        git = { changes.Name, commits.Name, timeline.Name, branches.Name }
     }
 }
 
@@ -197,6 +196,11 @@ Workspace.new = function(tab, config)
 
         for pos, group in pairs(self.config.panels) do
             self.swap_panel(pos, group)
+        end
+
+        -- start with right panel closed
+        if self.panels.right.is_open() then
+            self.panels.right.close()
         end
 
     end

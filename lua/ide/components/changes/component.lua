@@ -246,7 +246,6 @@ ChangesComponent.new = function(name, config)
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
-            print("nope")
             return
         end
 
@@ -269,6 +268,7 @@ ChangesComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines({}, "a", o)
+            dbuff.buffer_a.set_name("diff://" .. node.path)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
 
@@ -292,6 +292,7 @@ ChangesComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file, "a", o)
+            dbuff.buffer_a.set_name("diff://" .. node.path)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
 

@@ -229,7 +229,6 @@ BookmarksComponent.new = function(name, config)
             if self.notebook ~= nil then
                 self.notebook.close()
             end
-            print(vim.inspect(notebook_file))
             vim.fn.delete(notebook_file, "rf")
         end
 

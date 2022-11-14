@@ -210,7 +210,6 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         for _, bm in ipairs(self.tracking[buf_name]) do
             local present = self.tree.search_key(bm.key)
             if present == nil then
-                print("removing " .. bm.key)
                 vim.api.nvim_buf_del_extmark(bm.mark[1], bm.mark[3], bm.mark[2])
                 goto continue
             end
@@ -228,7 +227,6 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         end
         for _, bm in ipairs(self.tree.depth_table.table[1]) do
             if bm.file == buf_name and bm.mark == nil then
-                print("writing for " .. bm.key)
                 _create_extmark(buf, bm)
             end
         end

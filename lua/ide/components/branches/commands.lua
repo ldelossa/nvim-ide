@@ -43,6 +43,13 @@ Commands.new = function(branches)
                 self.branches.maximize,
                 { desc = "Maximize the branches window in its panel." }
             ),
+            libcmd.new(
+                libcmd.KIND_ACTION,
+                "BranchesCreateBranch",
+                "CreateBranch",
+                self.branches.create_branch,
+                { desc = "Create a branch" }
+            ),
         }
         return commands
     end

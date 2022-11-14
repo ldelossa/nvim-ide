@@ -15,6 +15,7 @@ local config_prototype = {
         collapse = "zc",
         collapse_all = "zM",
         jump = "<CR>",
+        create_branch = "c",
         refresh = "r",
         hide = "<C-[>",
         close = "X",
@@ -67,6 +68,8 @@ BranchesComponent.new = function(name, config)
                 { silent = true, callback = function() self.collapse_all() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
                 { silent = true, callback = function() self.jump_branchnode({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.create_branch, "",
+                { silent = true, callback = function() self.create_branch() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "",
                 { silent = true, callback = function() self.get_branches() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
@@ -117,7 +120,7 @@ BranchesComponent.new = function(name, config)
             if branches == nil then
                 return
             end
-            local children = {nil} -- reserve first item for head.
+            local children = { {} } -- reserve first item for head.
             for _, branch in ipairs(branches) do
                 local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
                 if node.is_head then
@@ -148,6 +151,22 @@ BranchesComponent.new = function(name, config)
                 commits.component.get_commits()
             end
         end)
+    end
+
+    function self.create_branch(args)
+        vim.ui.input(
+            {
+                prompt = "Enter a branch name: "
+            },
+            function(branch)
+                if branch == nil or branch == "" then 
+                    return
+                end
+                git.checkout_branch(branch, function(ok)
+                    self.get_branches()
+                end)
+            end
+        )
     end
 
     return self

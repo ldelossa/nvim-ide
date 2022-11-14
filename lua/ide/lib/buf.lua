@@ -70,8 +70,6 @@ end
 function Buf.delete_buffer_by_name(name)
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":.")
-        print("found " .. buf_name)
-        print("name " .. name)
         if buf_name == name then
             vim.api.nvim_buf_delete(buf, {force=true, unload=true})
         end
