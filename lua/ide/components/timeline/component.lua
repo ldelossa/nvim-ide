@@ -136,7 +136,7 @@ TimelineComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal()
+            self.tree.marshal({ no_guides = true, virt_text_pos = "eol" })
         end
         return self.buf
     end

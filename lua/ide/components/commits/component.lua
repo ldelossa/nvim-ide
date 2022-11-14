@@ -255,12 +255,12 @@ CommitsComponent.new = function(name, config)
 
         -- we need to find the parent node, but this is a list where all commits
         -- are at depth one,
-        local _, i = self.tree.depth_table.search(2, node.key)
+        local _, i = self.tree.depth_table.search(node.depth, node.key)
         if i == nil then
             error("failed to find index of node in depth table")
         end
 
-        local pnode = self.tree.depth_table.table[2][i + 1]
+        local pnode = self.tree.depth_table.table[node.depth][i + 1]
 
         function do_diff(file_a, file_b, sha_a, sha_b, path)
             local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
