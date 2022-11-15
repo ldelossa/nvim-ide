@@ -49,7 +49,7 @@ BranchesComponent.new = function(name, config)
 
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
-        local buf = vim.api.nvim_create_buf(true, true)
+        local buf = vim.api.nvim_create_buf(false, true)
 
         vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
         vim.api.nvim_buf_set_option(buf, 'filetype', 'filetree')

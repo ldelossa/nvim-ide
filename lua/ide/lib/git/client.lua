@@ -104,6 +104,17 @@ Client.new = function()
             end)
     end
 
+    -- Returns a list of commit for the current repository.
+    --
+    -- @skip - @int, the number of returned commits to skip, used for paging.
+    -- @n    - @int, the number of commits to return, used for paging.
+    -- @cb   - function(table|nil), a callback function issued with the results.
+    --         table is an array of commit tables with the following fields:
+    --          sha     - @string, the abbreviated commit sha
+    --          author  - @string, the name of the author of the commit
+    --          subject - @string, the single line subject header of the commit
+    --                    messages
+    --          date    - @string, full date at which the commit was created.
     function self.log_commits(skip, n, cb)
         self.log_format(
         -- abbrev sha, author name, subject, relative date.
@@ -183,6 +194,14 @@ Client.new = function()
     --
     -- This command uses the --porcelain flag to obtain a stripped down
     -- list of statuses.
+    --
+    -- @cb  - function(table|nil), if table is not nil, an array of file status
+    --        tables with the following keys:
+    --          staged_status   - @string, if the file is staged, the status indicator.
+    --          unstaged_status - @string, if the file is unstaged, the status indicator.
+    --          status          - @string, the combined status indicator which is a two character
+    --                            string expressing both staged and unstaged status.
+    --          path            - @string, relative path to the file being described.
     function self.status(cb)
         local parse = function(data)
             local out = {}
@@ -232,10 +251,21 @@ Client.new = function()
         )
     end
 
+    -- Add a file path to the staging area.
+    --
+    -- @path - @string, the relative path of a file within the repository.
+    -- @cb   - @function(string|nil) - A value, which if not nil, means successful.
     function self.git_add(path, cb)
         self.make_request(string.format("add %s", path), nil, handle_req(cb))
     end
 
+    -- Restore the given path to its original contents.
+    -- Must specify if the restore is for the path in the staging area or not.
+    --
+    -- @staged  - @bool, if true, restore from the staged files, if false restore
+    --            from the working tree.
+    -- @path    - @string, the relative path to the file to restore.
+    -- @cb      - @function(string|nil) - A value, which if not nil, means successful.
     function self.git_restore(staged, path, cb)
         local cmd = ""
         if staged then
@@ -246,17 +276,23 @@ Client.new = function()
         self.make_request(cmd, nil, handle_req(cb))
     end
 
-    -- Return a list of file paths changed by the given `ref`
-    function self.show_ref_paths(ref, cb)
+    -- List the files changed in a particular git-rev.
+    --
+    -- @rev - @string, a git revision as described by "man gitrevision.7"
+    -- @cb  - @function(table|nil), if not nil, a table of file paths and their
+    --        gitrevision. The table has the following fields:
+    --          rev     - @string, the gitrevision being specified
+    --          path    - @string, the file path edited by this commit.
+    function self.show_rev_paths(rev, cb)
         self.make_nl_request(
-            string.format("show %s --name-only --oneline", ref),
+            string.format("show %s --name-only --oneline", rev),
             nil,
             handle_req(function(paths)
                 local out = {}
                 for i, path in ipairs(paths) do
                     if i ~= 1 then
                         table.insert(out, {
-                            ref = ref,
+                            rev = rev,
                             path = path
                         })
                     end
@@ -266,6 +302,13 @@ Client.new = function()
         )
     end
 
+    -- List the branches in the current repository. 
+    --
+    -- @cb  - @function(table|nil), if not nil, a table of branches
+    --        The table has the following fields:
+    --          sha     - @string, the abbreviated sha of the branch object.
+    --          branch  - @string, the branch's name
+    --          is_head - @bool, whether this branch is the current HEAD.
     function self.branch(cb)
         local function parse(branches)
             local out = {}
@@ -297,9 +340,13 @@ Client.new = function()
         )
     end
 
-    function self.checkout(ref, cb)
+    -- Checkout the given rev
+    --
+    -- @rev     - @string, the gitrevision to checkout the current repository to.
+    -- @cb      - @function(string|nil) - A value, which if not nil, means successful.
+    function self.checkout(rev, cb)
         self.make_request(
-            string.format("checkout %s", ref),
+            string.format("checkout %s", rev),
             nil,
             handle_req(function(data)
                 cb(data)
@@ -307,6 +354,10 @@ Client.new = function()
         )
     end
 
+    -- Create the provided branch and checkout the local repository to it.
+    --
+    -- @branch  - @string, The branch to create and checkout.
+    -- @cb      - @function(string|nil) - A value, which if not nil, means successful.
     function self.checkout_branch(branch, cb)
         self.make_request(
             string.format("checkout -b %s", branch),
