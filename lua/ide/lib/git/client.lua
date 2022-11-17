@@ -1,11 +1,11 @@
 local async_client = require('ide.lib.async_client')
 
-Client = {}
+Git = {}
 
-Client.RECORD_SEP = '␞'
-Client.GROUP_SEP = '␝'
+Git.RECORD_SEP = '␞'
+Git.GROUP_SEP = '␝'
 
-Client.new = function()
+Git.new = function()
     local self = async_client.new("git")
 
     local function handle_req(callback)
@@ -42,7 +42,7 @@ Client.new = function()
         for i, fspec in ipairs(format) do
             separated = separated .. fspec
             if i ~= #format then
-                separated = separated .. Client.RECORD_SEP
+                separated = separated .. Git.RECORD_SEP
             end
         end
         self.make_nl_request(
@@ -71,9 +71,9 @@ Client.new = function()
         for i, fspec in ipairs(format) do
             separated = separated .. fspec
             if i ~= #format then
-                separated = separated .. Client.RECORD_SEP
+                separated = separated .. Git.RECORD_SEP
             else
-                separated = separated .. Client.GROUP_SEP
+                separated = separated .. Git.GROUP_SEP
             end
         end
         self.make_request(
@@ -84,9 +84,9 @@ Client.new = function()
                     cb(nil)
                 end
                 local out = {}
-                local commits = vim.fn.split(resp.stdout, Client.GROUP_SEP)
+                local commits = vim.fn.split(resp.stdout, Git.GROUP_SEP)
                 for _, commit in ipairs(commits) do
-                    local parts = vim.fn.split(commit, Client.RECORD_SEP)
+                    local parts = vim.fn.split(commit, Git.RECORD_SEP)
                     if #parts ~= 6 then
                         goto continue
                     end
@@ -126,7 +126,7 @@ Client.new = function()
                 end
                 local commits = {}
                 for _, commit in ipairs(stdout) do
-                    local parts = vim.fn.split(commit, Client.RECORD_SEP)
+                    local parts = vim.fn.split(commit, Git.RECORD_SEP)
                     table.insert(commits, {
                         sha = parts[1], author = parts[2], subject = parts[3], date = parts[4]
                     })
@@ -163,7 +163,7 @@ Client.new = function()
                 end
                 local commits = {}
                 for _, commit in ipairs(stdout) do
-                    local parts = vim.fn.split(commit, Client.RECORD_SEP)
+                    local parts = vim.fn.split(commit, Git.RECORD_SEP)
                     table.insert(commits, {
                         sha = parts[1], author = parts[2], subject = parts[3], date = parts[4]
                     })
@@ -371,4 +371,4 @@ Client.new = function()
     return self
 end
 
-return Client
+return Git
