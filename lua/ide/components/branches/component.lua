@@ -117,7 +117,7 @@ BranchesComponent.new = function(name, config)
             return
         end
         git.branch(function(branches)
-            if branches == nil then
+            if branches == nil or #branches == 0 then
                 return
             end
             local children = { {} } -- reserve first item for head.

@@ -86,14 +86,15 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
         if self.is_file then
             return
         end
-        git.show_ref_paths(self.sha, function(paths)
+        git.show_rev_paths(self.sha, function(paths)
             if self.depth == 0 then
                 self.expanded = true
                 return
             end
             local children = {}
             for _, path in ipairs(paths) do
-                local file = CommitNode.new(path.ref, path.path, path.path, "", "")
+                print(vim.inspect(path))
+                local file = CommitNode.new(path.rev, path.path, path.path, "", "")
                 file.is_file = true
                 table.insert(children, file)
             end

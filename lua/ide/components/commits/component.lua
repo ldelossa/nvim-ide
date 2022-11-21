@@ -292,6 +292,16 @@ CommitsComponent.new = function(name, config)
             if #history == 0 then
                 return
             end
+            -- handle added/rename files, they won't have a history.
+            if history[2] == nil then
+                git.show_file(history[1].sha, node.file, function(file_b)
+                    if file_b == nil then
+                        return
+                    end
+                    do_diff({}, file_b, "null", history[1].sha, node.file)
+                end)
+                return
+            end
             git.show_file(history[2].sha, node.file, function(file_a)
                 if file_a == nil then
                     return
