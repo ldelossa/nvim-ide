@@ -18,6 +18,7 @@ local config_prototype = {
         expand = "zo",
         collapse = "zc",
         collapse_all = "zM",
+        checkout = "c",
         jump = "<CR>",
         jump_split = "s",
         jump_vsplit = "v",
@@ -115,6 +116,8 @@ CommitsComponent.new = function(name, config)
                 { silent = true, callback = function() self.collapse() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
                 { silent = true, callback = function() self.collapse_all() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.checkout, "",
+                { silent = true, callback = function() self.checkout_commitnode({ fargs = {} }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
                 { silent = true, callback = function() self.jump_commitnode({ fargs = {} }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
@@ -242,6 +245,66 @@ CommitsComponent.new = function(name, config)
             self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
             self.paging[name] = 25
             self.last_commits = name
+        end)
+    end
+
+    function self.checkout_commitnode(args)
+        log = self.logger.logger_from(nil, "Component.jump_commitnode")
+
+        local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+
+        local commit = node
+        if node.is_file then
+            commit = node.parent
+        end
+
+        local function do_diff(file_a, sha_a, path)
+            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
+
+            local tab = false
+            for _, arg in ipairs(args.fargs) do
+                if arg == "tab" then
+                    tab = true
+                end
+            end
+
+            if tab then
+                vim.cmd("tabnew")
+            end
+
+            local dbuff = diff_buf.new()
+            dbuff.setup()
+            local o = { listed = false, scratch = true, modifiable = false }
+            dbuff.write_lines(file_a, "a", o)
+            dbuff.open_buffer(path, "b")
+
+            dbuff.buffer_a.set_name(buf_name_a)
+            dbuff.diff()
+        end
+
+        -- checkout the commit so all the LSP tools work when viewing the diff.
+        git.checkout(commit.sha, function(ok)
+            if ok == nil then
+                return
+            end
+            if not node.is_file then
+                return
+            end
+            git.log_file_history(node.file, 0, 2, function(history)
+                if #history == 0 then
+                    return
+                end
+                if history[2] ~= nil then
+                    git.show_file(history[2].sha, node.file, function(file)
+                        do_diff(file, history[2].sha, node.file)
+                    end)
+                else
+                    do_diff({}, "null", node.file)
+                end
+            end)
         end)
     end
 

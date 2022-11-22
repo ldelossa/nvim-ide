@@ -166,4 +166,10 @@ function LSP.get_document_symbol_range(document_symbol)
     return nil
 end
 
+function LSP.detach_all_clients_buf(buf)
+    vim.lsp.for_each_buffer_client(buf, function(_, client_id, bufnr)
+        vim.lsp.buf_detach_client(bufnr, client_id)
+    end)
+end
+
 return LSP
