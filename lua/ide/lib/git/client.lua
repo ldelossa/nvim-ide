@@ -5,6 +5,26 @@ Git = {}
 Git.RECORD_SEP = '␞'
 Git.GROUP_SEP = '␝'
 
+-- Compares two shas by truncating each one to the min character length
+-- provided and performing a string comparison.
+--
+-- @sha_a, @sha_b   - a git object's sha.
+-- returns:
+--                  - @bool - whether the two sha(s) are the same.
+function Git.compare_sha(sha_a, sha_b)
+    local min = #sha_a
+    if #sha_b < min then
+        min = #sha_b
+    end
+    if #sha_a > min then
+        sha_a = vim.fn.strcharpart(sha_a, 0, min)
+    end
+    if #sha_b > min then
+        sha_b = vim.fn.strcharpart(sha_a, 0, min)
+    end
+    return (sha_a == sha_b)
+end
+
 Git.new = function()
     local self = async_client.new("git")
 
@@ -364,6 +384,21 @@ Git.new = function()
             nil,
             handle_req(function(data)
                 cb(data)
+            end)
+        )
+    end
+
+    -- Return the full sha256 of the current HEAD.
+    --
+    -- @cb      - @function(string|nil) - The sha256 of the current head or a 
+    --            nil if an error occured.
+    function self.head(cb)
+        self.make_request(
+            string.format("rev-parse HEAD"),
+            nil,
+            handle_req(function(rev)
+                rev = vim.fn.trim(rev, "\n")
+                cb(rev)
             end)
         )
     end

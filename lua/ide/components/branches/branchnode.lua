@@ -32,10 +32,11 @@ BranchNode.new = function(sha, branch, is_head, depth)
 
         local name = string.format("%s", self.branch)
 
-        local detail = ""
         if self.is_head then
-            detail = "*"
+            name = "* " .. name
         end
+
+        local detail = self.sha
 
         return icon, name, detail, ""
     end

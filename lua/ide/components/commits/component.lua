@@ -2,6 +2,7 @@ local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local ds_buf = require('ide.buffers.doomscrollbuffer')
 local diff_buf = require('ide.buffers.diffbuffer')
+local gitutil = require('ide.lib.git.client')
 local git = require('ide.lib.git.client').new()
 local commitnode = require('ide.components.commits.commitnode')
 local commands = require('ide.components.commits.commands')
@@ -61,6 +62,23 @@ CommitsComponent.new = function(name, config)
 
     self.hidden = false
 
+    function self.marshal_tree(cb)
+        git.head(function(head)
+            self.tree.walk_subtree(self.tree.root, function(node)
+                if gitutil.compare_sha(head, node.sha) then
+                    node.is_head = true
+                else
+                    node.is_head = false
+                end
+                return true
+            end)
+            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
+            if cb ~= nil then
+                cb()
+            end
+        end)
+    end
+
     -- The callback used to load more git commits into the Commits when the
     -- bottom of the buffer is hit.
     function self.doomscroll(Buffer)
@@ -85,11 +103,12 @@ CommitsComponent.new = function(name, config)
                 table.insert(children, node)
             end
             self.tree.add_node(self.tree.root, children, { append = true })
-            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
-            if #children > 0 then
-                self.paging[name] = self.paging[name] + 25
-            end
-            self.state["cursor"].restore()
+            self.marshal_tree(function()
+                if #children > 0 then
+                    self.paging[name] = self.paging[name] + 25
+                end
+                self.state["cursor"].restore()
+            end)
         end)
     end
 
@@ -179,7 +198,7 @@ CommitsComponent.new = function(name, config)
             end
         end
         commitnode.expand(function()
-            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
+            self.marshal_tree()
             self.state["cursor"].restore()
         end)
     end
@@ -201,8 +220,10 @@ CommitsComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(commitnode)
-        self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
-        self.state["cursor"].restore()
+
+        self.marshal_tree(function() 
+            self.state["cursor"].restore()
+        end)
     end
 
     -- Collapse the call hierarchy up to the root.
@@ -220,8 +241,9 @@ CommitsComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
-        self.state["cursor"].restore()
+        self.marshal_tree(function()
+            self.state["cursor"].restore()
+        end)
     end
 
     function self.get_commits()
@@ -242,9 +264,11 @@ CommitsComponent.new = function(name, config)
             end
             local root = commitnode.new("", "", repo, "", "", 0)
             self.tree.add_node(root, children)
-            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
-            self.paging[name] = 25
-            self.last_commits = name
+
+            self.marshal_tree(function()
+                self.paging[name] = 25
+                self.last_commits = name
+            end)
         end)
     end
 
@@ -304,6 +328,7 @@ CommitsComponent.new = function(name, config)
                 else
                     do_diff({}, "null", node.file)
                 end
+                self.marshal_tree()
             end)
         end)
     end

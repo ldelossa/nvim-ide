@@ -25,9 +25,15 @@ function M.test_functionality()
     -- client.show_rev_paths("HEAD", function(paths)
     --     print(vim.inspect(paths))
     -- end)
-    client.log_commits(0, 10, function(commits)
-        print(vim.inspect(commits))
+    -- client.log_commits(0, 10, function(commits)
+    --     print(vim.inspect(commits))
+    -- end)
+    -- print(vim.inspect(git.compare_sha("abcde", "abcd")))
+    -- print(vim.inspect(git.compare_sha("abcde", "abcdg")))
+    client.head(function(rev)
+        print(rev)
     end)
+
 end
 
 return M

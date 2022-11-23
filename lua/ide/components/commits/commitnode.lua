@@ -20,7 +20,8 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
     self.subject = subject
     self.author = author
     self.date = date
-    self.is_file = nil
+    self.is_file = false
+    self.is_head = false
 
     -- all nodes start as collapsed.
     self.expanded = false
@@ -43,6 +44,9 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
         end
 
         local name = string.format("%s", self.subject)
+        if self.is_head and self.depth ~= 0 and not self.is_file then
+            name = "* " .. name
+        end
         local detail = string.format("%s %s", self.author, self.date)
         if self.is_file then
             return icon, name, detail, ""
