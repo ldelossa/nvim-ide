@@ -169,14 +169,16 @@ ChangesComponent.new = function(name, config)
 
         for _, stat in ipairs(stats) do
             if stat.unstaged_status == "?" or stat.staged_status == "?" then
-                self.tree.add_node(untracked, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
+                self.tree.add_node(untracked, { statusnode.new(stat.unstaged_status, stat.path, false) },
+                    { append = true })
                 goto continue
             end
             if stat.staged_status ~= " " then
                 self.tree.add_node(staged, { statusnode.new(stat.staged_status, stat.path, true) }, { append = true })
             end
             if stat.unstaged_status ~= " " then
-                self.tree.add_node(unstaged, { statusnode.new(stat.unstaged_status, stat.path, false) }, { append = true })
+                self.tree.add_node(unstaged, { statusnode.new(stat.unstaged_status, stat.path, false) },
+                    { append = true })
             end
             ::continue::
         end
@@ -231,6 +233,16 @@ ChangesComponent.new = function(name, config)
             return
         end
         term.component.new_term(nil, "git commit", "/bin/bash -c 'git commit -s'")
+        local aucmd = nil
+        aucmd = vim.api.nvim_create_autocmd({ "TermClose" }, {
+            callback = function()
+                local commits = self.workspace.search_component("Commits")
+                if commits ~= nil then
+                    commits.component.get_commits()
+                end
+                vim.api.nvim_del_autocmd(aucmd)
+            end
+        })
     end
 
     function self.amend(args)
