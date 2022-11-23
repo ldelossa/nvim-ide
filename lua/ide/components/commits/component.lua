@@ -198,8 +198,9 @@ CommitsComponent.new = function(name, config)
             end
         end
         commitnode.expand(function()
-            self.marshal_tree()
-            self.state["cursor"].restore()
+            self.marshal_tree(function() 
+                self.state["cursor"].restore()
+            end)
         end)
     end
 
@@ -328,7 +329,9 @@ CommitsComponent.new = function(name, config)
                 else
                     do_diff({}, "null", node.file)
                 end
-                self.marshal_tree()
+                self.marshal_tree(function()
+                    self.state["cursor"].restore()
+                end)
             end)
         end)
     end
