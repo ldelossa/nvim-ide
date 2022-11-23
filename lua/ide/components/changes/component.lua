@@ -194,9 +194,6 @@ ChangesComponent.new = function(name, config)
             if stats == nil then
                 return
             end
-            -- if vim.api.nvim_get_current_win() == self.win then
-            --     return
-            -- end
             _build_tree(stats)
         end)
     end
@@ -251,6 +248,16 @@ ChangesComponent.new = function(name, config)
             return
         end
         term.component.new_term(nil, "git commit", "/bin/bash -c 'git commit --amend'")
+        local aucmd = nil
+        aucmd = vim.api.nvim_create_autocmd({ "TermClose" }, {
+            callback = function()
+                local commits = self.workspace.search_component("Commits")
+                if commits ~= nil then
+                    commits.component.get_commits()
+                end
+                vim.api.nvim_del_autocmd(aucmd)
+            end
+        })
     end
 
     function self.jump_statusnode(args)
@@ -280,7 +287,13 @@ ChangesComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines({}, "a", o)
-            dbuff.buffer_a.set_name("diff://" .. node.path)
+
+            local buf_name = "diff://" .. node.path
+            if libbuf.buf_exists_by_name(buf_name) then
+                libbuf.delete_buffer_by_name(buf_name)
+            end
+
+            dbuff.buffer_a.set_name(buf_name)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
 
@@ -304,7 +317,12 @@ ChangesComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file, "a", o)
-            dbuff.buffer_a.set_name("diff://" .. node.path)
+            local buf_name = "diff://" .. node.path
+            if libbuf.buf_exists_by_name(buf_name) then
+                libbuf.delete_buffer_by_name(buf_name)
+            end
+
+            dbuff.buffer_a.set_name(buf_name)
             dbuff.open_buffer(node.path, "b")
             dbuff.diff()
 
