@@ -1,0 +1,17 @@
+ide-bookmarks-components	docs/nvim-ide.txt	/*ide-bookmarks-components*
+ide-branches-components	docs/nvim-ide.txt	/*ide-branches-components*
+ide-callhierarchy-components	docs/nvim-ide.txt	/*ide-callhierarchy-components*
+ide-changes-components	docs/nvim-ide.txt	/*ide-changes-components*
+ide-commits-components	docs/nvim-ide.txt	/*ide-commits-components*
+ide-components	docs/nvim-ide.txt	/*ide-components*
+ide-components	docs/nvim-ide.txt	/*ide-components*
+ide-contents	docs/nvim-ide.txt	/*ide-contents*
+ide-default-components	docs/nvim-ide.txt	/*ide-default-components*
+ide-explorer-components	docs/nvim-ide.txt	/*ide-explorer-components*
+ide-intro	docs/nvim-ide.txt	/*ide-intro*
+ide-outline-components	docs/nvim-ide.txt	/*ide-outline-components*
+ide-panels	docs/nvim-ide.txt	/*ide-panels*
+ide-terminalbrowser-components	docs/nvim-ide.txt	/*ide-terminalbrowser-components*
+ide-timeline-components	docs/nvim-ide.txt	/*ide-timeline-components*
+ide-usage	docs/nvim-ide.txt	/*ide-usage*
+nvim-ide	docs/nvim-ide.txt	/*nvim-ide*

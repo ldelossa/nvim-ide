@@ -215,21 +215,21 @@ return Init
 ```
 
 This is the boilerplate required to register a Component into `nvim-ide`.
-You'll see that a unique name is defined, this uniqually defines the component 
+You'll see that a unique name is defined, this uniquely defines the component 
 and is accessible via 'ide.components.bookmarks.Name'.
 
 Its handy to place the Component's name within this file, and then import it 
-into your config when defining a custom PanelGroup. This ensures the `register_component`
+into your config when defining a panel group. This ensures the `register_component`
 method is ran, and `nvim-ide` can locate the constructor for the component.
 
 Each Component must have a unique name or else this registration will fail. 
 
 Any other initialization necessary for the Component can be done within the
-`register_component()` function.
+`register_component()` function, as shown here with the `vim.fn` functions.
 
-A Component is responsible for managing a Neovim buffer, and providing this buffer
-to `nvim-ide` when requested. The buffer managed by the Component will contain that
-Component's user facing UI, and is displayed in a Panel if configured.
+`nvim-ide` utilizes a closure-based OOP paradigm, where Component is the base
+class and implementations implement the necessary methods, but also inherit methods
+which can generically apply to all instances of a Component.
 
 A Component must also implement a well defined API which is outlined in 
 `ide/panels/components/component.lua`.
@@ -240,11 +240,8 @@ These methods are:
   get_commands()
   close()
 
-See the source file for the complete documentations on these interface methods.
-
-`nvim-ide` utilizes a closure-based OOP paradigm, where Component is the base
-class and implementations implement the necessary methods, but also inherit methods
-which can generically apply to all instances of a Component.
+See the source file for the complete documentations on these interface methods 
+along with other methods available across all derived components.
 
 ====================================================================================
 Default Components                                         *ide-default-components*
