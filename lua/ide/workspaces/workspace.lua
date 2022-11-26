@@ -1,3 +1,4 @@
+local ide                = require('ide')
 local panel              = require('ide.panels.panel')
 local panel_registry     = require('ide.panels.panel_registry')
 local workspace_registry = require('ide.workspaces.workspace_registry')
@@ -6,49 +7,14 @@ local component_factory  = require('ide.panels.component_factory')
 local libwin             = require('ide.lib.win')
 local logger             = require('ide.logger.logger')
 
--- default components
-local explorer        = require('ide.components.explorer')
-local outline         = require('ide.components.outline')
-local callhierarchy   = require('ide.components.callhierarchy')
-local timeline        = require('ide.components.timeline')
-local terminal        = require('ide.components.terminal')
-local terminalbrowser = require('ide.components.terminal.terminalbrowser')
-local changes         = require('ide.components.changes')
-local commits         = require('ide.components.commits')
-local branches        = require('ide.components.branches')
-local bookmarks       = require('ide.components.bookmarks')
-
 Workspace = {}
-
--- A prototype which defines a Workspace configuration.
---
--- The config instructs the @Workspace to create the desired panels and
--- register the desired components.
-local config_prototype = {
-    -- A unique name for this workspace
-    name = nil,
-    -- default panel groups to display on left and right.
-    panels = {
-        left = "explorer",
-        right = "git"
-    },
-    -- panels defined by groups of components.
-    panel_groups = {
-        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
-        terminal = { terminal.Name },
-        git = { changes.Name, commits.Name, timeline.Name, branches.Name }
-    }
-}
 
 -- A Workspace is a control structure which governs a tab's @Panel creations and
 -- @Component registrations to these components.
 --
--- A @config_prototype is used to define exactly how a Workspace performs these
--- creations.
---
 -- Workspaces associate with tabs and allow for per-tab manipulation of panels
 -- and components.
-Workspace.new = function(tab, config)
+Workspace.new = function(tab)
     if tab == nil then
         error("cannot construct a workspace with a nil tab")
     end
@@ -68,19 +34,15 @@ Workspace.new = function(tab, config)
         },
         -- a map between initialized panels and their panel-group name.
         panel_groups = {},
-        -- the Workspace config which constructs the Workspace to initialize specific
-        -- panels and components.
-        config = vim.deepcopy(config_prototype),
         -- a running list of editor windows (non-component windows) that this
         -- workspace has visited.
         win_history = {}
     }
 
-    -- a pre-baked workspace could be passed in via config, replace the default.
-    if config ~= nil then
-        -- TODO: validate config
-        self.config = config
-    end
+    -- ide.config contains the config already merged with any user modifications,
+    -- we can just use the global here.
+    self.config = vim.deepcopy(ide.config)
+
     self.tab = tab
 
     -- attempt registration
@@ -181,7 +143,7 @@ Workspace.new = function(tab, config)
                 for _, name in ipairs(group) do
                     local constructor = component_factory.get_constructor(name)
                     if constructor ~= nil then
-                        table.insert(components, constructor(name))
+                        table.insert(components, constructor(name, ide.config.components[name]))
                     end
                 end
                 self.panel_groups[i] = panel.new(self.tab, nil, components)

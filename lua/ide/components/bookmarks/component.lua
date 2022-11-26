@@ -40,7 +40,11 @@ BookmarksComponent.new = function(name, config)
     -- a logger that will be used across this class and its base class methods.
     self.logger = logger.new("bookmarks")
 
+    -- seup config, use default and merge in user config if not nil
     self.config = vim.deepcopy(config_prototype)
+    if config ~= nil then
+        self.config = vim.tbl_deep_extend("force", config_prototype, config)
+    end
 
     self.hidden = true
 

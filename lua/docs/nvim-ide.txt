@@ -20,8 +20,8 @@ CONTENTS                                                            *ide-content
   1     Intro..............................................|ide-intro|
   2     Usage..............................................|ide-usage|
   3     Panels.............................................|ide-panels|
-  3     Components.........................................|ide-panels|
- 
+  4     Components.........................................|ide-components|
+  5     Default Components.................................|ide-default-components|
 
 ====================================================================================
 INTRODUCTION                                                           *ide-intro*
@@ -66,7 +66,7 @@ A Workspace defines a particular UI.
 │                    ├──────────────────────────────┤                     │
 │                    │                              │                     │
 │                    │                              │                     │
-│                    │        Terminal/Utility      │                     │
+│                    │      Terminal/Utility        │                     │
 │                    │                              │                     │
 │                    │                              │                     │
 └────────────────────┴──────────────────────────────┴─────────────────────┘
@@ -88,6 +88,9 @@ command. This will be covered in more details later in the docs.
 ====================================================================================
 Usage                                                                   *ide-usage*
 
+TLDR: Install via plugin manager, call setup function, issue the "Workspace" 
+command to see available commands and sub-commands.
+
 Getting started with `nvim-ide` is very simple, and there's a single setup function
 which can be used. 
 
@@ -97,11 +100,41 @@ Next, add the setup function anywhere you configure your plugins.
 
 ```
 require('ide').setup({
+    -- the global icon set to use.
+    -- values: "nerd", "codicon", "default"
+    icon_set = "default",
+    -- place Component config overrides here. 
+    -- they key to this table must be the Component's unique name and the value 
+    -- is a table which overrides any default config values.
+    components = {},
+    -- default panel groups to display on left and right.
+    panels = {
+        left = "explorer",
+        right = "git"
+    },
+    -- panels defined by groups of components, user is free to redefine these
+    -- or add more.
+    panel_groups = {
+        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
+        terminal = { terminal.Name },
+        git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+    }
 })
 ```
 
+The above is the default configuration. It defines the icon set to use if you
+have a patched font, any component configuration overrides (mostly for modifying
+keymaps), the default panel groups to use for the left and right panels, and the
+definitions of which components make up a panel group.
+
+As a high level user, you can just assume that each component module will have
+a global "Name" variable to use, `nvim-ide` handles everything else involved in
+displaying a Component plugin. If you are interested in developing out-of-tree
+components, then check out *ide-components* section.
+
 Once the setup function is called a new 'Workspace' is created for each tab and
-the default panels will be loaded. 
+the default panels will be loaded and displayed. By default only the left panel
+is opened.
 
 You can begin exploring features of the plugin by simply issuing the 'Workspace'
 command. If you have `telescope`, `fzf-lua`, or any other plugin which registers
@@ -136,6 +169,12 @@ This should feel familiar to previous `vscode` users, who have probably switched
 between their 'Explorer' panels and 'CVS' panels before.
 
 Defining PanelGroup(s) will be covered in the `ide-config` portion.
+
+Panels can be toggled open with the `Workspace LeftPanelToggle` and 
+`Workspace RightPanelToggle` commands. 
+
+A Panel can swap PanelGroups with the `Workspace SwapPanel` command. You'll be
+asked which PanelGroup to swap into which Panel (left or right).
 
 ====================================================================================
 Components                                                         *ide-components*
@@ -207,3 +246,334 @@ See the source file for the complete documentations on these interface methods.
 class and implementations implement the necessary methods, but also inherit methods
 which can generically apply to all instances of a Component.
 
+====================================================================================
+Default Components                                         *ide-default-components*
+
+`nvim-ide` ships with several default components available for immediate use.
+
+We'll cover each one along with their configuration here. 
+
+
+====================================================================================
+Bookmarks                                               *ide-bookmarks-components*
+
+The Bookmarks component implements the ability to create per-workspace bookmarks
+which are organized in Notebooks. 
+
+Each workspace keeps an independent set of Notebooks which separate Bookmarks into
+particular subjects. 
+
+A Notebook must be created and opened before creating a Bookmark. 
+This can be done with the `Workspace Bookmarks CreateNotebook` command. 
+
+Once created the Notebook will be opened and the Bookmarks UI will appear in the
+Panel if not already displayed.
+
+You can now create a bookmark anywhere in a source code file with the 
+`Workspace Bookmarks CreateBookmark` command.
+
+Bookmarks are "sticky" which means they will move around as you edit the code.
+A Bookmark which has moved will enter a "dirty" state (indicated by an asterick). 
+If the buffer is saved the bookmark will be saved as well. If you discard 
+the changes by either closing the buffer or exiting Neovim, the Bookmark's 
+dirty state won't be written back to disk and the original Bookmark location 
+will be restored on next usage.
+
+You can view all Bookmarks commands by issuing the `Workspace` command and then
+navigating to the `Bookmarks` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        jump_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Branches                                                  *ide-branches-components*
+
+The Branches component displays the branches of the current git repository.
+
+It allows the user to administer git branches for the current git repository as
+well.
+
+You can view all Branches commands by issuing the `Workspace` command and then
+navigating to the `Branches` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        create_branch = "c",
+        refresh = "r",
+        hide = "<C-[>",
+        close = "X",
+        details = "d",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+CallHierarchy                                        *ide-callhierarchy-components*
+
+A tree UI for examining the incoming and outgoing function calls for a given 
+symbol in a source code buffer.
+
+This depends on a properly attached LSP server for the given buffer.
+
+A particular symbol in the CallHierarchy tree may have multiple references, in
+which case the (default) "n" key can be used to cycle through references.
+
+You can view all CallHierarchy commands by issuing the `Workspace` command and then
+navigating to the `CallHierarchy` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        next_reference = "n",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Changes                                                   *ide-changes-components*
+
+The changes component will show the git status for the current repository. 
+
+It allows the user to stage, restore, commit, amend, etc... changed files.
+
+You can view all Changes commands by issuing the `Workspace` command and then
+navigating to the `Changes` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        restore = "r",
+        add = "s",
+        amend = "a",
+        commit = "c",
+        jump = "<CR>",
+        jump_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Commits                                                    *ide-commits-components*
+
+Shows the commit history for the given repository. 
+
+Allows the user to perform a read-only preview of the changed files within a commit
+along with checking out the commit and opening a modifiable diff of the changed 
+file.
+
+You'll want to use the checkout option when you want all your LSP tools to work
+correctly. When you perform a checkout diff, the actual file on the filesystem
+is opened at that commit and all your LSP tooling will work correctly.
+
+Use the `Branches` component to easily return to the original branch once a 
+checkout diff was performed.
+
+You can view all Commits commands by issuing the `Workspace` command and then
+navigating to the `Commits` subcommand.
+
+Config:
+
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        checkout = "c",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
+        refresh = "r",
+        hide = "<C-[>",
+        close = "X",
+        details = "d",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Explorer                                                  *ide-explorer-components*
+
+A full featured and real-time file explorer. 
+
+It supports batch operations with the use of selections along with full recursive
+copies and moves.
+
+You can view all Explorer commands by issuing the `Workspace` command and then
+navigating to the `Explorer` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        edit = "<CR>",
+        edit_split = "s",
+        edit_vsplit = "v",
+        edit_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        new_file = "n",
+        delete_file = "D",
+        new_dir = "d",
+        rename_file = "r",
+        move_file = "m",
+        copy_file = "p",
+        select_file = "<Space>",
+        deselect_file = "<Space><Space>",
+        change_dir = "cd",
+        up_dir = "..",
+        file_details = "i",
+        toggle_exec_perm = "*",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Outline                                                    *ide-outline-components*
+
+A real-time document outline which tracks the current position in the file. 
+
+Supports updating the source code buffer's cursor when a symbol is scrolled over
+in the Outline UI window.
+
+This depends on a properly attached LSP server for the buffer.
+
+You can view all Outline commands by issuing the `Workspace` command and then
+navigating to the `Outline` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+TerminalBrowser                                    *ide-terminalbrowser-components*
+
+Displays a UI for managing terminal instances. 
+
+Supports renaming terminals to help organization of terminal instances.
+
+This component must be present in a Workspace in order for the Terminal panel 
+(middle bottom) to function correctly.
+
+You can view all TerminalBrowser commands by issuing the `Workspace` command and then
+navigating to the `TerminalBrowser` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        new = "n",
+        jump = "<CR>",
+        hide = "<C-[>",
+        delete = "D",
+        rename = "r",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```
+
+====================================================================================
+Timeline                                                  *ide-timeline-components*
+
+Displays the history of a particular source code file and supports displaying
+a read-only diff. 
+
+This is useful to understand how a file has changed overtime.
+
+You can view all Timeline commands by issuing the `Workspace` command and then
+navigating to the `Timeline` subcommand.
+
+Config:
+```
+{
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
+        hide = "<C-[>",
+        close = "X",
+        details = "d",
+        maximize = "+",
+        minimize = "-"
+    },
+}
+```

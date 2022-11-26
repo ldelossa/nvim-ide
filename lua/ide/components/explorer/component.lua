@@ -55,8 +55,12 @@ ExplorerComponent.new = function(name, config)
     self.selected = {}
     -- a logger that will be used across this class and its base class methods.
     self.logger = logger.new("explorer")
-    -- set the default config.
+
+    -- seup config, use default and merge in user config if not nil
     self.config = vim.deepcopy(config_prototype)
+    if config ~= nil then
+        self.config = vim.tbl_deep_extend("force", config_prototype, config)
+    end
 
     -- we can create the initial root tree at creation time, it will be marshalled
     -- and displayed into a buffer when the associated @Panel calls self.open()

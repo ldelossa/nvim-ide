@@ -66,13 +66,6 @@ Commands.new = function(bookmarks)
             ),
             libcmd.new(
                 libcmd.KIND_ACTION,
-                "Test",
-                "Test",
-                self.bookmarks.test,
-                { desc = "Testing" }
-            ),
-            libcmd.new(
-                libcmd.KIND_ACTION,
                 "BookmarksCreate",
                 "CreateBookmark",
                 self.bookmarks.create_bookmark,
