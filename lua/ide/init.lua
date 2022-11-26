@@ -20,20 +20,28 @@ local M = {}
 -- Modules can read from this field to get config values. For example
 -- require('ide').config.
 M.config = {
-    -- the global icon set to use.
+    -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
     icon_set = "default",
-    -- place Component config overrides here. 
-    -- they key to this table must be the Component's unique name and the value 
-    -- is a table which overrides any default config values.
-    components = {},
+    -- Place Component config overrides here. 
+    -- The keys are the Component's unique name and the values are the
+    -- config values to override.
+    -- See the Component's documentation for available config values.
+    components = {
+        -- example...
+        -- Explorer = {
+        --     keymaps = {
+        --         expand = "x",
+        --     }
+        -- }
+    },
     -- default panel groups to display on left and right.
     panels = {
         left = "explorer",
         right = "git"
     },
-    -- panels defined by groups of components, user is free to redefine these
-    -- or add more.
+    -- panels defined by groups of components, user is free to redefine the defaults
+    -- and/or add additional.
     panel_groups = {
         explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
