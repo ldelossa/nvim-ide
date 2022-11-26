@@ -1,0 +1,209 @@
+
+
+███╗   ██╗██╗   ██╗██╗███╗   ███╗      ██╗██████╗ ███████╗
+████╗  ██║██║   ██║██║████╗ ████║      ██║██╔══██╗██╔════╝
+██╔██╗ ██║██║   ██║██║██╔████╔██║█████╗██║██║  ██║█████╗  
+██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║╚════╝██║██║  ██║██╔══╝  
+██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║      ██║██████╔╝███████╗
+╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝      ╚═╝╚═════╝ ╚══════╝
+                                                          
+
+
+*nvim-ide* nvim-ide
+
+Author:   Louis DeLosSantos <louis.delos@gmail.com>
+Homepage: <https://github.com/ldelossa/nvim-ide>
+License:  MIT license
+
+CONTENTS                                                            *ide-contents*
+
+  1     Intro..............................................|ide-intro|
+  2     Usage..............................................|ide-usage|
+  3     Panels.............................................|ide-panels|
+  3     Components.........................................|ide-panels|
+ 
+
+====================================================================================
+INTRODUCTION                                                           *ide-intro*
+
+`nvim-ide` sets out to be a complete IDE layer for Neovim. 
+
+This project defines an 'IDE layer' by drawing many synonyms from `vscode`.
+
+Therefore, `nvim-ide` provides several key features:
+    1. A set of default component plugins providing a minimum IDE experience.
+    2. A component based plugin API for extending `nvim-ide`.
+    3. A panel API which works similar to other IDEs, allowing plugins to be
+       registered and displayed in a stack of windows.
+    5. A rich set of library APIs for building component plugins and displaying
+       plugin UIs.
+    5. Swappable panels, allowing users to swap in sets of plugins during
+       runtime.
+    6. Verbose logging capabilities of all components.
+
+`nvim-ide` views each Neovim tab as a "Workspace" with its own set of panels,
+components, and state. 
+
+A Workspace defines a particular UI. 
+
+┌────────────────────┬──────────────────────────────┬─────────────────────┐
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│   Left Panel       │                              │     Right Panel     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    ├──────────────────────────────┤                     │
+│                    │                              │                     │
+│                    │                              │                     │
+│                    │        Terminal/Utility      │                     │
+│                    │                              │                     │
+│                    │                              │                     │
+└────────────────────┴──────────────────────────────┴─────────────────────┘
+
+The left and right panels are user defined, while the Terminal/Utility panel
+is reserved for showing informational details of `nvim-ide` or the current 
+plugins.
+
+At any given time the Workspace has a dynamic set of components running as 
+plugins in the registered panels. 
+
+This means, `nvim-ide` is 'modal' in a sense, as you can change which components
+are currently active within a Workspace by changing the currently displayed
+panels.
+
+Almost all of `nvim-ide` features are made available via the 'Workspace' user
+command. This will be covered in more details later in the docs.
+
+====================================================================================
+Usage                                                                   *ide-usage*
+
+Getting started with `nvim-ide` is very simple, and there's a single setup function
+which can be used. 
+
+First, get the plugin with your favorite plugin manager of choice. 
+
+Next, add the setup function anywhere you configure your plugins.
+
+```
+require('ide').setup({
+})
+```
+
+Once the setup function is called a new 'Workspace' is created for each tab and
+the default panels will be loaded. 
+
+You can begin exploring features of the plugin by simply issuing the 'Workspace'
+command. If you have `telescope`, `fzf-lua`, or any other plugin which registers
+as a `vim.ui` handler, you'll get a fuzzy finder of the available commands for
+the current 'Workspace'.
+
+A command may perform an action (like Workspace LeftPanelToggle) or may open a 
+subsequent sub-command menu (like Explorer). This allows you to navigate the
+available commands in a familiar 'context menu' way.
+
+====================================================================================
+Panels                                                                 *ide-panels*
+
+Panels make up the primary UI component of `nvim-ide`.
+
+Panels provide an abstraction over a stacked set of Neovim windows, each of which
+display a registered Component. We'll touch more on components in the next section,
+for now just understand they are the business logic behind plugins displayed in panels.
+
+The panels are designed to work similarly to `vscode`.
+
+Each Panel displays a PanelGroup which is a panel with a specific grouping of
+Component plugins. Its then possible to swap the current PanelGroup out for another.
+
+This becomes useful if you'd like to create a modal IDE experience. For instance,
+you may have a PanelGroup you use when exploring code, but a separate PanelGroup
+when you want to begin staging files and creating commits. You could name the 
+first PanelGroup 'coding' and the second 'git', then swap these group into the 
+left or right Panels when appropriate. 
+
+This should feel familiar to previous `vscode` users, who have probably switched
+between their 'Explorer' panels and 'CVS' panels before.
+
+Defining PanelGroup(s) will be covered in the `ide-config` portion.
+
+====================================================================================
+Components                                                         *ide-components*
+
+If you are not interested in developing or understanding how `nvim-ide` Component
+plugins work, you can skip this section all together.
+
+`nvim-ide` defines a Component as a registered plugin which is capable of being
+displayed within a Panel and a PanelGroup.
+
+A Component implements a well defined API and also registers itself within a 
+`ComponentFactory` as defined in 'ide.panels.component_factory'.
+
+For example, here is the Bookmarks component's init.lua file:
+
+```
+local component_factory = require('ide.panels.component_factory')
+local component = require('ide.components.bookmarks.component')
+
+local Init = {}
+
+Init.Name = "Bookmarks"
+
+
+local function register_component()
+    component_factory.register(Init.Name, component.new)
+
+    if vim.fn.isdirectory(vim.fn.fnamemodify(component.NotebooksPath, ":p")) == 0 then
+        vim.fn.mkdir(vim.fn.fnamemodify(component.NotebooksPath, ":p"))
+    end
+end
+
+-- call yourself, this will be triggerd when another module wants to reference
+-- ide.components.explorer.Name
+register_component()
+
+return Init
+```
+
+This is the boilerplate required to register a Component into `nvim-ide`.
+You'll see that a unique name is defined, this uniqually defines the component 
+and is accessible via 'ide.components.bookmarks.Name'.
+
+Its handy to place the Component's name within this file, and then import it 
+into your config when defining a custom PanelGroup. This ensures the `register_component`
+method is ran, and `nvim-ide` can locate the constructor for the component.
+
+Each Component must have a unique name or else this registration will fail. 
+
+Any other initialization necessary for the Component can be done within the
+`register_component()` function.
+
+A Component is responsible for managing a Neovim buffer, and providing this buffer
+to `nvim-ide` when requested. The buffer managed by the Component will contain that
+Component's user facing UI, and is displayed in a Panel if configured.
+
+A Component must also implement a well defined API which is outlined in 
+`ide/panels/components/component.lua`.
+
+These methods are:
+  open()
+  post_win_create()
+  get_commands()
+  close()
+
+See the source file for the complete documentations on these interface methods.
+
+`nvim-ide` utilizes a closure-based OOP paradigm, where Component is the base
+class and implementations implement the necessary methods, but also inherit methods
+which can generically apply to all instances of a Component.
+

@@ -10,6 +10,8 @@ local Component = {}
 -- A derived Component must implement:
 --  open()
 --  post_win_create()
+--  get_commands()
+--  close()
 --
 -- A component is expected to create a buffer and provide this on request from
 -- a Panel. 
