@@ -97,7 +97,6 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
             end
             local children = {}
             for _, path in ipairs(paths) do
-                print(vim.inspect(path))
                 local file = CommitNode.new(path.rev, path.path, path.path, "", "")
                 file.is_file = true
                 table.insert(children, file)
