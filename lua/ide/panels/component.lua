@@ -252,7 +252,7 @@ Component.new = function(name, config)
 
     -- Will returns the cursor to the last recorded position, if it exists.
     --
-    -- The @ComponentTracker is resposible for this state.
+    -- The @ComponentTracker is responsible for this state.
     function self.safe_cursor_restore()
         
     end

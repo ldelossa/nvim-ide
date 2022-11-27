@@ -304,7 +304,7 @@ Workspace.new = function(tab)
     -- Returns the most recently visited window of the workspace.
     --
     -- return: win id | nil, the most recently visited window in the workspace.
-    function self.get_last_visted_win()
+    function self.get_last_visited_win()
         return self.win_history[#self.win_history]
     end
 
@@ -329,7 +329,7 @@ Workspace.new = function(tab)
         log.debug("request to get a window from workspace")
 
         -- if the last visited window is valid, return this
-        local last_win = self.get_last_visted_win()
+        local last_win = self.get_last_visited_win()
         if libwin.win_is_valid(last_win) then
             log.debug("last visited window %d is valid, returning this window", last_win)
             return last_win
@@ -353,7 +353,7 @@ Workspace.new = function(tab)
             end
             ::continue::
         end
-        log.debug("failed to find a useable window, creating a new one")
+        log.debug("failed to find a usable window, creating a new one")
 
         -- there are only component windows, and we must be inside of one...
 

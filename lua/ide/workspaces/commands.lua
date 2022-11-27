@@ -56,7 +56,7 @@ Commands.new = function(ws)
                 "WorkspaceMaximizeComponent",
                 "MaximizeComponent",
                 function(_) ws.maximize_component() end,
-                { desc = "Maximize the componet your cursor is in."}
+                { desc = "Maximize the component your cursor is in."}
             ),
             libcmd.new(
                 libcmd.KIND_ACTION,

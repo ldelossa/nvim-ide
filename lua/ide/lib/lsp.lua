@@ -89,7 +89,7 @@ function LSP.make_call_hierarchy_request(direction, call_hierarchy_item, opts, c
     if method == nil then
         error("direction must be `incoming` or `outgoing`: direction=" .. direction)
     end
-    assert(call_hierarchy_item ~= nil, "call_hierarcy_item cannot be nil")
+    assert(call_hierarchy_item ~= nil, "call_hierarchy_item cannot be nil")
 
     local params = { item = call_hierarchy_item }
 

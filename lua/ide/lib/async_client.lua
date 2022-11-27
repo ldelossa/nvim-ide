@@ -126,7 +126,7 @@ Git.new = function(cmd)
             req.exit_code = exit_code
             if exit_code ~= 0 then
                 req.error = true
-                req.reson = "status code"
+                req.reason = "status code"
             end
             req.signal = signal
             vim.schedule(function()

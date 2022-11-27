@@ -80,7 +80,7 @@ Git.new = function()
     -- @cb  - function(table|nil) - an array of tables with the following
     --        fields:
     --        - sha     - @string, the full commit sha
-    --        - author  - @sting, the author's full name
+    --        - author  - @string, the author's full name
     --        - email   - @string, the author's email
     --        - date    - @string, date of the commit in ISO format.
     --        - subject - @string, the subject of the commit
@@ -391,7 +391,7 @@ Git.new = function()
     -- Return the full sha256 of the current HEAD.
     --
     -- @cb      - @function(string|nil) - The sha256 of the current head or a 
-    --            nil if an error occured.
+    --            nil if an error occurred.
     function self.head(cb)
         self.make_request(
             string.format("rev-parse HEAD"),

@@ -15,7 +15,7 @@ local M = {}
 -- The default config which will be merged with the `config` provided to setup()
 --
 -- The user provided config may just provide the values they'd like to override
--- and can ommit any defaults.
+-- and can omit any defaults.
 --
 -- Modules can read from this field to get config values. For example
 -- require('ide').config.

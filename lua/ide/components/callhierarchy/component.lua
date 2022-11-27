@@ -251,7 +251,7 @@ CallHierarchyComponent.new = function(name, config)
                 return
             end
             -- stuff our state with the win, buf, and lsp client id used to prepare
-            -- the call heirarchy.
+            -- the call hierarchy.
             self.state["invoking_buf"] = cur_buf
             self.state["invoking_win"] = cur_win
             self.state["client_id"] = client_id

@@ -215,7 +215,7 @@ local function register_component()
     end
 end
 
--- call yourself, this will be triggerd when another module wants to reference
+-- call yourself, this will be triggered when another module wants to reference
 -- ide.components.explorer.Name
 register_component()
 
