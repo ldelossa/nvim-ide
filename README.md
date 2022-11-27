@@ -8,6 +8,8 @@
 ```
 ![nvim-ide](./contrib/screenshot.png)
 
+![Workflow Video](https://youtu.be/GcoHnB5DoFA)
+
 `nvim-ide` is a complete IDE layer for Neovim, heavily inspired by `vscode`.
 
 It provides a default set of components, an extensible API for defining your
