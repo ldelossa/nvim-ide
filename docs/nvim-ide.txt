@@ -281,8 +281,11 @@ Bookmarks are "sticky" which means they will move around as you edit the code.
 A Bookmark which has moved will enter a "dirty" state (indicated by an asterick). 
 If the buffer is saved the bookmark will be saved as well. If you discard 
 the changes by either closing the buffer or exiting Neovim, the Bookmark's 
-dirty state won't be written back to disk and the original Bookmark location 
+dirty state won't be written to disk and the original Bookmark location 
 will be restored on next usage.
+
+Its important to remember to save the file on on bookmark creation to persist
+it to disk.
 
 You can view all Bookmarks commands by issuing the `Workspace` command and then
 navigating to the `Bookmarks` subcommand.

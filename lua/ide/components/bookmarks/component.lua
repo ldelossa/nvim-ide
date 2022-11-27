@@ -20,6 +20,8 @@ local config_prototype = {
         collapse_all = "zM",
         jump = "<CR>",
         jump_tab = "t",
+        jump_split = "s",
+        jump_vsplit = "v",
         hide = "<C-[>",
         close = "X",
         maximize = "+",
@@ -74,6 +76,10 @@ BookmarksComponent.new = function(name, config)
                 { silent = true, callback = function() self.jump_bookmarknode({ fargs = {} }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
                 { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "",
+                { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "split" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "",
+                { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "vsplit" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
                 { silent = true, callback = function() self.hide() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
@@ -148,18 +154,37 @@ BookmarksComponent.new = function(name, config)
             return
         end
 
+        local split = false
+        local vsplit = false
         local tab = false
         for _, arg in ipairs(args.fargs) do
+            if arg == "split" then
+                split = true
+            end
+            if arg == "vsplit" then
+                vsplit = true
+            end
             if arg == "tab" then
                 tab = true
             end
         end
 
         local win = self.workspace.get_win()
-
-        if tab then
+        vim.api.nvim_set_current_win(win)
+        if split then
+            vim.cmd("split")
+            win = 0
+        elseif vsplit then
+            vim.cmd("vsplit")
+            win = 0
+        elseif tab then
             vim.cmd("tabnew")
+            win = 0
         end
+
+        vim.api.nvim_set_current_win(win)
+        vim.cmd("edit " .. node.file)
+        libwin.safe_cursor_restore(0, {node.start_line, 1})
     end
 
     function self.get_commands()
