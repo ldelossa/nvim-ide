@@ -15,7 +15,7 @@ own, IDE-like panels and terminal/utility windows, and the ability to swap betwe
 user defined panels. 
 
 This plugin is for individuals who are looking for a cohesive IDE experience 
-from Neovim and are less concerned with missing and matching from the awesome
+from Neovim and are less concerned with mixing and matching from the awesome
 ecosystem of Neovim plugins.
 
 The current set of default components include:
