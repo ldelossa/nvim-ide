@@ -76,7 +76,7 @@ Tree.new = function(type)
     -- @opts        - A table of options which instruct add_node how to proceed.
     --                Fields:
     --                  external - A @bool. If set to true this indicates the tree's @Node
-    --                  heirarchy has been built by the caller and this method
+    --                  hierarchy has been built by the caller and this method
     --                  will remove the current @Tree.root and replace it with
     --                  @parent. The @children field is ignored.
     --
@@ -101,7 +101,7 @@ Tree.new = function(type)
         end
 
         -- if depth is 0 we are creating a new call tree, discard the old one
-        -- by overwritting the current root, populate depth_table so fast lookup
+        -- by overwriting the current root, populate depth_table so fast lookup
         -- makes the double work here negligible.
         if parent.depth == 0 then
             self.root = parent
@@ -134,7 +134,7 @@ Tree.new = function(type)
         if pNode == nil then
             return
         end
-        -- remove node's childrens
+        -- remove node's children
         pNode.children = (function() return {} end)()
         self.depth_table.refresh(self.root)
     end

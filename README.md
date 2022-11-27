@@ -24,10 +24,10 @@ The current set of default components include:
 * Bookmarks - Per-workspace collections of bookmarks with sticky support.
 * Branches  - Checkout and administer the workspaces's git branches
 * CallHierarchy - Display an LSP's CallHierarchy request in an intuitive tree.
-* Changes - Display the current git status and stage/restore/commit/ammend the diff.
+* Changes - Display the current git status and stage/restore/commit/amend the diff.
 * Commits - Display the list of commits from HEAD, view a read only diff or checkout a commit and view a modifiable diff.
 * Explorer - A file explorer which supports file selection and recursive operations.
-* Outline - A real-time LSP powered source code outline supporing jumping and tracking.
+* Outline - A real-time LSP powered source code outline supporting jumping and tracking.
 * TerminalBrowser - A terminal manager for creating, renaming, jumping-to, and deleting terminal instances.
 * Timeline - Displays the git history of a file, showing you how the file was manipulated over several commits.
 

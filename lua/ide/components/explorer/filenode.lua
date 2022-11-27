@@ -164,7 +164,7 @@ FileNode.new = function(path, kind, perms, depth)
         end
         local function mkdir(path)
             if file_exists(path) then
-                log.debug("directory exist, prompting user to rename. will callack into FileNode.mkdir")
+                log.debug("directory exist, prompting user to rename. will callback into FileNode.mkdir")
                 prompts.must_rename(path, mkdir)
                 return
             end
@@ -216,7 +216,7 @@ FileNode.new = function(path, kind, perms, depth)
         if vim.fn.delete(self.path, "rf") == -1 then
             error("failed to remove " .. self.path)
         end
-        log.debug("delection successful. expanding parent to get latest listing.", self.path)
+        log.debug("deletion successful. expanding parent to get latest listing.", self.path)
         self.parent.expand()
     end
 

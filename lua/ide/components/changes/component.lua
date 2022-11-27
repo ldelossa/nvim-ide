@@ -40,7 +40,7 @@ ChangesComponent.new = function(name, config)
     -- extends 'ide.panels.Component' fields.
     local self = base.new(name)
 
-    -- a @Tree containing the current buffer's document statuss.
+    -- a @Tree containing the current buffer's document status.
     self.tree = tree.new("changes")
 
     -- a logger that will be used across this class and its base class methods.

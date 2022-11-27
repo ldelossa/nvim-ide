@@ -118,14 +118,14 @@ Commands.new = function(ex)
                 "ExplorerSelect",
                 "Select",
                 self.explorer.select,
-                { desc = "Select the file under the cursor for futher action." }
+                { desc = "Select the file under the cursor for further action." }
             ),
             libcmd.new(
                 libcmd.KIND_ACTION,
                 "ExplorerUnselect",
                 "Unselect",
                 self.explorer.unselect,
-                { desc = "Unselect the file under the cursor for futher action." }
+                { desc = "Unselect the file under the cursor for further action." }
             ),
         }
         return commands

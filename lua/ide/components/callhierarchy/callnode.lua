@@ -10,7 +10,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
     -- extends 'ide.trees.Node' fields.
 
     local call_hierarchy_item = liblsp.call_hierarchy_call_to_item(direction, call_hierarchy_item_call)
-    assert(call_hierarchy_item ~= nil, "could not extract a CallHierarchyItem from the provided CallHierarhcyCall")
+    assert(call_hierarchy_item ~= nil, "could not extract a CallHierarchyItem from the provided CallHierarchyCall")
 
     -- range should not be nil per LSP spec, but some LSPs will return nil
     -- range, if so fill it in so we can create a unique key.
