@@ -40,6 +40,18 @@ file for introduction, usage, and development information.
 
 2. Call the setup function (optionally with the default config):
 ```lua
+-- default components
+local explorer        = require('ide.components.explorer')
+local outline         = require('ide.components.outline')
+local callhierarchy   = require('ide.components.callhierarchy')
+local timeline        = require('ide.components.timeline')
+local terminal        = require('ide.components.terminal')
+local terminalbrowser = require('ide.components.terminal.terminalbrowser')
+local changes         = require('ide.components.changes')
+local commits         = require('ide.components.commits')
+local branches        = require('ide.components.branches')
+local bookmarks       = require('ide.components.bookmarks')
+
 require('ide').setup({
     -- the global icon set to use.
     -- values: "nerd", "codicon", "default"
