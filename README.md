@@ -77,4 +77,4 @@ require('ide').setup({
 
 3. Issue the "Workspace" command to begin discovering what's available.
 
-4. Begin reading "h: nvim-ide"
+4. Begin reading ":h nvim-ide"
