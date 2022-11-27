@@ -92,7 +92,7 @@ Workspace.new = function(tab)
             error(string.format("panel group %s does not exist", panel_group))
         end
         self.panels[position] = self.panel_groups[panel_group]
-        self.panels[position].set_position(position)
+        self.panels[position].set_position(position, self.config.panel_sizes[position])
         self.panels[position].open()
         self.equal_components()
     end

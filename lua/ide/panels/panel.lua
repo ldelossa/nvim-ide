@@ -50,21 +50,14 @@ Panel.new = function(tab, position, components)
         end
     end
 
-    function self.set_position(position)
+    function self.set_position(position, size)
         for _, pos in ipairs(Panel.PANEL_POSITIONS) do
             if position == pos then
                 self.position = position
             end
         end
 
-        if
-            self.position == Panel.PANEL_POS_BOTTOM or
-            self.position == Panel.PANEL_POS_TOP
-        then
-            self.size = 15
-        else
-            self.size = 30
-        end
+        self.size = size
     end
 
 
