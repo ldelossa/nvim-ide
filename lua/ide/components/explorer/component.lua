@@ -12,6 +12,7 @@ ExplorerComponent = {}
 
 local config_prototype = {
     list_directories_first = false,
+    show_file_permissions = true,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -68,7 +69,14 @@ ExplorerComponent.new = function(name, config)
     local cwd = vim.fn.getcwd()
     local kind = vim.fn.getftype(cwd)
     local perms = vim.fn.getfperm(cwd)
-    local root = filenode.new(cwd, kind, perms, 0, self.config.list_directories_first)
+    local root = filenode.new(
+        cwd,
+        kind,
+        perms,
+        0,
+        self.config.list_directories_first,
+        self.config.show_file_permissions
+    )
     self.tree = tree.new("file")
     self.tree.add_node(root, {})
     root.expand()

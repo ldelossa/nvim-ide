@@ -6,7 +6,10 @@ FileNode = {}
 
 local EXPAND_REFRESH_ONLY = { refresh_only = true }
 
-FileNode.new = function(path, kind, perms, depth, list_directories_first)
+FileNode.new = function(path, kind, perms, depth, list_directories_first, show_permissions)
+    if show_permissions == nil then
+        show_permissions = true
+    end
     -- extends 'ide.trees.Node' fields.
     -- path can be used as both a name and key since its unique on the system.
     local self = node.new("file", path, path, depth)
@@ -55,7 +58,12 @@ FileNode.new = function(path, kind, perms, depth, list_directories_first)
                 icon = require('ide.icons').global_icon_set.get_icon("Folder")
             end
         end
-        return icon, name, self.perms, guide
+
+        if show_permissions or show_permissions == nil then
+            return icon, name, self.perms, guide
+        else
+            return icon, name, '', guide
+        end
     end
 
     local function file_exists(path)
@@ -91,7 +99,7 @@ FileNode.new = function(path, kind, perms, depth, list_directories_first)
             local child_path = self.path .. "/" .. child
             local child_kind = vim.fn.getftype(child_path)
             local child_perms = vim.fn.getfperm(child_path)
-            local fnode = FileNode.new(child_path, child_kind, child_perms)
+            local fnode = FileNode.new(child_path, child_kind, child_perms, nil, list_directories_first, show_permissions)
             table.insert(children, fnode)
         end
         log.debug("found %d children", #children)
