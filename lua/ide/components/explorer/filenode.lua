@@ -1,6 +1,7 @@
 local node = require('ide.trees.node')
 local prompts = require('ide.components.explorer.prompts')
 local logger = require('ide.logger.logger')
+local sort = require('ide.lib.sort')
 
 FileNode = {}
 
@@ -106,11 +107,11 @@ FileNode.new = function(path, kind, perms, depth, opts)
         end
         log.debug("found %d children", #children)
 
-				if self.opts.list_directories_first then
-						table.sort(children, function(first, second)
-						  return first ~= second and first.kind == 'dir' and second.kind ~= 'dir'
-						end)
-				end
+        if self.opts.list_directories_first then
+            sort(children, function(first, second)
+              return first ~= second and first.kind == 'dir' and second.kind ~= 'dir'
+            end)
+        end
         -- refresh our children in the tree.
         self.tree.add_node(self, children)
         -- if we only wanted to refresh the underlying tree, not expand the node
