@@ -25,15 +25,17 @@ DepthTable.new = function()
         end
     end
 
-    -- Search the DepthTable for a node with the @key at the given @depth
-    --
-    -- @depth - integer, the depth at which to search for @key
-    -- @key   - the unique @Node.key to search for.
     function self.refresh(root)
         self.table = (function() return {} end)()
         recursive_refresh(root)
     end
 
+    -- Search the DepthTable for a node with the @key at the given @depth
+    --
+    -- @depth - integer, the depth at which to search for @key
+    -- @key   - the unique @Node.key to search for.
+    -- return: @Node, @int - The node if found and the index within the array at
+    --         the searched depth.
     function self.search(depth, key)
         local nodes = self.table[depth]
         if nodes == nil then

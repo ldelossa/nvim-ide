@@ -321,21 +321,20 @@ CommitsComponent.new = function(name, config)
             if not node.is_file then
                 return
             end
-            git.log_file_history(node.file, 0, 2, function(history)
-                if #history == 0 then
-                    return
-                end
-                if history[2] ~= nil then
-                    git.show_file(history[2].sha, node.file, function(file)
-                        do_diff(file, history[2].sha, node.file)
-                    end)
-                else
-                    do_diff({}, "null", node.file)
-                end
-                self.marshal_tree(function()
-                    self.state["cursor"].restore()
+            -- we need to find the parent node, but this is a list where all commits
+            -- are at depth one,
+            local _, i = self.tree.depth_table.search(commit.depth, commit.key)
+            if i == nil then
+                error("failed to find index of node in depth table")
+            end
+            local pcommit = self.tree.depth_table.table[commit.depth][i+1]
+            if pcommit ~= nil then
+                git.show_file(pcommit.sha, node.file, function(file)
+                    do_diff(file, pcommit.sha, node.file)
                 end)
-            end)
+            else
+                do_diff({}, "null", node.file)
+            end
         end)
     end
 
@@ -346,15 +345,18 @@ CommitsComponent.new = function(name, config)
         if node == nil then
             return
         end
+        if not node.is_file then
+            return
+        end
+        local commit = node.parent
 
         -- we need to find the parent node, but this is a list where all commits
         -- are at depth one,
-        local _, i = self.tree.depth_table.search(node.depth, node.key)
+        local _, i = self.tree.depth_table.search(commit.depth, commit.key)
         if i == nil then
             error("failed to find index of node in depth table")
         end
-
-        local pnode = self.tree.depth_table.table[node.depth][i + 1]
+        local pcommit = self.tree.depth_table.table[commit.depth][i+1]
 
         function do_diff(file_a, file_b, sha_a, sha_b, path)
             local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
@@ -382,33 +384,19 @@ CommitsComponent.new = function(name, config)
             dbuff.diff()
         end
 
-        git.log_file_history(node.file, 0, 2, function(history)
-            if #history == 0 then
+        git.show_file(node.sha, node.file, function(file_b)
+            if file_b == nil then
                 return
             end
-            -- handle added/rename files, they won't have a history.
-            if history[2] == nil then
-                git.show_file(history[1].sha, node.file, function(file_b)
-                    if file_b == nil then
-                        return
-                    end
-                    do_diff({}, file_b, "null", history[1].sha, node.file)
-                end)
-                return
-            end
-            git.show_file(history[2].sha, node.file, function(file_a)
+            git.show_file(pcommit.sha, node.file, function(file_a)
                 if file_a == nil then
                     return
                 end
-                git.show_file(history[1].sha, node.file, function(file_b)
-                    if file_b == nil then
-                        return
-                    end
-                    do_diff(file_a, file_b, history[2].sha, history[1].sha, node.file)
-                end)
+                do_diff(file_a, file_b, pcommit.sha, node.sha, node.file)
             end)
         end)
 
+        return
     end
 
     function self.details(args)
