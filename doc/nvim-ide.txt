@@ -463,6 +463,7 @@ navigating to the `Explorer` subcommand.
 Config:
 ```
 {
+    list_directories_first = false,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
