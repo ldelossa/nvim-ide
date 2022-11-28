@@ -11,6 +11,7 @@ local icon_set = require('ide.icons').global_icon_set
 ExplorerComponent = {}
 
 local config_prototype = {
+    list_directories_first = false,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -67,7 +68,7 @@ ExplorerComponent.new = function(name, config)
     local cwd = vim.fn.getcwd()
     local kind = vim.fn.getftype(cwd)
     local perms = vim.fn.getfperm(cwd)
-    local root = filenode.new(cwd, kind, perms, 0)
+    local root = filenode.new(cwd, kind, perms, 0, self.config.list_directories_first)
     self.tree = tree.new("file")
     self.tree.add_node(root, {})
     root.expand()
