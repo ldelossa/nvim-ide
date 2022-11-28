@@ -6,7 +6,7 @@ FileNode = {}
 
 local EXPAND_REFRESH_ONLY = { refresh_only = true }
 
-FileNode.new = function(path, kind, perms, depth)
+FileNode.new = function(path, kind, perms, depth, list_directories_first)
     -- extends 'ide.trees.Node' fields.
     -- path can be used as both a name and key since its unique on the system.
     local self = node.new("file", path, path, depth)
@@ -95,6 +95,11 @@ FileNode.new = function(path, kind, perms, depth)
             table.insert(children, fnode)
         end
         log.debug("found %d children", #children)
+				if list_directories_first then
+						table.sort(children, function(first, second)
+						  return first ~= second and first.kind == 'dir' and second.kind ~= 'dir'
+						end)
+				end
         -- refresh our children in the tree.
         self.tree.add_node(self, children)
         -- if we only wanted to refresh the underlying tree, not expand the node
