@@ -72,6 +72,13 @@ Commands.new = function(ws)
                 function(_) ws.select_swap_panel() end,
                 { desc = "Swap a panel with another panel group."}
             ),
+            libcmd.new(
+                libcmd.KIND_ACTION,
+                "WorkspaceOpenLog",
+                "OpenLog",
+                function(_) require('ide.logger.logger').open_log() end,
+                { desc = "Open nvim-ide's log in a new tab."}
+            ),
         }
         return commands
     end
