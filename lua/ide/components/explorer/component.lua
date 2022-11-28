@@ -74,8 +74,10 @@ ExplorerComponent.new = function(name, config)
         kind,
         perms,
         0,
-        self.config.list_directories_first,
-        self.config.show_file_permissions
+        {
+            list_directories_first = self.config.list_directories_first,
+            show_file_permissions = self.config.show_file_permissions,
+        }
     )
     self.tree = tree.new("file")
     self.tree.add_node(root, {})

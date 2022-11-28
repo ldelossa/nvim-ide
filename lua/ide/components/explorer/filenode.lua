@@ -6,13 +6,15 @@ FileNode = {}
 
 local EXPAND_REFRESH_ONLY = { refresh_only = true }
 
-FileNode.new = function(path, kind, perms, depth, list_directories_first, show_permissions)
-    if show_permissions == nil then
-        show_permissions = true
-    end
+FileNode.new = function(path, kind, perms, depth, opts)
     -- extends 'ide.trees.Node' fields.
     -- path can be used as both a name and key since its unique on the system.
     local self = node.new("file", path, path, depth)
+    -- node options
+    self.opts = vim.tbl_deep_extend('keep', opts or {}, {
+        list_directories_first = false,
+        show_file_permissions = true,
+    })
     -- the path to this file
     self.path = path
     -- the kind of file (regular, directory, device, etc..)
@@ -59,7 +61,7 @@ FileNode.new = function(path, kind, perms, depth, list_directories_first, show_p
             end
         end
 
-        if show_permissions or show_permissions == nil then
+        if self.opts.show_file_permissions or self.opts.show_file_permissions == nil then
             return icon, name, self.perms, guide
         else
             return icon, name, '', guide
@@ -99,11 +101,12 @@ FileNode.new = function(path, kind, perms, depth, list_directories_first, show_p
             local child_path = self.path .. "/" .. child
             local child_kind = vim.fn.getftype(child_path)
             local child_perms = vim.fn.getfperm(child_path)
-            local fnode = FileNode.new(child_path, child_kind, child_perms, nil, list_directories_first, show_permissions)
+            local fnode = FileNode.new(child_path, child_kind, child_perms, nil, vim.deepcopy(self.opts))
             table.insert(children, fnode)
         end
         log.debug("found %d children", #children)
-				if list_directories_first then
+
+				if self.opts.list_directories_first then
 						table.sort(children, function(first, second)
 						  return first ~= second and first.kind == 'dir' and second.kind ~= 'dir'
 						end)
