@@ -87,8 +87,7 @@ FileNode.new = function(path, kind, perms, depth, list_directories_first)
             return
         end
         local children = {}
-        local dir_files = vim.fn.readdir(self.path)
-        for _, child in ipairs() do
+        for _, child in ipairs(vim.fn.readdir(self.path)) do
             local child_path = self.path .. "/" .. child
             local child_kind = vim.fn.getftype(child_path)
             local child_perms = vim.fn.getfperm(child_path)
