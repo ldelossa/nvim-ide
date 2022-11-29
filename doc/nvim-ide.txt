@@ -126,6 +126,12 @@ require('ide').setup({
         explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+    },
+    workspaces = {
+        -- automatically close vim if only remaining windows are components
+        auto_close = true,
+        -- which panels to open by default, one of: 'left', 'right', 'none'
+        auto_open = 'left',
     }
 })
 ```
