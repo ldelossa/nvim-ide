@@ -19,7 +19,7 @@ Client.new = function(cmd)
             -- error reading stdout, capture and return.
             if err then
                 req.error = true
-                req.reason = string.format("error reading from stderr: %s", err)
+                req.reason = string.format("error reading from stdout: %s", err)
                 return
             end
             -- more data to read, concat it to stdout buffer.
@@ -126,7 +126,7 @@ Client.new = function(cmd)
             req.exit_code = exit_code
             if exit_code ~= 0 then
                 req.error = true
-                req.reason = "status code"
+                req.reason = "non-zero status code: " .. exit_code
             end
             req.signal = signal
             vim.schedule(function()
