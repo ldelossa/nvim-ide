@@ -167,6 +167,9 @@ Workspace.new = function(tab)
         elseif self.config.workspaces.auto_open == 'right' then
             self.panels.right.open()
             self.panels.left.close()
+        elseif self.config.workspaces.auto_open == 'both' then
+            self.panels.right.open()
+            self.panels.left.open()
         elseif self.config.workspaces.auto_open == 'none' then
             self.panels.left.close()
             self.panels.right.close()
