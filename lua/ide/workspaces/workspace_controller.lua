@@ -23,14 +23,24 @@ WorkspaceController = {}
 -- This command allows dynamic lookup of the current Workspaces components and
 -- subsequently those component's commands, along with some Workspace specific
 -- commands.
-function WorkspaceController.new()
+function WorkspaceController.new(config)
     local self = {
         -- The autocommand ID used to the newtab_assign autocommand.
         tabnew_autocmd_id = nil,
         -- The autocommand ID used to the newtab_assign autocommand.
         tabclosed_autocmd_id = nil,
         win_history_autocmd_id = nil,
+
+        auto_close_autocmd_id = nil,
+
+        config = {
+            auto_close = nil
+        }
     }
+
+    if config then
+        self.config = vim.deepcopy(config)
+    end
 
     local function recursive_ws_handler_completion(cmds, cmdline, cmdline_index)
         local log = logger.new("workspaces", "WorkspaceController.recursive_ws_handler_completion")
@@ -218,6 +228,26 @@ function WorkspaceController.new()
         end
     end
 
+    -- Designed to be ran as an autocommand on the "WinEnter" event.
+    --
+    -- Exit's vim if WinEnter was triggered and the only remaining windows are
+    -- component windows.
+    function self.auto_close_autocmd()
+        if not string.find(vim.fn.bufname(vim.api.nvim_win_get_buf(0)),
+            "component://*") then
+            return
+        end
+
+        for _, v in ipairs(vim.api.nvim_list_wins()) do
+            if not string.find(vim.fn.bufname(vim.api.nvim_win_get_buf(v)),
+                "component://*") then
+                return
+            end
+        end
+
+        vim.cmd("qa")
+    end
+
     -- Initializes and starts the WorkSpace controller.
     --
     -- Once this method exists all existing and new tabs will be assigned
@@ -271,6 +301,13 @@ function WorkspaceController.new()
             callback = self.win_history_autocmd
         })
         log.info("WorkspaceController now handling recording viewed window history")
+
+        if self.config.auto_close then
+            self.auto_close_autocmd_id = vim.api.nvim_create_autocmd({ "WinEnter" }, {
+                callback = self.auto_close_autocmd
+            })
+            log.info("WorkspaceController now handling automatic closing of nvim.")
+        end
 
         vim.api.nvim_create_user_command("Workspace", ws_handler, {
             nargs = "*",
