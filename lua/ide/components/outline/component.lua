@@ -180,6 +180,13 @@ OutlineComponent.new = function(name, config)
             return
         end
 
+        local supports_method = #(vim.tbl_filter(function(client)
+          return client.supports_method('textDocument/documentSymbol')
+        end, vim.lsp.buf_get_clients(cur_buf))) > 0
+        if not supports_method then
+            return
+        end
+
         vim.lsp.buf_request_all(cur_buf, 'textDocument/documentSymbol', { textDocument = tdi }, function(resp)
             local result = liblsp.request_all_first_result(resp)
             if result ~= nil then
