@@ -1,5 +1,6 @@
 local base = require("ide.panels.component")
 local libwin = require("ide.lib.win")
+local libbuf = require("ide.lib.buf")
 local logger = require("ide.logger.logger")
 local icon_set = require("ide.icons").global_icon_set
 local commands = require("ide.components.bufferlist.commands")
@@ -15,60 +16,6 @@ local config_prototype = {
 		close = "d",
 	},
 }
-
-local function get_listed_bufs()
-	return vim.tbl_filter(function(bufnr)
-		return vim.bo[bufnr].buflisted and vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_get_name(bufnr) ~= ""
-	end, vim.api.nvim_list_bufs())
-end
-
--- Get the names of all current listed buffers
-local function get_current_filenames()
-	return vim.tbl_map(vim.api.nvim_buf_get_name, get_listed_bufs())
-end
-
--- Get unique name for the current buffer
-local function get_unique_filename(filename)
-	local filenames = vim.tbl_filter(function(filename_other)
-		return filename_other ~= filename
-	end, get_current_filenames())
-
-	-- Reverse filenames in order to compare their names
-	filename = string.reverse(filename)
-	filenames = vim.tbl_map(string.reverse, filenames)
-
-	local index
-
-	-- For every other filename, compare it with the name of the current file char-by-char to
-	-- find the minimum index `i` where the i-th character is different for the two filenames
-	-- After doing it for every filename, get the maximum value of `i`
-	if next(filenames) then
-		index = math.max(unpack(vim.tbl_map(function(filename_other)
-			for i = 1, #filename do
-				-- Compare i-th character of both names until they aren't equal
-				if filename:sub(i, i) ~= filename_other:sub(i, i) then
-					return i
-				end
-			end
-			return 1
-		end, filenames)))
-	else
-		index = 1
-	end
-
-	-- Iterate backwards (since filename is reversed) until a "/" is found
-	-- in order to show a valid file path
-	while index <= #filename do
-		if filename:sub(index, index) == "/" then
-			index = index - 1
-			break
-		end
-
-		index = index + 1
-	end
-
-	return string.reverse(string.sub(filename, 1, index))
-end
 
 BufferListComponent.new = function(name, config)
 	local self = base.new(name)
@@ -183,11 +130,11 @@ BufferListComponent.new = function(name, config)
 				end
 			end
 			return {
-				name = get_unique_filename(vim.api.nvim_buf_get_name(buf)),
+				name = libbuf.get_unique_filename(vim.api.nvim_buf_get_name(buf)),
 				icon = icon,
 				id = buf,
 			}
-		end, get_listed_bufs())
+		end, libbuf.get_listed_bufs())
 		self.bufs = bufs
 		self.render()
 	end
