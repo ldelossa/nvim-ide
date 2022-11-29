@@ -52,7 +52,7 @@ M.config = {
     -- workspaces config
     workspaces = {
         -- automatically close vim if only remaining windows are components
-         auto_close = true
+        auto_close = true
     }
 }
 
