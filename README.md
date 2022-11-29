@@ -31,7 +31,7 @@ The current set of default components include:
 * TerminalBrowser - A terminal manager for creating, renaming, jumping-to, and deleting terminal instances.
 * Timeline - Displays the git history of a file, showing you how the file was manipulated over several commits.
 
-We put a lot of efforts into writing `docs/nvim-ide.txt`, so please refer to this 
+We put a lot of efforts into writing `docs/nvim-ide.md`, so please refer to this 
 file for introduction, usage, and development information.
 
 ## Getting started 

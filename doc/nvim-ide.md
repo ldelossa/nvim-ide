@@ -16,13 +16,13 @@ Homepage: <https://github.com/ldelossa/nvim-ide>
 License:  MIT license
 
 CONTENTS                                                            *ide-contents*
-
+<pre>
   1     Intro..............................................|ide-intro|
   2     Usage..............................................|ide-usage|
   3     Panels.............................................|ide-panels|
   4     Components.........................................|ide-components|
   5     Default Components.................................|ide-default-components|
-
+</pre>
 ====================================================================================
 INTRODUCTION                                                           *ide-intro*
 
@@ -46,6 +46,7 @@ components, and state.
 
 A Workspace defines a particular UI. 
 
+<pre>
 ┌────────────────────┬──────────────────────────────┬─────────────────────┐
 │                    │                              │                     │
 │                    │                              │                     │
@@ -70,6 +71,7 @@ A Workspace defines a particular UI.
 │                    │                              │                     │
 │                    │                              │                     │
 └────────────────────┴──────────────────────────────┴─────────────────────┘
+</pre>
 
 The left and right panels are user defined, while the Terminal/Utility panel
 is reserved for showing informational details of `nvim-ide` or the current 
@@ -98,7 +100,7 @@ First, get the plugin with your favorite plugin manager of choice.
 
 Next, add the setup function anywhere you configure your plugins.
 
-```
+```lua
 require('ide').setup({
     -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
@@ -198,7 +200,7 @@ A Component implements a well defined API and also registers itself within a
 
 For example, here is the Bookmarks component's init.lua file:
 
-```
+```lua
 local component_factory = require('ide.panels.component_factory')
 local component = require('ide.components.bookmarks.component')
 
@@ -291,7 +293,7 @@ You can view all Bookmarks commands by issuing the `Workspace` command and then
 navigating to the `Bookmarks` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -320,7 +322,7 @@ You can view all Branches commands by issuing the `Workspace` command and then
 navigating to the `Branches` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -354,7 +356,7 @@ You can view all CallHierarchy commands by issuing the `Workspace` command and t
 navigating to the `CallHierarchy` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -385,7 +387,7 @@ You can view all Changes commands by issuing the `Workspace` command and then
 navigating to the `Changes` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -427,7 +429,7 @@ navigating to the `Commits` subcommand.
 
 Config:
 
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -461,7 +463,7 @@ You can view all Explorer commands by issuing the `Workspace` command and then
 navigating to the `Explorer` subcommand.
 
 Config:
-```
+```lua
 {
     list_directories_first = false,
     show_file_permissions = true,
@@ -508,7 +510,7 @@ You can view all Outline commands by issuing the `Workspace` command and then
 navigating to the `Outline` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -541,7 +543,7 @@ You can view all TerminalBrowser commands by issuing the `Workspace` command and
 navigating to the `TerminalBrowser` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
@@ -568,7 +570,7 @@ You can view all Timeline commands by issuing the `Workspace` command and then
 navigating to the `Timeline` subcommand.
 
 Config:
-```
+```lua
 {
     disabled_keymaps = false,
     keymaps = {
