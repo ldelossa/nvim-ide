@@ -1,7 +1,7 @@
 local node     = require('ide.trees.node')
 local icon_set = require('ide.icons').global_icon_set
 
-BranchNode = {}
+local BranchNode = {}
 
 BranchNode.new = function(sha, branch, is_head, depth)
     -- extends 'ide.trees.Node' fields.

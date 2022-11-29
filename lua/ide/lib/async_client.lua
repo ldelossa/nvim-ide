@@ -1,7 +1,7 @@
 local uv = vim.loop
 local logger = require('ide.logger.logger')
 
-Git = {}
+local Git = {}
 
 Git.new = function(cmd)
     local self = {

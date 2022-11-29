@@ -8,7 +8,7 @@ local logger   = require('ide.logger.logger')
 local prompts  = require('ide.components.explorer.prompts')
 local icon_set = require('ide.icons').global_icon_set
 
-ExplorerComponent = {}
+local ExplorerComponent = {}
 
 local config_prototype = {
     list_directories_first = false,
@@ -174,7 +174,7 @@ ExplorerComponent.new = function(name, config)
 
     -- implements @Component interface
     function self.get_commands()
-        log = self.logger.logger_from(nil, "Component.get_commands")
+        local log = self.logger.logger_from(nil, "Component.get_commands")
         return commands.new(self).get()
     end
 
@@ -182,7 +182,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- return: void
     function self.refresh()
-        log = self.logger.logger_from(nil, "Component.get_commands")
+        local log = self.logger.logger_from(nil, "Component.get_commands")
         self.tree.walk_subtree(self.tree.root, function(fnode)
             if fnode.expanded then
                 fnode.expand()
@@ -237,7 +237,7 @@ ExplorerComponent.new = function(name, config)
     end
 
     function self.collapse_all(args)
-        log = self.logger.logger_from(nil, "Component.expand")
+        local log = self.logger.logger_from(nil, "Component.expand")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -250,7 +250,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.touch(args)
-        log = self.logger.logger_from(nil, "Component.touch")
+        local log = self.logger.logger_from(nil, "Component.touch")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -272,7 +272,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.mkdir(args)
-        log = self.logger.logger_from(nil, "Component.mkdir")
+        local log = self.logger.logger_from(nil, "Component.mkdir")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -311,7 +311,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.rename(args)
-        log = self.logger.logger_from(nil, "Component.rename")
+        local log = self.logger.logger_from(nil, "Component.rename")
 
         if not libwin.win_is_valid(self.win) then
             return
@@ -342,7 +342,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.rm(args)
-        log = self.logger.logger_from(nil, "Component.expand")
+        local log = self.logger.logger_from(nil, "Component.expand")
 
         if not libwin.win_is_valid(self.win) then
             return
@@ -406,7 +406,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.select(args)
-        log = self.logger.logger_from(nil, "Component.select")
+        local log = self.logger.logger_from(nil, "Component.select")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -451,7 +451,7 @@ ExplorerComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.open_filenode(args)
-        log = self.logger.logger_from(nil, "Component.open_filenode")
+        local log = self.logger.logger_from(nil, "Component.open_filenode")
 
         local split = false
         local vsplit = false

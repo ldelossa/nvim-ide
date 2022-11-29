@@ -1,4 +1,4 @@
-DepthTable = {}
+local DepthTable = {}
 
 -- A DepthTable allows quick searching for nodes at a known tree depth.
 --

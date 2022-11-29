@@ -1,4 +1,4 @@
-IconSet = {}
+local IconSet = {}
 
 local prototype = {
     icons = {

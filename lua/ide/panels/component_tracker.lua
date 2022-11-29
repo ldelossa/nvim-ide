@@ -1,7 +1,7 @@
 local logger = require('ide.logger.logger')
 local libwin = require('ide.lib.win')
 
-ComponentTracker = {}
+local ComponentTracker = {}
 
 -- A ComponentTracker is responsible for listening to autocommand events and
 -- updating stateful properties of a @Component within a @Panel and storing

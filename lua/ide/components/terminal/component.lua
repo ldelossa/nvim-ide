@@ -4,7 +4,7 @@ local logger = require('ide.logger.logger')
 local libwin = require('ide.lib.win')
 local libbuf = require('ide.lib.buf')
 
-TerminalComponent = {}
+local TerminalComponent = {}
 
 local config_prototype = {
     shell = nil,

@@ -1,14 +1,11 @@
 local base = require('ide.panels.component')
 local commands = require('ide.components.bookmarks.commands')
 local logger = require('ide.logger.logger')
-local diff_buf = require('ide.buffers.diffbuffer')
 local libwin = require('ide.lib.win')
-local libbuf = require('ide.lib.buf')
-local bookmarknode = require('ide.components.bookmarks.bookmarknode')
 local icon_set = require('ide.icons').global_icon_set
 local notebook = require('ide.components.bookmarks.notebook')
 
-BookmarksComponent = {}
+local BookmarksComponent = {}
 
 BookmarksComponent.NotebooksPath = "~/.config/nvim/bookmarks"
 

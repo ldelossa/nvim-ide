@@ -1,9 +1,7 @@
-local panel_registry = require("ide.panels.panel_registry")
-
 -- WorkspaceRegistry is a registry associating Workspaces to tabs. 
 --
 -- It is a global singleton which other components may use after import.
-WorkspaceRegistry = {}
+local WorkspaceRegistry = {}
 
 local registry = {
     ['1'] = nil

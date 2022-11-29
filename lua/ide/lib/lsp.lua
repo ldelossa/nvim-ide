@@ -1,4 +1,4 @@
-LSP = {}
+local LSP = {}
 
 function LSP.request_all_first_result(resp)
     for id, r in pairs(resp) do

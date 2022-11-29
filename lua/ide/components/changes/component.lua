@@ -9,7 +9,7 @@ local statusnode = require('ide.components.changes.statusnode')
 local icon_set = require('ide.icons').global_icon_set
 local git = require('ide.lib.git.client').new()
 
-ChangesComponent = {}
+local ChangesComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
@@ -163,7 +163,7 @@ ChangesComponent.new = function(name, config)
         self.state["cursor"].restore()
     end
 
-    function _build_tree(stats)
+    local function _build_tree(stats)
         local root = statusnode.new("", vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), false, 0)
         local staged = statusnode.new("", "Staged Changes", false)
         local unstaged = statusnode.new("", "Unstaged Changes", false)
@@ -265,7 +265,7 @@ ChangesComponent.new = function(name, config)
     end
 
     function self.jump_statusnode(args)
-        log = self.logger.logger_from(nil, "Component.jump_statusnode")
+        local log = self.logger.logger_from(nil, "Component.jump_statusnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then

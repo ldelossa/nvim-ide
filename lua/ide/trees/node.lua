@@ -1,6 +1,6 @@
 local logger = require('ide.logger.logger')
 
-Node = {}
+local Node = {}
 
 -- A Node is an interface for derived Nodes to implement.
 --

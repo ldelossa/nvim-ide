@@ -1,4 +1,4 @@
-Logger = {}
+local Logger = {}
 
 Logger.session_id = string.format("%s-%s", "nvim-ide", vim.fn.rand())
 

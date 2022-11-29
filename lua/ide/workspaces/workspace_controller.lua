@@ -1,11 +1,10 @@
 local workspace = require('ide.workspaces.workspace')
 local workspace_registry = require('ide.workspaces.workspace_registry')
-local commands = require('ide.workspaces.commands')
 local libcmd   = require('ide.lib.commands')
 local libwin   = require('ide.lib.win')
 local logger   = require('ide.logger.logger')
 
-WorkspaceController = {}
+local WorkspaceController = {}
 
 -- WorkspaceController is responsible for creating and removing workspaces during
 -- Neovim's runtime.

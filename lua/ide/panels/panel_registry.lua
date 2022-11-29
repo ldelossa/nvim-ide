@@ -1,7 +1,7 @@
 -- PanelRegistry is a registry associating panels to tabs. 
 --
 -- It is a global singleton which other components may use after import.
-PanelRegistry = {}
+local PanelRegistry = {}
 
 local registry = {
     ['1'] = {

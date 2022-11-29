@@ -4,7 +4,7 @@ local liblsp   = require('ide.lib.lsp')
 local prompts  = require('ide.components.explorer.prompts')
 local logger   = require('ide.logger.logger')
 
-CallNode = {}
+local CallNode = {}
 
 CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
     -- extends 'ide.trees.Node' fields.

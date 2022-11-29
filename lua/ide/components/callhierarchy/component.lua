@@ -8,7 +8,7 @@ local liblsp   = require('ide.lib.lsp')
 local logger   = require('ide.logger.logger')
 local icon_set = require('ide.icons').global_icon_set
 
-CallHierarchyComponent = {}
+local CallHierarchyComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
@@ -116,7 +116,7 @@ CallHierarchyComponent.new = function(name, config)
 
     -- implements @Component interface
     function self.get_commands()
-        log = self.logger.logger_from(nil, "Component.get_commands")
+        local log = self.logger.logger_from(nil, "Component.get_commands")
         return commands.new(self).get()
     end
 
@@ -148,7 +148,7 @@ CallHierarchyComponent.new = function(name, config)
     -- @callnode - @CallNode, an override which collapses the given @CallNode, ignoring the
     --           node under the current position.
     function self.collapse(args, callnode)
-        log = self.logger.logger_from(nil, "Component.collapse")
+        local log = self.logger.logger_from(nil, "Component.collapse")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -167,7 +167,7 @@ CallHierarchyComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.collapse_all(args)
-        log = self.logger.logger_from(nil, "Component.collapse_all")
+        local log = self.logger.logger_from(nil, "Component.collapse_all")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -182,13 +182,13 @@ CallHierarchyComponent.new = function(name, config)
         self.state["cursor"].restore()
     end
 
-    function _set_winbar_direction(direction)
+    local function _set_winbar_direction(direction)
         if libwin.win_is_valid(self.win) then
             vim.api.nvim_win_set_option(self.win, "winbar", string.format("CallHierarchy (%s)", direction))
         end
     end
 
-    function _build_call_hierarchy(direction, root_item, calls)
+    local function _build_call_hierarchy(direction, root_item, calls)
         local synthetic_item_call = liblsp.item_to_call_hierarchy_call(direction, root_item)
 
         local root = callnode.new(self, direction, synthetic_item_call, 0)
@@ -216,7 +216,7 @@ CallHierarchyComponent.new = function(name, config)
         self.state["cursor"].restore()
     end
 
-    function _call_hierarchy_prepare(direction, call_hierarchy_request)
+    local function _call_hierarchy_prepare(direction, call_hierarchy_request)
         local log = self.logger.logger_from(nil, "Component._call_hierarchy_prepare")
 
         local cur_buf = vim.api.nvim_get_current_buf()

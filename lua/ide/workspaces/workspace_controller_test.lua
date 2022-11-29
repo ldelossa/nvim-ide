@@ -2,7 +2,7 @@ local workspace_ctlr = require('ide.workspaces.workspace_controller')
 local component_factory = require('ide.panels.component_factory')
 local test_component = require('ide.panels.test_component')
 
-M = {}
+local M = {}
 
 function M.test_functionality()
     -- register a component with the component factory

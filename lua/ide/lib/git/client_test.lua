@@ -1,6 +1,6 @@
 local git = require('ide.lib.git.client')
 
-M = {}
+local M = {}
 
 function M.test_functionality()
     local client = git.new()

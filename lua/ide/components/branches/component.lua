@@ -6,7 +6,7 @@ local commands = require('ide.components.branches.commands')
 local logger = require('ide.logger.logger')
 local icon_set = require('ide.icons').global_icon_set
 
-BranchesComponent = {}
+local BranchesComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
