@@ -1,9 +1,9 @@
 local uv = vim.loop
 local logger = require('ide.logger.logger')
 
-local Git = {}
+local Client = {}
 
-Git.new = function(cmd)
+Client.new = function(cmd)
     local self = {
         cmd = cmd,
         -- a default logger that's set on construction.
@@ -188,4 +188,4 @@ Git.new = function(cmd)
     return self
 end
 
-return Git
+return Client
