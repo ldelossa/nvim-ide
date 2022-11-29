@@ -46,6 +46,12 @@ M.config = {
         explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+    },
+
+    -- workspaces config
+    workspaces = {
+        -- automatically close vim if only remaining windows are components
+        auto_close = true
     }
 }
 
@@ -63,7 +69,7 @@ function M.setup(config)
     end
 
     -- create and launch a workspace controller.
-    local wsctrl = require('ide.workspaces.workspace_controller').new()
+    local wsctrl = require('ide.workspaces.workspace_controller').new(M.config.workspaces)
     wsctrl.init()
 end
 
