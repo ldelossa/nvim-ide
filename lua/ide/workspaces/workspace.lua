@@ -160,11 +160,24 @@ Workspace.new = function(tab)
             self.swap_panel(pos, group)
         end
 
-        -- start with right panel closed
-        if self.panels.right.is_open() then
+        -- set panels open/closed based on config
+        if self.config.workspaces.auto_open == 'left' then
+            self.panels.left.open()
+            self.panels.right.close()
+        elseif self.config.workspaces.auto_open == 'right' then
+            self.panels.right.open()
+            self.panels.left.close()
+        elseif self.config.workspaces.auto_open == 'both' then
+            self.panels.right.open()
+            self.panels.left.open()
+        elseif self.config.workspaces.auto_open == 'none' then
+            self.panels.left.close()
+            self.panels.right.close()
+        else
+            -- default to 'left'
+            self.panels.left.open()
             self.panels.right.close()
         end
-
     end
 
     -- Closes the workspace.
