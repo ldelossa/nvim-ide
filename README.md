@@ -85,15 +85,20 @@ require('ide').setup({
 
 4. Begin reading ":h nvim-ide"
 
+## Best used with
 
 `nvim-ide` is bested used with:
 
 fuzzy-searching:
+
 [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) 
+
 [fzf-lua](https://github.com/nvim-telescope/telescope.nvim) 
 
 pretty notifications:
+
 [nvim-notify](https://github.com/rcarriga/nvim-notify)
 
 vscode-like "peek":
+
 [glance.nvim](https://github.com/DNLHC/glance.nvim)
