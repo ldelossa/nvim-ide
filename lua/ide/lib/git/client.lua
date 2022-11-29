@@ -31,10 +31,9 @@ Git.new = function()
     local function handle_req(callback)
         return function(req)
             if req.error then
-                return
-            end
-            if req.exit_code ~= 0 then
-                vim.notify(string.format("git: %s", req.stderr), vim.log.levels.ERROR)
+                vim.notify(string.format("%s\n%s", req.reason, req.stderr),  "error", {
+                    title = "git",
+                })
                 callback(nil)
                 return
             end
@@ -322,7 +321,7 @@ Git.new = function()
         )
     end
 
-    -- List the branches in the current repository. 
+    -- List the branches in the current repository.
     --
     -- @cb  - @function(table|nil), if not nil, a table of branches
     --        The table has the following fields:
@@ -390,7 +389,7 @@ Git.new = function()
 
     -- Return the full sha256 of the current HEAD.
     --
-    -- @cb      - @function(string|nil) - The sha256 of the current head or a 
+    -- @cb      - @function(string|nil) - The sha256 of the current head or a
     --            nil if an error occurred.
     function self.head(cb)
         self.make_request(
