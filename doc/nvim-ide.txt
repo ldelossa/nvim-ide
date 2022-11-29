@@ -464,6 +464,7 @@ Config:
 ```
 {
     list_directories_first = false,
+    show_file_permissions = true,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
