@@ -124,9 +124,9 @@ BufferListComponent.new = function(name, config)
 				end
 			else
 				if self.kind ~= "dir" then
-					icon = require("ide.icons").global_icon_set.get_icon("File")
+					icon = icon_set.get_icon("File")
 				else
-					icon = require("ide.icons").global_icon_set.get_icon("Folder")
+					icon = icon_set.get_icon("Folder")
 				end
 			end
 			return {
