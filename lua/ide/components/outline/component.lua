@@ -180,7 +180,16 @@ OutlineComponent.new = function(name, config)
             return
         end
 
-        vim.lsp.buf_request_all(cur_buf, 'textDocument/documentSymbol', { textDocument = tdi }, function(resp)
+        local lsp_method = 'textDocument/documentSymbol'
+
+        local supports_method = #(vim.tbl_filter(function(client)
+          return client.supports_method(lsp_method)
+        end, vim.lsp.buf_get_clients(cur_buf))) > 0
+        if not supports_method then
+            return
+        end
+
+        vim.lsp.buf_request_all(cur_buf, lsp_method, { textDocument = tdi }, function(resp)
             local result = liblsp.request_all_first_result(resp)
             if result ~= nil then
                 _build_outline(result, vim.api.nvim_buf_get_name(cur_buf))
