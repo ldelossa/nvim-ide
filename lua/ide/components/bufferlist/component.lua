@@ -69,7 +69,9 @@ BufferListComponent.new = function(name, config)
 
 		-- setup autocmds to refresh
 		vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufWipeout" }, {
-			callback = self.refresh,
+			callback = function()
+				vim.schedule(self.refresh)
+			end,
 			group = vim.api.nvim_create_augroup("NvimIdeBufferlist", { clear = true }),
 		})
 
