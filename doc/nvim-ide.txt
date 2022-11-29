@@ -123,7 +123,7 @@ require('ide').setup({
     -- panels defined by groups of components, user is free to redefine the defaults
     -- and/or add additional.
     panel_groups = {
-        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
+        explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
     }
@@ -336,6 +336,31 @@ Config:
         maximize = "+",
         minimize = "-"
     },
+}
+```
+
+====================================================================================
+BufferList                                              *ide-bufferlist-components*
+
+A list of currently open buffers. If multiple buffers have the same filename,
+parts of the full path to the files will be used to ensure they are unique in the list.
+For example, if you have opened `lua/myplugin/init.lua` and
+`lua/myplugin/submodule/init.lua`, they will appear in the list as `myplugin/init.lua`
+and `submodule/init.lua`, respectively.
+
+You can view all CallHierarchy commands by issuing the `Workspace` command and then
+navigating to the `BufferList` subcommand.
+
+Config:
+```
+{
+	disabled_keymaps = false,
+	keymaps = {
+		edit = "<CR>",
+		edit_split = "s",
+		edit_vsplit = "v",
+		close = "d",
+	},
 }
 ```
 
