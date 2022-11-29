@@ -1,12 +1,8 @@
 local base = require("ide.panels.component")
-local tree = require("ide.trees.tree")
-local filenode = require("ide.components.explorer.filenode")
-local commands = require("ide.components.explorer.commands")
 local libwin = require("ide.lib.win")
-local libbuf = require("ide.lib.buf")
 local logger = require("ide.logger.logger")
-local prompts = require("ide.components.explorer.prompts")
 local icon_set = require("ide.icons").global_icon_set
+local commands = require("ide.components.bufferlist.commands")
 
 local BufferListComponent = {}
 
@@ -165,17 +161,17 @@ BufferListComponent.new = function(name, config)
 	end
 
 	function self.get_commands()
-		-- TODO
-		return {}
+		return commands.new(self).get()
 	end
 
 	function self.refresh()
-		-- TODO
 		local bufs = vim.tbl_map(function(buf)
 			local icon
 			-- use webdev icons if possible
 			if pcall(require, "nvim-web-devicons") then
-				icon = require("nvim-web-devicons").get_icon(self.name, nil, { default = true })
+				local name = vim.api.nvim_buf_get_name(buf)
+				local ext = vim.fn.fnamemodify(name, ":e:e")
+				icon = require("nvim-web-devicons").get_icon(name, ext, { default = true })
 				if self.kind == "dir" then
 					icon = require("nvim-web-devicons").get_icon("dir")
 				end

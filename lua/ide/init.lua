@@ -1,5 +1,6 @@
 -- default components
 local explorer        = require('ide.components.explorer')
+local bufferlist      = require('ide.components.bufferlist')
 local outline         = require('ide.components.outline')
 local callhierarchy   = require('ide.components.callhierarchy')
 local timeline        = require('ide.components.timeline')
@@ -43,7 +44,7 @@ M.config = {
     -- panels defined by groups of components, user is free to redefine the defaults
     -- and/or add additional.
     panel_groups = {
-        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
+        explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
     },
@@ -51,7 +52,7 @@ M.config = {
     -- workspaces config
     workspaces = {
         -- automatically close vim if only remaining windows are components
-        auto_close = true
+         auto_close = true
     }
 }
 
