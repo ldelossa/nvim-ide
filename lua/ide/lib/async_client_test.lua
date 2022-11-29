@@ -2,7 +2,7 @@ local client = require('ide.lib.async_client')
 
 local uv = vim.loop
 
-M = {}
+local M = {}
 
 function M.test_stdout()
     -- use an echo client for testing.

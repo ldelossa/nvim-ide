@@ -1,7 +1,7 @@
 local tree = require('ide.trees.tree')
 local filenode = require('ide.components.explorer.filenode')
 
-M = {}
+local M = {}
 
 function M.test_expand()
 

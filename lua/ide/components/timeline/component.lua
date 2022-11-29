@@ -10,7 +10,7 @@ local libbuf = require('ide.lib.buf')
 local logger = require('ide.logger.logger')
 local icon_set = require('ide.icons').global_icon_set
 
-TimelineComponent = {}
+local TimelineComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
@@ -152,7 +152,7 @@ TimelineComponent.new = function(name, config)
 
     -- implements @Component interface
     function self.get_commands()
-        log = self.logger.logger_from(nil, "Component.get_commands")
+        local log = self.logger.logger_from(nil, "Component.get_commands")
         return commands.new(self).get()
     end
 
@@ -184,7 +184,7 @@ TimelineComponent.new = function(name, config)
     -- @timelinenode - @CallNode, an override which collapses the given @CallNode, ignoring the
     --           node under the current position.
     function self.collapse(args, timelinenode)
-        log = self.logger.logger_from(nil, "Component.collapse")
+        local log = self.logger.logger_from(nil, "Component.collapse")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -203,7 +203,7 @@ TimelineComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.collapse_all(args)
-        log = self.logger.logger_from(nil, "Component.collapse_all")
+        local log = self.logger.logger_from(nil, "Component.collapse_all")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -256,7 +256,7 @@ TimelineComponent.new = function(name, config)
     end
 
     function self.jump_timelinenode(args)
-        log = self.logger.logger_from(nil, "Component.jump_timelinenode")
+        local log = self.logger.logger_from(nil, "Component.jump_timelinenode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
@@ -272,7 +272,7 @@ TimelineComponent.new = function(name, config)
 
         local pnode = self.tree.depth_table.table[1][i + 1]
 
-        function do_diff(file_a, file_b)
+        local function do_diff(file_a, file_b)
             local tab = false
             for _, arg in ipairs(args.fargs) do
                 if arg == "tab" then
@@ -304,9 +304,6 @@ TimelineComponent.new = function(name, config)
         end
 
         git.show_file(pnode.sha, pnode.file, function(file_a)
-            if file_a == nil then
-            end
-
             git.show_file(node.sha, node.file, function(file_b)
                 if file_b == nil then
                     return

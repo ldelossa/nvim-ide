@@ -1,7 +1,7 @@
 local options = require('ide.lib.options')
 local libbuf  = require('ide.lib.buf')
 
-Buffer = {}
+local Buffer = {}
 
 -- Buffer is a base buffer class which can be used to derive more complex buffer
 -- types.
@@ -25,7 +25,7 @@ Buffer.new = function(buf, listed, scratch)
         self.buf = buf
     end
 
-    function _modifiable_with_restore()
+    local function _modifiable_with_restore()
         local restore = function() end
         if not self.is_modifiable() then
             self.set_modifiable(true)

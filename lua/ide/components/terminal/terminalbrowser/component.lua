@@ -5,7 +5,7 @@ local termnode = require('ide.components.terminal.terminalbrowser.terminalnode')
 local logger = require('ide.logger.logger')
 local commands = require('ide.components.terminal.terminalbrowser.commands')
 
-TerminalBrowserComponent = {}
+local TerminalBrowserComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,

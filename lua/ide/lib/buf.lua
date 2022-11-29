@@ -1,4 +1,4 @@
-Buf = {}
+local Buf = {}
 
 function Buf.buf_is_valid(buf)
     if buf ~= nil and vim.api.nvim_buf_is_valid(buf) then

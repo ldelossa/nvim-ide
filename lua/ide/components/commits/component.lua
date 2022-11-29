@@ -7,11 +7,10 @@ local git = require('ide.lib.git.client').new()
 local commitnode = require('ide.components.commits.commitnode')
 local commands = require('ide.components.commits.commands')
 local libwin = require('ide.lib.win')
-local libbuf = require('ide.lib.buf')
 local logger = require('ide.logger.logger')
 local icon_set = require('ide.icons').global_icon_set
 
-CommitsComponent = {}
+local CommitsComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
@@ -213,7 +212,7 @@ CommitsComponent.new = function(name, config)
     -- @commitnode - @CallNode, an override which collapses the given @CallNode, ignoring the
     --           node under the current position.
     function self.collapse(args, commitnode)
-        log = self.logger.logger_from(nil, "Component.collapse")
+        local log = self.logger.logger_from(nil, "Component.collapse")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -234,7 +233,7 @@ CommitsComponent.new = function(name, config)
     --
     -- @args - @table, user command table as described in ":h nvim_create_user_command()"
     function self.collapse_all(args)
-        log = self.logger.logger_from(nil, "Component.collapse_all")
+        local log = self.logger.logger_from(nil, "Component.collapse_all")
         if not libwin.win_is_valid(self.win) then
             return
         end
@@ -277,7 +276,7 @@ CommitsComponent.new = function(name, config)
     end
 
     function self.checkout_commitnode(args)
-        log = self.logger.logger_from(nil, "Component.jump_commitnode")
+        local log = self.logger.logger_from(nil, "Component.jump_commitnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
@@ -339,7 +338,7 @@ CommitsComponent.new = function(name, config)
     end
 
     function self.jump_commitnode(args)
-        log = self.logger.logger_from(nil, "Component.jump_commitnode")
+        local log = self.logger.logger_from(nil, "Component.jump_commitnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
@@ -358,7 +357,7 @@ CommitsComponent.new = function(name, config)
         end
         local pcommit = self.tree.depth_table.table[commit.depth][i+1]
 
-        function do_diff(file_a, file_b, sha_a, sha_b, path)
+        local function do_diff(file_a, file_b, sha_a, sha_b, path)
             local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
             local buf_name_b = string.format("%s:%d://%s", sha_b, vim.fn.rand(), path)
 
@@ -395,12 +394,10 @@ CommitsComponent.new = function(name, config)
                 do_diff(file_a, file_b, pcommit.sha, node.sha, node.file)
             end)
         end)
-
-        return
     end
 
     function self.details(args)
-        log = self.logger.logger_from(nil, "Component.details")
+        local log = self.logger.logger_from(nil, "Component.details")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then

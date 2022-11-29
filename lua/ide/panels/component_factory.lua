@@ -2,7 +2,7 @@
 -- This allows uncoupled modules to request the creation of known @Component(s)
 -- 
 -- This is a global singleton resource that other modules can use after import.
-ComponentFactory = {}
+local ComponentFactory = {}
 
 local factory = {}
 

@@ -1,4 +1,4 @@
-Icons = {}
+local Icons = {}
 
 -- Set the global IconSet to the default IconSet.
 -- This can be overwritten later to change the icon set used across all components

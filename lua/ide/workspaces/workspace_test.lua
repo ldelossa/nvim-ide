@@ -3,7 +3,7 @@ local panel = require('ide.panels.panel')
 local component_factory = require('ide.panels.component_factory')
 local test_component = require('ide.panels.test_component')
 
-M = {}
+local M = {}
 
 function M.test_default()
     -- register a component with the component factory

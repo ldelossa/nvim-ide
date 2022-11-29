@@ -1,6 +1,6 @@
 local async_client = require('ide.lib.async_client')
 
-Git = {}
+local Git = {}
 
 Git.RECORD_SEP = '␞'
 Git.GROUP_SEP = '␝'

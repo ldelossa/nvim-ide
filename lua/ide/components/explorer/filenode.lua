@@ -3,7 +3,7 @@ local prompts = require('ide.components.explorer.prompts')
 local logger = require('ide.logger.logger')
 local sort = require('ide.lib.sort')
 
-FileNode = {}
+local FileNode = {}
 
 local EXPAND_REFRESH_ONLY = { refresh_only = true }
 

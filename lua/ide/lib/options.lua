@@ -1,4 +1,4 @@
-Options = {}
+local Options = {}
 
 function Options.merge(default, provided)
     if provided == nil then

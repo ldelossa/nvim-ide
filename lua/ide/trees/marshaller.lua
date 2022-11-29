@@ -1,6 +1,6 @@
 local icon_set = require('ide.icons').global_icon_set
 
-Marshaller = {}
+local Marshaller = {}
 
 -- A Marshaller is responsible for taking a @Tree and marshalling its @Node(s)
 -- into buffer lines, providing the user facing interface for a @Tree.

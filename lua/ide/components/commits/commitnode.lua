@@ -4,7 +4,7 @@ local logger   = require('ide.logger.logger')
 local git      = require('ide.lib.git.client').new()
 local libpopup = require('ide.lib.popup')
 
-CommitNode = {}
+local CommitNode = {}
 
 CommitNode.new = function(sha, file, subject, author, date, depth)
     -- extends 'ide.trees.Node' fields.

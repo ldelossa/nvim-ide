@@ -1,6 +1,6 @@
 local icon_set = require('ide.icons.icon_set')
 
-CodiconIconSet = {}
+local CodiconIconSet = {}
 
 local prototype = {
     icons = {

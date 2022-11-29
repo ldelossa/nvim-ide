@@ -1,7 +1,7 @@
 local p_reg = require('ide.panels.panel_registry')
 local p = require('ide.panels.panel')
 
-M = {}
+local M = {}
 
 function M.test()
     local tp = p.new(1, p.PANEL_POS_TOP)
@@ -40,16 +40,16 @@ function M.test()
 
     panels = p_reg.get_panels(1)
 
-    if not panels.top == nil then
+    if panels.top ~= nil then
         error("expected top panel to be nil after unregistering")
     end
-    if not panels.left == nil then
+    if panels.left ~= nil then
         error("expected left panel to be nil after unregistering")
     end
-    if not panels.right == nil then
+    if panels.right ~= nil then
         error("expected right panel to be nil after unregistering")
     end
-    if not panels.bottom == nil then
+    if panels.bottom ~= nil then
         error("expected bottom panel to be nil after unregistering")
     end
 end

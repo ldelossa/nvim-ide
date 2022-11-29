@@ -7,7 +7,7 @@ local component_factory  = require('ide.panels.component_factory')
 local libwin             = require('ide.lib.win')
 local logger             = require('ide.logger.logger')
 
-Workspace = {}
+local Workspace = {}
 
 -- A Workspace is a control structure which governs a tab's @Panel creations and
 -- @Component registrations to these components.

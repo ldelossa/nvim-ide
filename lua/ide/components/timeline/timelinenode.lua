@@ -1,10 +1,9 @@
 local node     = require('ide.trees.node')
 local icon_set = require('ide.icons').global_icon_set
-local logger   = require('ide.logger.logger')
 local git      = require('ide.lib.git.client').new()
 local libpopup = require('ide.lib.popup')
 
-TimelineNode = {}
+local TimelineNode = {}
 
 TimelineNode.new = function(sha, file, subject, author, date, depth)
     -- extends 'ide.trees.Node' fields.

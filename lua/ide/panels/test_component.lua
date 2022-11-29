@@ -4,7 +4,7 @@ local component = require('ide.panels.component')
 -- name.
 --
 -- Used for testing purposes.
-TestComponent = {}
+local TestComponent = {}
 
 TestComponent.new = function(name)
     local self = component.new(name)

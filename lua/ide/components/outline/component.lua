@@ -8,7 +8,7 @@ local liblsp     = require('ide.lib.lsp')
 local symbolnode = require('ide.components.outline.symbolnode')
 local icon_set   = require('ide.icons').global_icon_set
 
-OutlineComponent = {}
+local OutlineComponent = {}
 
 local config_prototype = {
     disabled_keymaps = false,
@@ -386,7 +386,7 @@ OutlineComponent.new = function(name, config)
     end
 
     function self.jump_symbolnode(args)
-        log = self.logger.logger_from(nil, "Component.jump_symbolnode")
+        local log = self.logger.logger_from(nil, "Component.jump_symbolnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
         if node == nil then
