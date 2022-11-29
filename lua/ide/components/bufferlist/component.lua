@@ -139,6 +139,10 @@ BufferListComponent.new = function(name, config)
 		self.render()
 	end
 
+	function self.buf_under_cursor()
+		return self.bufs[self.state["cursor"].cursor[1]]
+	end
+
 	function self.render()
 		local lines = vim.tbl_map(function(buf)
 			return string.format(" %s %s ", buf.icon, buf.name)
@@ -153,7 +157,7 @@ BufferListComponent.new = function(name, config)
 		local log = self.logger.logger_from(nil, "Component.open_buf")
 
 		local split_type = vim.tbl_get(args or {}, "fargs", 1)
-		local bufnode = self.bufs[self.state["cursor"].cursor[1]]
+		local bufnode = self.buf_under_cursor()
 		if not bufnode then
 			log.error("component failed to unmarshal buffer from list")
 			return
@@ -178,7 +182,7 @@ BufferListComponent.new = function(name, config)
 	function self.close_buf()
 		local log = self.logger.logger_from(nil, "Component.open_buf")
 
-		local bufnode = self.bufs[self.state["cursor"].cursor[1]]
+		local bufnode = self.buf_under_cursor()
 		if not bufnode then
 			log.error("component failed to unmarshal buffer from list")
 			return
