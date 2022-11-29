@@ -23,6 +23,7 @@ ecosystem of Neovim plugins.
 The current set of default components include:
 * Bookmarks - Per-workspace collections of bookmarks with sticky support.
 * Branches  - Checkout and administer the workspaces's git branches
+* Buffers   - Display and administer the currently opened buffers.
 * CallHierarchy - Display an LSP's CallHierarchy request in an intuitive tree.
 * Changes - Display the current git status and stage/restore/commit/amend the diff.
 * Commits - Display the list of commits from HEAD, view a read only diff or checkout a commit and view a modifiable diff.
@@ -37,6 +38,11 @@ file for introduction, usage, and development information.
 ## Getting started 
 
 1. Get the plugin via your favorite plugin manager.
+
+Plug:
+```
+Plug 'ldelossa/nvim-ide'
+```
 
 2. Call the setup function (optionally with the default config):
 ```lua
@@ -78,3 +84,16 @@ require('ide').setup({
 3. Issue the "Workspace" command to begin discovering what's available.
 
 4. Begin reading ":h nvim-ide"
+
+
+`nvim-ide` is bested used with:
+
+fuzzy-searching:
+[Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) 
+[fzf-lua](https://github.com/nvim-telescope/telescope.nvim) 
+
+pretty notifications:
+[nvim-notify](https://github.com/rcarriga/nvim-notify)
+
+vscode-like "peek":
+[glance.nvim](https://github.com/DNLHC/glance.nvim)
