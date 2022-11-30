@@ -501,8 +501,13 @@ navigating to the `Explorer` subcommand.
 Config:
 ```
 {
+    -- prefer sorting directories above normal files
     list_directories_first = false,
+    -- show file permissions as virtual text on the right hand side.
     show_file_permissions = true,
+    -- open the file on create in an editor window. 
+    edit_on_create = true,
+    -- disable all keymaps for the Explorer component.
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
