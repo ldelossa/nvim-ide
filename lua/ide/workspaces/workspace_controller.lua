@@ -266,25 +266,32 @@ function WorkspaceController.new(config)
         -- issues, so do it only after "VimEnter" fires.
         local restore = libwin.restore_cur_win()
         local init_autocmd = nil
-        init_autocmd =  vim.api.nvim_create_autocmd({ "VimEnter" }, {
-            callback = function()
-                -- do not assign if we are git tool.
-                local buf_name = vim.api.nvim_buf_get_name(0)
-                if vim.fn.match(buf_name, ".git/*") >= 0 then
-                    return
-                end
-                -- do not assign if we are a man reader.
-                if vim.fn.match(buf_name, "man://*") >= 0 then
-                    return
-                end
+        local init_callback = function()
+            -- do not assign if we are git tool.
+            local buf_name = vim.api.nvim_buf_get_name(0)
+            if vim.fn.match(buf_name, ".git/*") >= 0 then
+                return
+            end
+            -- do not assign if we are a man reader.
+            if vim.fn.match(buf_name, "man://*") >= 0 then
+                return
+            end
 
-                for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-                    assign_ws(tab)
-                end
-                restore()
+            for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+                assign_ws(tab)
+            end
+            restore()
+            if init_autocmd then
                 vim.api.nvim_del_autocmd(init_autocmd)
             end
-        })
+        end
+        if vim.v.vim_did_enter then
+            vim.schedule(init_callback)
+        else
+            init_autocmd =  vim.api.nvim_create_autocmd({ "VimEnter" }, {
+                callback = init_callback,
+            })
+        end
 
         self.tabnew_autocmd_id = vim.api.nvim_create_autocmd({ "TabNewEntered" }, {
             callback = self.tabnew_autocmd
