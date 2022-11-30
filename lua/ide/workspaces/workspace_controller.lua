@@ -267,13 +267,10 @@ function WorkspaceController.new(config)
         local restore = libwin.restore_cur_win()
         local init_autocmd = nil
         local init_callback = function()
-            -- do not assign if we are git tool.
+            -- do not assign if we are git tool or manpage reader
             local buf_name = vim.api.nvim_buf_get_name(0)
-            if vim.fn.match(buf_name, ".git/*") >= 0 then
-                return
-            end
-            -- do not assign if we are a man reader.
-            if vim.fn.match(buf_name, "man://*") >= 0 then
+            if vim.startswith(buf_name, 'man://') or string.find(buf_name, '%.git/') then
+                log.info('Not assigning workspace, buffer is git tool or manpage reader.')
                 return
             end
 
@@ -286,7 +283,7 @@ function WorkspaceController.new(config)
             end
         end
         if vim.v.vim_did_enter then
-            vim.schedule(init_callback)
+            vim.defer_fn(init_callback, 1)
         else
             init_autocmd =  vim.api.nvim_create_autocmd({ "VimEnter" }, {
                 callback = init_callback,
