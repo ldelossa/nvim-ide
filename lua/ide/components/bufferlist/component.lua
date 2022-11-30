@@ -32,7 +32,6 @@ BufferListComponent.new = function(name, config)
     if config ~= nil then
         self.config = vim.tbl_deep_extend("force", config_prototype, config)
     end
-    print(vim.inspect(self.config))
 
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
