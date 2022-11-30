@@ -272,7 +272,7 @@ ExplorerComponent.new = function(name, config)
             self.state["cursor"].restore()
             if self.config.edit_on_create then
                 vim.api.nvim_set_current_win(self.workspace.get_win())
-                vim.cmd("edit " .. input)
+                vim.cmd("edit " .. fnode.path .. "/" .. input)
             end
         end)
     end
