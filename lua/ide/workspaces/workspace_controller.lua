@@ -238,8 +238,8 @@ function WorkspaceController.new(config)
         end
 
         for _, v in ipairs(vim.api.nvim_list_wins()) do
-            if not string.find(vim.fn.bufname(vim.api.nvim_win_get_buf(v)),
-                "component://*") then
+            local name = vim.fn.bufname(vim.api.nvim_win_get_buf(v))
+            if not string.find(name, "component://*") and name ~= "" then
                 return
             end
         end
