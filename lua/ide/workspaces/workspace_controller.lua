@@ -232,13 +232,13 @@ function WorkspaceController.new(config)
     -- Exit's vim if WinEnter was triggered and the only remaining windows are
     -- component windows.
     function self.auto_close_autocmd()
-        if not string.find(vim.fn.bufname(vim.api.nvim_win_get_buf(0)),
+        if not string.find(vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(0)),
             "component://*") then
             return
         end
 
         for _, v in ipairs(vim.api.nvim_list_wins()) do
-            local name = vim.fn.bufname(vim.api.nvim_win_get_buf(v))
+            local name = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(v))
             if not string.find(name, "component://*") and name ~= "" then
                 return
             end
