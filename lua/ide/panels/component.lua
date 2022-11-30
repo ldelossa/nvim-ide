@@ -48,7 +48,13 @@ Component.new = function(name, config)
         config = {},
         -- component specific state for use with implementations.
         -- implementations may store any private data here.
-        state = {},
+        state = {
+            -- ensure a cursor restore just no-ops, this field is replaced once
+            -- a panel begins tracking the component.
+            cursor = {
+                restore = function() end
+            }
+        },
         -- a default logger that's set on construction.
         -- a derived class can set this logger instance and base class methods will
         -- derive a new logger from it to handle base class component level log fields.
