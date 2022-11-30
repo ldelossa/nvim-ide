@@ -330,9 +330,11 @@ CommitsComponent.new = function(name, config)
             if pcommit ~= nil then
                 git.show_file(pcommit.sha, node.file, function(file)
                     do_diff(file, pcommit.sha, node.file)
+                    self.marshal_tree()
                 end)
             else
                 do_diff({}, "null", node.file)
+                self.marshal_tree()
             end
         end)
     end
