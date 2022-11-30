@@ -45,6 +45,7 @@ Plug 'ldelossa/nvim-ide'
 ```
 
 2. Call the setup function (optionally with the default config):
+
 ```lua
 -- default components
 local explorer        = require('ide.components.explorer')
@@ -59,24 +60,47 @@ local branches        = require('ide.components.branches')
 local bookmarks       = require('ide.components.bookmarks')
 
 require('ide').setup({
-    -- the global icon set to use.
+    -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
     icon_set = "default",
-    -- place Component config overrides here. 
-    -- they key to this table must be the Component's unique name and the value 
-    -- is a table which overrides any default config values.
-    components = {},
+    -- Component specific configurations and default config overrides.
+    components = {
+        -- The global keymap is applied to all Components before construction.
+        -- It allows common keymaps such as "hide" to be overriden, without having
+        -- to make an override entry for all Components.
+        --
+        -- If a more specific keymap override is defined for a specific Component
+        -- this takes precedence.
+        global_keymaps = {
+            -- example, change all Component's hide keymap to "h"
+            -- hide = h
+        },
+        -- example, prefer "x" for hide only for Explorer component.
+        -- Explorer = {
+        --     keymaps = {
+        --         hide = "x",
+        --     }
+        -- }
+    },
     -- default panel groups to display on left and right.
     panels = {
         left = "explorer",
         right = "git"
     },
-    -- panels defined by groups of components, user is free to redefine these
-    -- or add more.
+    -- panels defined by groups of components, user is free to redefine the defaults
+    -- and/or add additional.
     panel_groups = {
-        explorer = { outline.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
+        explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+    },
+
+    -- workspaces config
+    workspaces = {
+        -- automatically close vim if only remaining windows are components
+        auto_close = true,
+        -- which panels to open by default, one of: 'left', 'right', 'both', 'none'
+        auto_open = 'left',
     }
 })
 ```

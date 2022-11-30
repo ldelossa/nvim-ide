@@ -143,7 +143,14 @@ Workspace.new = function(tab)
                 for _, name in ipairs(group) do
                     local constructor = component_factory.get_constructor(name)
                     if constructor ~= nil then
-                        table.insert(components, constructor(name, ide.config.components[name]))
+
+                        -- merge the global keymap before construction.
+                        local comp_config = (ide.config.components[name] or {})
+                        comp_config.keymaps = vim.tbl_extend("force", ide.config.components.global_keymaps,
+                            (comp_config.keymaps or {}))
+
+                        table.insert(components, constructor(name, comp_config))
+
                     end
                 end
                 self.panel_groups[i] = panel.new(self.tab, nil, components)

@@ -103,15 +103,22 @@ require('ide').setup({
     -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
     icon_set = "default",
-    -- Place Component config overrides here. 
-    -- The keys are the Component's unique name and the values are the
-    -- config values to override.
-    -- See the Component's documentation for available config values.
+    -- Component specific configurations and default config overrides.
     components = {
-        -- example...
+        -- The global keymap is applied to all Components before construction.
+        -- It allows common keymaps such as "hide" to be overriden, without having
+        -- to make an override entry for all Components.
+        --
+        -- If a more specific keymap override is defined for a specific Component
+        -- this takes precedence.
+        global_keymaps = {
+            -- example, change all Component's hide keymap to "h"
+            -- hide = h
+        },
+        -- example, prefer "x" for hide only for Explorer component.
         -- Explorer = {
         --     keymaps = {
-        --         expand = "x",
+        --         hide = "x",
         --     }
         -- }
     },
@@ -127,6 +134,8 @@ require('ide').setup({
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
     },
+
+    -- workspaces config
     workspaces = {
         -- automatically close vim if only remaining windows are components
         auto_close = true,
