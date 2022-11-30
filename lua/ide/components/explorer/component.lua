@@ -11,8 +11,13 @@ local icon_set = require('ide.icons').global_icon_set
 local ExplorerComponent = {}
 
 local config_prototype = {
+    -- prefer sorting directories above normal files
     list_directories_first = false,
+    -- show file permissions as virtual text on the right hand side.
     show_file_permissions = true,
+    -- open the file on create in an editor window. 
+    edit_on_create = true,
+    -- disable all keymaps for the Explorer component.
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -265,6 +270,10 @@ ExplorerComponent.new = function(name, config)
             fnode.touch(input)
             self.tree.marshal()
             self.state["cursor"].restore()
+            if self.config.edit_on_create then
+                vim.api.nvim_set_current_win(self.workspace.get_win())
+                vim.cmd("edit " .. input)
+            end
         end)
     end
 
