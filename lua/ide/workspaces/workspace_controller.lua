@@ -227,26 +227,6 @@ function WorkspaceController.new(config)
         end
     end
 
-    -- Designed to be ran as an autocommand on the "WinEnter" event.
-    --
-    -- Exit's vim if WinEnter was triggered and the only remaining windows are
-    -- component windows.
-    function self.auto_close_autocmd()
-        if not string.find(vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(0)),
-            "component://*") then
-            return
-        end
-
-        for _, v in ipairs(vim.api.nvim_list_wins()) do
-            local name = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(v))
-            if not string.find(name, "component://*") and name ~= "" then
-                return
-            end
-        end
-
-        vim.cmd("qa")
-    end
-
     -- Initializes and starts the WorkSpace controller.
     --
     -- Once this method exists all existing and new tabs will be assigned
@@ -304,13 +284,6 @@ function WorkspaceController.new(config)
             callback = self.win_history_autocmd
         })
         log.info("WorkspaceController now handling recording viewed window history")
-
-        if self.config.auto_close then
-            self.auto_close_autocmd_id = vim.api.nvim_create_autocmd({ "WinEnter" }, {
-                callback = self.auto_close_autocmd
-            })
-            log.info("WorkspaceController now handling automatic closing of nvim.")
-        end
 
         vim.api.nvim_create_user_command("Workspace", ws_handler, {
             nargs = "*",

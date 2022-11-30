@@ -58,8 +58,6 @@ M.config = {
 
     -- workspaces config
     workspaces = {
-        -- automatically close vim if only remaining windows are components
-        auto_close = true,
         -- which panels to open by default, one of: 'left', 'right', 'both', 'none'
         auto_open = 'left',
     }
