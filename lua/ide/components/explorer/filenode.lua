@@ -152,10 +152,28 @@ FileNode.new = function(path, kind, perms, depth, opts)
                     return
                 end
             end
-            if vim.fn.writefile({}, path) == -1 then
-                error("failed to write file " .. path)
-                return
+
+            -- if path ends with '/' create a directory instead
+            if vim.endswith(path, '/') then
+                if vim.fn.mkdir(path, 'p') == -1 then
+                    error("failed to create directory " .. path)
+                    return
+                end
+            else
+                local containing_dir = vim.fn.fnamemodify(path, ':p:h')
+                if vim.fn.isdirectory(containing_dir) == 0 then
+                    if vim.fn.mkdir(containing_dir, 'p') == -1 then
+                        error("failed to create directory " .. path)
+                        return
+                    end
+                end
+
+                if vim.fn.writefile({}, path) == -1 then
+                    error("failed to write file " .. path)
+                    return
+                end
             end
+
             log.debug("successfully wrote file, expanding FileNode to retrieve created file.")
             -- expand self to regen child listing, will also create new filenode for
             -- child file.
