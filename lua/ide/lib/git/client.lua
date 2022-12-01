@@ -26,7 +26,7 @@ function Git.compare_sha(sha_a, sha_b)
 end
 
 function Git.in_git_repo()
-    local handle = io.popen([[git rev-parse --is-inside-work-tree]])
+    local handle = io.popen([[git rev-parse --is-inside-work-tree 2>&1 /dev/null]])
     if handle == nil then
         return false
     end
