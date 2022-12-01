@@ -98,57 +98,56 @@ which can be used.
 
 First, get the plugin with your favorite plugin manager of choice. 
 
-Next, add the setup function anywhere you configure your plugins.
-
-```
-require('ide').setup({
-    -- The global icon set to use.
-    -- values: "nerd", "codicon", "default"
-    icon_set = "default",
-    -- Component specific configurations and default config overrides.
-    components = {
-        -- The global keymap is applied to all Components before construction.
-        -- It allows common keymaps such as "hide" to be overriden, without having
-        -- to make an override entry for all Components.
-        --
-        -- If a more specific keymap override is defined for a specific Component
-        -- this takes precedence.
-        global_keymaps = {
-            -- example, change all Component's hide keymap to "h"
-            -- hide = h
+Next, add the setup function anywhere you configure your plugins:
+>
+    require('ide').setup({
+        -- The global icon set to use.
+        -- values: "nerd", "codicon", "default"
+        icon_set = "default",
+        -- Component specific configurations and default config overrides.
+        components = {
+            -- The global keymap is applied to all Components before construction.
+            -- It allows common keymaps such as "hide" to be overriden, without having
+            -- to make an override entry for all Components.
+            --
+            -- If a more specific keymap override is defined for a specific Component
+            -- this takes precedence.
+            global_keymaps = {
+                -- example, change all Component's hide keymap to "h"
+                -- hide = h
+            },
+            -- example, prefer "x" for hide only for Explorer component.
+            -- Explorer = {
+            --     keymaps = {
+            --         hide = "x",
+            --     }
+            -- }
         },
-        -- example, prefer "x" for hide only for Explorer component.
-        -- Explorer = {
-        --     keymaps = {
-        --         hide = "x",
-        --     }
-        -- }
-    },
-    -- default panel groups to display on left and right.
-    panels = {
-        left = "explorer",
-        right = "git"
-    },
-    -- panels defined by groups of components, user is free to redefine the defaults
-    -- and/or add additional.
-    panel_groups = {
-        explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
-        terminal = { terminal.Name },
-        git = { changes.Name, commits.Name, timeline.Name, branches.Name }
-    },
-    -- workspaces config
-    workspaces = {
-        -- which panels to open by default, one of: 'left', 'right', 'both', 'none'
-        auto_open = 'left',
-    },
-    -- default panel sizes for the different positions
-    panel_sizes = {
-        left = 30,
-        right = 30,
-        bottom = 15
-    }
-})
-```
+        -- default panel groups to display on left and right.
+        panels = {
+            left = "explorer",
+            right = "git"
+        },
+        -- panels defined by groups of components, user is free to redefine the defaults
+        -- and/or add additional.
+        panel_groups = {
+            explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name, terminalbrowser.Name },
+            terminal = { terminal.Name },
+            git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+        },
+        -- workspaces config
+        workspaces = {
+            -- which panels to open by default, one of: 'left', 'right', 'both', 'none'
+            auto_open = 'left',
+        },
+        -- default panel sizes for the different positions
+        panel_sizes = {
+            left = 30,
+            right = 30,
+            bottom = 15
+        }
+    })
+<
 
 The above is the default configuration. It defines the icon set to use if you
 have a patched font, any component configuration overrides (mostly for modifying
@@ -218,29 +217,29 @@ A Component implements a well defined API and also registers itself within a
 
 For example, here is the Bookmarks component's init.lua file:
 
-```
-local component_factory = require('ide.panels.component_factory')
-local component = require('ide.components.bookmarks.component')
+>
+    local component_factory = require('ide.panels.component_factory')
+    local component = require('ide.components.bookmarks.component')
 
-local Init = {}
+    local Init = {}
 
-Init.Name = "Bookmarks"
+    Init.Name = "Bookmarks"
 
 
-local function register_component()
-    component_factory.register(Init.Name, component.new)
+    local function register_component()
+        component_factory.register(Init.Name, component.new)
 
-    if vim.fn.isdirectory(vim.fn.fnamemodify(component.NotebooksPath, ":p")) == 0 then
-        vim.fn.mkdir(vim.fn.fnamemodify(component.NotebooksPath, ":p"))
+        if vim.fn.isdirectory(vim.fn.fnamemodify(component.NotebooksPath, ":p")) == 0 then
+            vim.fn.mkdir(vim.fn.fnamemodify(component.NotebooksPath, ":p"))
+        end
     end
-end
 
--- call yourself, this will be triggered when another module wants to reference
--- ide.components.explorer.Name
-register_component()
+    -- call yourself, this will be triggered when another module wants to reference
+    -- ide.components.explorer.Name
+    register_component()
 
-return Init
-```
+    return Init
+<
 
 This is the boilerplate required to register a Component into `nvim-ide`.
 You'll see that a unique name is defined, this uniquely defines the component 
@@ -263,10 +262,10 @@ A Component must also implement a well defined API which is outlined in
 `ide/panels/components/component.lua`.
 
 These methods are:
-  open()
-  post_win_create()
-  get_commands()
-  close()
+  `open()`
+  `post_win_create()`
+  `get_commands()`
+  `close()`
 
 See the source file for the complete documentations on these interface methods 
 along with other methods available across all derived components.
@@ -311,23 +310,23 @@ You can view all Bookmarks commands by issuing the `Workspace` command and then
 navigating to the `Bookmarks` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        jump_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            jump = "<CR>",
+            jump_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Branches                                                  *ide-branches-components*
@@ -341,25 +340,25 @@ You can view all Branches commands by issuing the `Workspace` command and then
 navigating to the `Branches` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        create_branch = "c",
-        refresh = "r",
-        hide = "<C-[>",
-        close = "X",
-        details = "d",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            jump = "<CR>",
+            create_branch = "c",
+            refresh = "r",
+            hide = "<C-[>",
+            close = "X",
+            details = "d",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 BufferList                                              *ide-bufferlist-components*
@@ -374,26 +373,26 @@ You can view all CallHierarchy commands by issuing the `Workspace` command and t
 navigating to the `BufferList` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    -- float the current buffer to the top of list
-    current_buffer_top = false,
-    -- disable all keymaps
-    disabled_keymaps = false,
-    keymaps = {
-        edit = "<CR>",
-        edit_split = "s",
-        edit_vsplit = "v",
-        delete = "d",
-        hide = "<C-[>",
-        close = "X",
-        details = "d",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+      default_height = nil,
+      -- float the current buffer to the top of list
+      current_buffer_top = false,
+      -- disable all keymaps
+      disabled_keymaps = false,
+      keymaps = {
+          edit = "<CR>",
+          edit_split = "s",
+          edit_vsplit = "v",
+          delete = "d",
+          hide = "<C-[>",
+          close = "X",
+          details = "d",
+          maximize = "+",
+          minimize = "-"
+      },
+  }
+<
 
 ====================================================================================
 CallHierarchy                                        *ide-callhierarchy-components*
@@ -410,26 +409,26 @@ You can view all CallHierarchy commands by issuing the `Workspace` command and t
 navigating to the `CallHierarchy` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        jump_split = "s",
-        jump_vsplit = "v",
-        jump_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        next_reference = "n",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            jump = "<CR>",
+            jump_split = "s",
+            jump_vsplit = "v",
+            jump_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            next_reference = "n",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Changes                                                   *ide-changes-components*
@@ -442,27 +441,27 @@ You can view all Changes commands by issuing the `Workspace` command and then
 navigating to the `Changes` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        restore = "r",
-        add = "s",
-        amend = "a",
-        commit = "c",
-        jump = "<CR>",
-        jump_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            restore = "r",
+            add = "s",
+            amend = "a",
+            commit = "c",
+            jump = "<CR>",
+            jump_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Commits                                                    *ide-commits-components*
@@ -485,28 +484,28 @@ navigating to the `Commits` subcommand.
 
 Config:
 
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        checkout = "c",
-        jump = "<CR>",
-        jump_split = "s",
-        jump_vsplit = "v",
-        jump_tab = "t",
-        refresh = "r",
-        hide = "<C-[>",
-        close = "X",
-        details = "d",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            checkout = "c",
+            jump = "<CR>",
+            jump_split = "s",
+            jump_vsplit = "v",
+            jump_tab = "t",
+            refresh = "r",
+            hide = "<C-[>",
+            close = "X",
+            details = "d",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Explorer                                                  *ide-explorer-components*
@@ -520,45 +519,45 @@ You can view all Explorer commands by issuing the `Workspace` command and then
 navigating to the `Explorer` subcommand.
 
 Config:
-```
-{
-    -- prefer sorting directories above normal files
-    list_directories_first = false,
-    -- show file permissions as virtual text on the right hand side.
-    show_file_permissions = true,
-    -- open the file on create in an editor window. 
-    edit_on_create = true,
-    -- default height for component window
-    default_height = nil,
-    -- disable all keymaps for the Explorer component.
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        edit = "<CR>",
-        edit_split = "s",
-        edit_vsplit = "v",
-        edit_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        new_file = "n",
-        delete_file = "D",
-        new_dir = "d",
-        rename_file = "r",
-        move_file = "m",
-        copy_file = "p",
-        select_file = "<Space>",
-        deselect_file = "<Space><Space>",
-        change_dir = "cd",
-        up_dir = "..",
-        file_details = "i",
-        toggle_exec_perm = "*",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        -- prefer sorting directories above normal files
+        list_directories_first = false,
+        -- show file permissions as virtual text on the right hand side.
+        show_file_permissions = true,
+        -- open the file on create in an editor window.
+        edit_on_create = true,
+        -- default height for component window
+        default_height = nil,
+        -- disable all keymaps for the Explorer component.
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            edit = "<CR>",
+            edit_split = "s",
+            edit_vsplit = "v",
+            edit_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            new_file = "n",
+            delete_file = "D",
+            new_dir = "d",
+            rename_file = "r",
+            move_file = "m",
+            copy_file = "p",
+            select_file = "<Space>",
+            deselect_file = "<Space><Space>",
+            change_dir = "cd",
+            up_dir = "..",
+            file_details = "i",
+            toggle_exec_perm = "*",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Outline                                                    *ide-outline-components*
@@ -574,25 +573,25 @@ You can view all Outline commands by issuing the `Workspace` command and then
 navigating to the `Outline` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        jump_split = "s",
-        jump_vsplit = "v",
-        jump_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            jump = "<CR>",
+            jump_split = "s",
+            jump_vsplit = "v",
+            jump_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 TerminalBrowser                                    *ide-terminalbrowser-components*
@@ -608,21 +607,22 @@ You can view all TerminalBrowser commands by issuing the `Workspace` command and
 navigating to the `TerminalBrowser` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        new = "n",
-        jump = "<CR>",
-        hide = "<C-[>",
-        delete = "D",
-        rename = "r",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+<
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            new = "n",
+            jump = "<CR>",
+            hide = "<C-[>",
+            delete = "D",
+            rename = "r",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
 
 ====================================================================================
 Timeline                                                  *ide-timeline-components*
@@ -636,23 +636,25 @@ You can view all Timeline commands by issuing the `Workspace` command and then
 navigating to the `Timeline` subcommand.
 
 Config:
-```
-{
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        jump_split = "s",
-        jump_vsplit = "v",
-        jump_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        details = "d",
-        maximize = "+",
-        minimize = "-"
-    },
-}
-```
+>
+    {
+        default_height = nil,
+        disabled_keymaps = false,
+        keymaps = {
+            expand = "zo",
+            collapse = "zc",
+            collapse_all = "zM",
+            jump = "<CR>",
+            jump_split = "s",
+            jump_vsplit = "v",
+            jump_tab = "t",
+            hide = "<C-[>",
+            close = "X",
+            details = "d",
+            maximize = "+",
+            minimize = "-"
+        },
+    }
+<
+
+vim:tw=78:fo=tcq2mM:ts=4:ft=help:norl:noet:fdm=marker:fen
