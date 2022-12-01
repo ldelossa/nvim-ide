@@ -113,7 +113,7 @@ function Prompts.should_delete(path, callback)
             prompt = string.format("delete %s? (Y/n): ", vim.fn.fnamemodify(path, ":t")),
         },
         function(input)
-            if input ~= "Y" then
+            if input:lower() ~= "y" then
                 return
             end
             callback()
