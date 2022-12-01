@@ -76,9 +76,13 @@ function Buf.delete_buffer_by_name(name)
     end
 end
 
+function Buf.is_listed_buf(bufnr)
+	return vim.bo[bufnr].buflisted and vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_get_name(bufnr) ~= ""
+end
+
 function Buf.get_listed_bufs()
     return vim.tbl_filter(function(bufnr)
-		return vim.bo[bufnr].buflisted and vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_get_name(bufnr) ~= ""
+        return Buf.is_listed_buf(bufnr)
 	end, vim.api.nvim_list_bufs())
 end
 

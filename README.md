@@ -48,6 +48,7 @@ Plug 'ldelossa/nvim-ide'
 
 ```lua
 -- default components
+local bufferlist      = require('ide.components.bufferlist')
 local explorer        = require('ide.components.explorer')
 local outline         = require('ide.components.outline')
 local callhierarchy   = require('ide.components.callhierarchy')

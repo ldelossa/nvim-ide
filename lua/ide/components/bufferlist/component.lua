@@ -1,4 +1,5 @@
 local base = require("ide.panels.component")
+local sort = require('ide.lib.sort')
 local libwin = require("ide.lib.win")
 local libbuf = require("ide.lib.buf")
 local logger = require("ide.logger.logger")
@@ -9,6 +10,9 @@ local BufferListComponent = {}
 
 local config_prototype = {
     default_height = nil,
+    -- float the current buffer to the top of list
+    current_buffer_top = false,
+    -- disable all keymaps
     disabled_keymaps = false,
     keymaps = {
         edit = "<CR>",
@@ -25,9 +29,10 @@ local config_prototype = {
 
 BufferListComponent.new = function(name, config)
     local self = base.new(name)
-    self.buffers = {}
+    self.bufs = {}
     self.logger = logger.new("bufferlist")
     self.buf = nil
+    self.augroup = vim.api.nvim_create_augroup("NvimIdeBufferlist", { clear = true })
 
     self.config = vim.deepcopy(config_prototype)
     if config ~= nil then
@@ -92,7 +97,15 @@ BufferListComponent.new = function(name, config)
             callback = function()
                 vim.schedule(self.refresh)
             end,
-            group = vim.api.nvim_create_augroup("NvimIdeBufferlist", { clear = true }),
+            group = self.augroup,
+        })
+        vim.api.nvim_create_autocmd({ "BufEnter" }, {
+            callback = function(args)
+                if libbuf.is_listed_buf(args.buf) then
+                    vim.schedule(self.refresh)
+                end
+            end,
+            group = self.augroup
         })
 
         return buf
@@ -134,6 +147,12 @@ BufferListComponent.new = function(name, config)
     end
 
     function self.refresh()
+        local cur_buf = vim.api.nvim_get_current_buf()
+        local listed_bufs = libbuf.get_listed_bufs()
+        if #listed_bufs == 0 then
+            return
+        end
+
         local bufs = vim.tbl_map(function(buf)
             local icon
             -- use webdev icons if possible
@@ -155,9 +174,18 @@ BufferListComponent.new = function(name, config)
                 name = libbuf.get_unique_filename(vim.api.nvim_buf_get_name(buf)),
                 icon = icon,
                 id = buf,
+                is_current = (cur_buf == buf)
             }
         end, libbuf.get_listed_bufs())
         self.bufs = bufs
+        if self.config.current_buffer_top then
+            sort(self.bufs, function(a,_)
+                if a.is_current then
+                    return true
+                end
+                return false
+            end)
+        end
         self.render()
     end
 
@@ -166,9 +194,18 @@ BufferListComponent.new = function(name, config)
     end
 
     function self.render()
-        local lines = vim.tbl_map(function(buf)
-            return string.format(" %s %s ", buf.icon, buf.name)
-        end, self.bufs or {})
+        local lines = {}
+        for i, buf in ipairs(self.bufs) do
+            local line = string.format(" %s %s ", buf.icon, buf.name)
+            if buf.is_current then
+                line = "*" .. line
+                -- track the currently opened buffer if we are displayed.
+                if self.is_displayed() then
+                    libwin.safe_cursor_restore(self.win, {i, 1})
+                end
+            end
+            table.insert(lines, line)
+        end
 
         vim.api.nvim_buf_set_option(self.buf, "modifiable", true)
         vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, lines)
