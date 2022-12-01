@@ -282,9 +282,19 @@ Panel.new = function(tab, position, components)
             for _, component in ipairs(self.components) do
                 local default_height = vim.tbl_get(component, 'config', 'default_height')
                 if default_height ~= nil then
-                    vim.defer_fn(function()
-                        vim.api.nvim_win_set_height(component.win, default_height)
-                    end, 1)
+                    if default_height > vim.o.lines then
+                        vim.defer_fn(function()
+                          vim.notify(string.format(
+                                '[nvim-ide][%s] Invalid default height configured. Default height must be less '
+                                    .. 'than total editor height (in Lua, use `vim.o.lines`)',
+                                component.name
+                            ))
+                        end, 1)
+                    else
+                        vim.defer_fn(function()
+                            vim.api.nvim_win_set_height(component.win, default_height)
+                        end, 1)
+                    end
                 end
             end
         end
