@@ -8,6 +8,7 @@ local commands = require("ide.components.bufferlist.commands")
 local BufferListComponent = {}
 
 local config_prototype = {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         edit = "<CR>",
@@ -137,9 +138,9 @@ BufferListComponent.new = function(name, config)
             local icon
             -- use webdev icons if possible
             if pcall(require, "nvim-web-devicons") then
-                local name = vim.api.nvim_buf_get_name(buf)
-                local ext = vim.fn.fnamemodify(name, ":e:e")
-                icon = require("nvim-web-devicons").get_icon(name, ext, { default = true })
+                local filename = vim.api.nvim_buf_get_name(buf)
+                local ext = vim.fn.fnamemodify(filename, ":e:e")
+                icon = require("nvim-web-devicons").get_icon(filename, ext, { default = true })
                 if self.kind == "dir" then
                     icon = require("nvim-web-devicons").get_icon("dir")
                 end

@@ -7,6 +7,7 @@ local libbuf = require('ide.lib.buf')
 local TerminalComponent = {}
 
 local config_prototype = {
+    default_height = nil,
     shell = nil,
     disabled_keymaps = false,
     keymaps = {},

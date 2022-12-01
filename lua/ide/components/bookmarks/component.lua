@@ -10,6 +10,7 @@ local BookmarksComponent = {}
 BookmarksComponent.NotebooksPath = "~/.config/nvim/bookmarks"
 
 local config_prototype = {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
