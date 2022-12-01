@@ -375,6 +375,9 @@ Config:
 ```
 {
     default_height = nil,
+    -- float the current buffer to the top of list
+    current_buffer_top = false,
+    -- disable all keymaps
     disabled_keymaps = false,
     keymaps = {
         edit = "<CR>",
