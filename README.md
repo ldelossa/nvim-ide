@@ -37,6 +37,8 @@ file for introduction, usage, and development information.
 
 ## Getting started 
 
+**Ensure you have Neovim v0.8.0 or greater.**
+
 1. Get the plugin via your favorite plugin manager.
 
 Plug:

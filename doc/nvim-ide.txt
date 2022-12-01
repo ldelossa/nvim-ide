@@ -28,6 +28,8 @@ INTRODUCTION                                                           *ide-intr
 
 `nvim-ide` sets out to be a complete IDE layer for Neovim. 
 
+`nvim-ide` requires Neovim v0.8.0 or greater.
+
 This project defines an 'IDE layer' by drawing many synonyms from `vscode`.
 
 Therefore, `nvim-ide` provides several key features:
