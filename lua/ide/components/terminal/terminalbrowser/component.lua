@@ -8,6 +8,7 @@ local commands = require('ide.components.terminal.terminalbrowser.commands')
 local TerminalBrowserComponent = {}
 
 local config_prototype = {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         new = "n",

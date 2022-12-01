@@ -311,6 +311,7 @@ navigating to the `Bookmarks` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -340,6 +341,7 @@ navigating to the `Branches` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -372,13 +374,19 @@ navigating to the `BufferList` subcommand.
 Config:
 ```
 {
-	disabled_keymaps = false,
-	keymaps = {
-		edit = "<CR>",
-		edit_split = "s",
-		edit_vsplit = "v",
-		close = "d",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    keymaps = {
+        edit = "<CR>",
+        edit_split = "s",
+        edit_vsplit = "v",
+        delete = "d",
+        hide = "<C-[>",
+        close = "X",
+        details = "d",
+        maximize = "+",
+        minimize = "-"
+    },
 }
 ```
 
@@ -399,6 +407,7 @@ navigating to the `CallHierarchy` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -430,6 +439,7 @@ navigating to the `Changes` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -472,6 +482,7 @@ Config:
 
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -512,6 +523,8 @@ Config:
     show_file_permissions = true,
     -- open the file on create in an editor window. 
     edit_on_create = true,
+    -- default height for component window
+    default_height = nil,
     -- disable all keymaps for the Explorer component.
     disabled_keymaps = false,
     keymaps = {
@@ -558,6 +571,7 @@ navigating to the `Outline` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
@@ -591,6 +605,7 @@ navigating to the `TerminalBrowser` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         new = "n",
@@ -618,6 +633,7 @@ navigating to the `Timeline` subcommand.
 Config:
 ```
 {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",

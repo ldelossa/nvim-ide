@@ -17,6 +17,8 @@ local config_prototype = {
     show_file_permissions = true,
     -- open the file on create in an editor window. 
     edit_on_create = true,
+    -- default component height
+    default_height = nil,
     -- disable all keymaps for the Explorer component.
     disabled_keymaps = false,
     keymaps = {

@@ -38,6 +38,8 @@ Panel.new = function(tab, position, components)
         layout = {},
         -- the workspace this panel is associated with.
         workspace = nil,
+        -- whether the panel has been opened already
+        has_opened_once = false,
     }
     self.component_tracker = component_tracker.new(self)
     self.tab = tab
@@ -273,6 +275,18 @@ Panel.new = function(tab, position, components)
         restore()
         for _, f in ipairs(restores) do
             f()
+        end
+
+        if not self.has_opened_once then
+            self.has_opened_once = true
+            for _, component in ipairs(self.components) do
+                local default_height = vim.tbl_get(component, 'config', 'default_height')
+                if default_height ~= nil then
+                    vim.defer_fn(function()
+                        vim.api.nvim_win_set_height(component.win, default_height)
+                    end, 1)
+                end
+            end
         end
     end
 

@@ -11,6 +11,7 @@ local icon_set   = require('ide.icons').global_icon_set
 local OutlineComponent = {}
 
 local config_prototype = {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",

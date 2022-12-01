@@ -12,6 +12,7 @@ local git = require('ide.lib.git.client').new()
 local ChangesComponent = {}
 
 local config_prototype = {
+    default_height = nil,
     disabled_keymaps = false,
     keymaps = {
         expand = "zo",
