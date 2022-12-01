@@ -3,6 +3,7 @@ local tree = require('ide.trees.tree')
 local ds_buf = require('ide.buffers.doomscrollbuffer')
 local diff_buf = require('ide.buffers.diffbuffer')
 local git = require('ide.lib.git.client').new()
+local gitutil = require('ide.lib.git.client')
 local timelinenode = require('ide.components.timeline.timelinenode')
 local commands = require('ide.components.timeline.commands')
 local libwin = require('ide.lib.win')
@@ -219,6 +220,9 @@ TimelineComponent.new = function(name, config)
     end
 
     function self.on_buf_enter()
+        if not gitutil.in_git_repo() then
+            return
+        end
         local cur_buf = vim.api.nvim_get_current_buf()
         local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(cur_buf), ":.")
         local cur_tab = vim.api.nvim_get_current_tabpage()

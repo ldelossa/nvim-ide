@@ -4,6 +4,7 @@ local ds_buf = require('ide.buffers.doomscrollbuffer')
 local diff_buf = require('ide.buffers.diffbuffer')
 local gitutil = require('ide.lib.git.client')
 local git = require('ide.lib.git.client').new()
+local gitutil = require('ide.lib.git.client')
 local commitnode = require('ide.components.commits.commitnode')
 local commands = require('ide.components.commits.commands')
 local libwin = require('ide.lib.win')
@@ -250,6 +251,9 @@ CommitsComponent.new = function(name, config)
     end
 
     function self.get_commits()
+        if not gitutil.in_git_repo() then
+            return
+        end
         local cur_buf = vim.api.nvim_get_current_buf()
         local cur_tab = vim.api.nvim_get_current_tabpage()
         if self.workspace.tab ~= cur_tab then
@@ -276,6 +280,12 @@ CommitsComponent.new = function(name, config)
     end
 
     function self.checkout_commitnode(args)
+        if not gitutil.in_git_repo() then
+            vim.notify("Must be in a git repo to checkout commits", "error", {
+                title = "Commits",
+            })
+            return
+        end
         local log = self.logger.logger_from(nil, "Component.jump_commitnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])

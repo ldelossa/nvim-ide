@@ -25,6 +25,19 @@ function Git.compare_sha(sha_a, sha_b)
     return (sha_a == sha_b)
 end
 
+function Git.in_git_repo()
+    local handle = io.popen([[git rev-parse --is-inside-work-tree]])
+    if handle == nil then
+        return false
+    end
+    _ = handle:read('*a')
+    local code = handle.close(handle)
+    if code == nil then
+        return false
+    end
+    return code
+end
+
 Git.new = function()
     local self = async_client.new("git")
 
@@ -142,6 +155,7 @@ Git.new = function()
             function(stdout)
                 if stdout == nil then
                     cb(nil)
+                    return
                 end
                 local commits = {}
                 for _, commit in ipairs(stdout) do
@@ -179,6 +193,7 @@ Git.new = function()
             function(stdout)
                 if stdout == nil then
                     cb(nil)
+                    return
                 end
                 local commits = {}
                 for _, commit in ipairs(stdout) do
@@ -330,6 +345,10 @@ Git.new = function()
     --          is_head - @bool, whether this branch is the current HEAD.
     function self.branch(cb)
         local function parse(branches)
+            if branches == nil then
+                cb(nil)
+                return
+            end
             local out = {}
             for _, b in ipairs(branches) do
                 local parts = vim.fn.split(b)

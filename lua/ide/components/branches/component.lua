@@ -1,6 +1,7 @@
 local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local git = require('ide.lib.git.client').new()
+local gitutil = require('ide.lib.git.client')
 local branchnode = require('ide.components.branches.branchnode')
 local commands = require('ide.components.branches.commands')
 local logger = require('ide.logger.logger')
@@ -113,7 +114,9 @@ BranchesComponent.new = function(name, config)
     end
 
     function self.get_branches()
-        local cur_buf = vim.api.nvim_get_current_buf()
+        if not gitutil.in_git_repo() then
+            return
+        end
         local cur_tab = vim.api.nvim_get_current_tabpage()
         local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
         if self.workspace.tab ~= cur_tab then
@@ -157,6 +160,13 @@ BranchesComponent.new = function(name, config)
     end
 
     function self.create_branch(args)
+        if not gitutil.in_git_repo() then
+            vim.notify("Must be in a git repo to create a branch", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
         vim.ui.input(
             {
                 prompt = "Enter a branch name: "
