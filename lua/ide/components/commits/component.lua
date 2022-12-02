@@ -317,7 +317,12 @@ CommitsComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file_a, "a", o)
-            dbuff.open_buffer(path, "b")
+
+            if vim.fn.glob(path) == "" then
+                dbuff.write_lines({""}, "b", o)
+            else
+                dbuff.open_buffer(path, "b")
+            end
 
             dbuff.buffer_a.set_name(buf_name_a)
             dbuff.diff()

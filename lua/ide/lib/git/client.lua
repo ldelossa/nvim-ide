@@ -219,7 +219,15 @@ Git.new = function()
         self.make_nl_request(
             string.format("show %s:%s", rev, path),
             nil,
-            handle_req(cb)
+            function(req)
+                -- if we encounter an error, it most likely means the file is
+                -- not present at rev, so return empty file contents.
+                if req.error then
+                    cb({})
+                    return
+                end
+                cb(req.stdout)
+            end
         )
     end
 

@@ -24,7 +24,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
     }
     self.tree.set_buffer(buf)
 
-    if vim.fn.glob(file) == 0 then
+    if vim.fn.glob(file) == "" then
         error("attempted to open notebook for non-existent notebook directory")
     end
 
