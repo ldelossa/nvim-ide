@@ -198,7 +198,7 @@ BufferListComponent.new = function(name, config)
         for i, buf in ipairs(self.bufs) do
             local line = string.format(" %s %s ", buf.icon, buf.name)
             if buf.is_current then
-                line = "*" .. line
+                line = string.format(" %s * %s ", buf.icon, buf.name)
                 -- track the currently opened buffer if we are displayed.
                 if self.is_displayed() then
                     libwin.safe_cursor_restore(self.win, {i, 1})
