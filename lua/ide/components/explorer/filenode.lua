@@ -159,10 +159,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
             else
                 local containing_dir = vim.fn.fnamemodify(path, ':p:h')
                 if vim.fn.isdirectory(containing_dir) == 0 then
-                    if vim.fn.mkdir(containing_dir, 'p') == -1 then
-                        error("failed to create directory " .. path)
-                        return
-                    end
+                    self.mkdir(vim.fn.fnamemodify(name, ':h'))
                 end
 
                 if vim.fn.writefile({}, path) == -1 then
