@@ -155,10 +155,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
 
             -- if path ends with '/' create a directory instead
             if vim.endswith(path, '/') then
-                if vim.fn.mkdir(path, 'p') == -1 then
-                    error("failed to create directory " .. path)
-                    return
-                end
+                self.mkdir(name)
             else
                 local containing_dir = vim.fn.fnamemodify(path, ':p:h')
                 if vim.fn.isdirectory(containing_dir) == 0 then
@@ -203,7 +200,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
                 prompts.must_rename(path, mkdir)
                 return
             end
-            if vim.fn.mkdir(path) == -1 then
+            if vim.fn.mkdir(path, 'p') == -1 then
                 error("failed to create directory " .. path)
                 return
             end

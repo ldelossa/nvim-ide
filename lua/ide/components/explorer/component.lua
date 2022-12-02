@@ -274,7 +274,7 @@ ExplorerComponent.new = function(name, config)
             self.state["cursor"].restore()
             local path = fnode.path .. "/" .. input
             -- only edit if the created path is a file, not a directory
-            if self.config.edit_on_create and vim.fn.isdirectory(path) ~= 0 then
+            if self.config.edit_on_create and not vim.endswith(input, '/') then
                 vim.api.nvim_set_current_win(self.workspace.get_win())
                 vim.cmd("edit " .. path)
             end
@@ -378,8 +378,8 @@ ExplorerComponent.new = function(name, config)
         else
             local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
             rm(fnode)
-            self.refresh()
         end
+        self.refresh()
         self.tree.marshal()
         self.state["cursor"].restore()
     end
