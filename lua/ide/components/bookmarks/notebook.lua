@@ -98,8 +98,38 @@ Notebook.new = function(buf, name, file, bookmarks_component)
     -- Do an initial loading of bookmarks on creation.
     self.load_bookmarks()
 
-    -- Creates an in-memory bookmark, the bookmark will have its `dirty` field
-    -- set as true, as it does not belong on disk yet.
+    -- append a bookmark to the notebook file, this is done on create so the
+    -- use doesn't need to save the first bookmark they create.
+    function self.append_bookmark_file(buf_name, bm)
+        buf_name = vim.fn.fnamemodify(buf_name, ":.")
+        local l = bm.marshal_text()
+        local bookmark_file = _get_bookmark_file_full(buf_name)
+        vim.fn.writefile({l}, bookmark_file, 'a')
+        bm.dirty = false
+    end
+
+    -- removes a bookmark in the bookmark file associated with buf_name by
+    -- reading the file in, excluding the line at index 'i' and writing it back
+    -- to disk.
+    function self.remove_bookmark_file(buf_name, i)
+        buf_name = vim.fn.fnamemodify(buf_name, ":.")
+        local bookmark_file = _get_bookmark_file_full(buf_name)
+        local lines = vim.fn.readfile(bookmark_file)
+
+        if #lines < i then
+            return
+        end
+
+        local new_lines = {}
+        for ii, l in ipairs(lines) do
+            if i ~= ii then
+                table.insert(new_lines, l)
+            end
+        end
+
+        vim.fn.writefile(new_lines, bookmark_file)
+    end
+
     function self.create_bookmark()
         local buf = vim.api.nvim_get_current_buf()
         if not libbuf.is_regular_buffer(buf) then
@@ -117,6 +147,8 @@ Notebook.new = function(buf, name, file, bookmarks_component)
                     return
                 end
                 local bm = bookmarknode.new(file, cursor[1], cursor[1], input)
+                self.append_bookmark_file(vim.api.nvim_buf_get_name(buf), bm)
+                bm.original_start_line = cursor[1]
                 self.tree.add_node(self.tree.root, { bm }, { append = true })
                 self.tree.marshal({ no_guides = true })
                 _create_extmark(buf, bm)
@@ -128,22 +160,24 @@ Notebook.new = function(buf, name, file, bookmarks_component)
     function self.remove_bookmark(key)
         local new_children = {}
         local node = nil
-        for _, n in ipairs(self.tree.depth_table.table[1]) do
+        local index = nil
+        for i, n in ipairs(self.tree.depth_table.table[1]) do
             if n.key ~= key then
                 table.insert(new_children, n)
             else
+                index = i
                 node = n
             end
         end
+
+        -- remove from disk
+         self.remove_bookmark_file(node.file, index)
 
         -- remove from memory
         self.tree.root.children = (function() return {} end)()
         self.tree.add_node(self.tree.root, new_children)
         self.tree.marshal({ no_guides = true })
         _remove_extmark(node)
-
-        -- remove from disk
-        self.write_bookmarks(node.file)
     end
 
     function self.close()

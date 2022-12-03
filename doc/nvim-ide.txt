@@ -288,7 +288,8 @@ Each workspace keeps an independent set of Notebooks which separate Bookmarks in
 particular subjects. 
 
 A Notebook must be created and opened before creating a Bookmark. 
-This can be done with the `Workspace Bookmarks CreateNotebook` command. 
+This can be done with the `Workspace Bookmarks CreateNotebook` command and the
+`Workspace Bookmarks OpenNotebook` command for existing notebooks.
 
 Once created the Notebook will be opened and the Bookmarks UI will appear in the
 Panel if not already displayed.
@@ -303,8 +304,8 @@ the changes by either closing the buffer or exiting Neovim, the Bookmark's
 dirty state won't be written to disk and the original Bookmark location 
 will be restored on next usage.
 
-Its important to remember to save the file on on bookmark creation to persist
-it to disk.
+It's important to remember to save a buffer to write any dirty bookmarks to
+disk.
 
 You can view all Bookmarks commands by issuing the `Workspace` command and then
 navigating to the `Bookmarks` subcommand.
