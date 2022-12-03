@@ -280,12 +280,7 @@ Panel.new = function(tab, position, components)
         self.init_component_sizes()
     end
 
-    function self.init_component_sizes()
-        if self.has_opened_once then
-            return
-        end
-
-        self.has_opened_once = true
+    function self.restore_default_heights()
         for _, component in ipairs(self.components) do
             local default_height = vim.tbl_get(component, 'config', 'default_height')
             if default_height ~= nil then
@@ -294,6 +289,15 @@ Panel.new = function(tab, position, components)
                 end, 1)
             end
         end
+    end
+
+    function self.init_component_sizes()
+        if self.has_opened_once then
+            return
+        end
+
+        self.has_opened_once = true
+        self.restore_default_heights()
     end
 
     -- Opens the panel and focuses the Component identified by `name`
@@ -422,15 +426,14 @@ Panel.new = function(tab, position, components)
 
         vim.cmd("wincmd =")
 
+        -- if user supplied default heights for components restore them
+        self.restore_default_heights()
+
         -- restore all fixes to their original values
         for _, r in ipairs(restores) do
             r()
         end
     end
-
-    -- -- attempt panel registration, this may fail if another Panel is registered
-    -- -- for the supplied tab.
-    -- registry.register(self)
 
     return self
 end

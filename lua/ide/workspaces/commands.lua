@@ -63,7 +63,7 @@ Commands.new = function(ws)
                 "WorkspaceReset",
                 "Reset",
                 function(_) ws.equal_components() end,
-                { desc = "Set all component windows to equal sizes."}
+                { desc = "Set all component windows to equal sizes or their user specified default heights"}
             ),
             libcmd.new(
                 libcmd.KIND_ACTION,
