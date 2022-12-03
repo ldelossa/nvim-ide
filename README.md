@@ -132,3 +132,7 @@ pretty notifications:
 vscode-like "peek":
 
 [glance.nvim](https://github.com/DNLHC/glance.nvim)
+
+deeper git integration:
+
+[gitsigns](https://github.com/lewis6991/gitsigns.nvim)

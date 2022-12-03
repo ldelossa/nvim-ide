@@ -155,7 +155,7 @@ ExplorerComponent.new = function(name, config)
         self.tree.set_buffer(self.buf)
 
         -- do an initial marshal into the buffer
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
 
         -- return the buffer for display
         return self.buf
@@ -215,7 +215,7 @@ ExplorerComponent.new = function(name, config)
             end
         end
         fnode.expand()
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -239,7 +239,7 @@ ExplorerComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(fnode)
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -249,7 +249,7 @@ ExplorerComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -270,7 +270,7 @@ ExplorerComponent.new = function(name, config)
         end
         prompts.get_filename(function(input)
             fnode.touch(input)
-            self.tree.marshal()
+            self.tree.marshal({ virt_text_pos = 'right_align' })
             self.state["cursor"].restore()
             local path = fnode.path .. "/" .. input
             -- only edit if the created path is a file, not a directory
@@ -298,7 +298,7 @@ ExplorerComponent.new = function(name, config)
         end
         prompts.get_filename(function(input)
             fnode.mkdir(input)
-            self.tree.marshal()
+            self.tree.marshal({ virt_text_pos = 'right_align' })
             self.state["cursor"].restore()
         end)
     end
@@ -347,7 +347,7 @@ ExplorerComponent.new = function(name, config)
             local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
             rename(fnode)
         end
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -380,7 +380,7 @@ ExplorerComponent.new = function(name, config)
             rm(fnode)
         end
         self.refresh()
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -396,7 +396,7 @@ ExplorerComponent.new = function(name, config)
             fnode2.cp(fnode)
         end)
         fnode.expand()
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -412,7 +412,7 @@ ExplorerComponent.new = function(name, config)
             fnode2.mv(fnode)
         end)
         fnode.expand()
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -430,7 +430,7 @@ ExplorerComponent.new = function(name, config)
         end
         fnode.select()
         table.insert(self.selected, fnode)
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -457,7 +457,7 @@ ExplorerComponent.new = function(name, config)
 
         self.selected = (function() return {} end)()
         self.selected = remaining
-        self.tree.marshal()
+        self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
 
@@ -541,7 +541,7 @@ ExplorerComponent.new = function(name, config)
                 -- we expanded to our destination, marshal the tree and set cursor.
                 if current == dest then
                     if libwin.win_is_valid(self.win) then
-                        self.tree.marshal()
+                        self.tree.marshal({ virt_text_pos = 'right_align' })
                         vim.api.nvim_win_set_cursor(self.win, { root.line, 1 })
                         vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line - 1, 0, -1)
                     end

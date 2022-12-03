@@ -101,7 +101,7 @@ Marshaller.new = function()
             no_guides = false,
             no_guides_leaf = false,
             restore = nil,
-            virt_text_pos = 'right_align',
+            virt_text_pos = 'eol',
             hl_mode = 'combine'
         }
         o = vim.tbl_extend("force", o, opts)

@@ -103,7 +103,7 @@ OutlineComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
+            self.tree.marshal({ no_guides_leaf = true })
         end
         return self.buf
     end
@@ -158,7 +158,7 @@ OutlineComponent.new = function(name, config)
 
         _build_outline_recursive(root, document_symbols)
 
-        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
+        self.tree.marshal({ no_guides_leaf = true, })
         self.state["cursor"].restore()
     end
 
@@ -184,7 +184,7 @@ OutlineComponent.new = function(name, config)
         local lsp_method = 'textDocument/documentSymbol'
 
         local supports_method = #(vim.tbl_filter(function(client)
-          return client.supports_method(lsp_method)
+            return client.supports_method(lsp_method)
         end, vim.lsp.buf_get_clients(cur_buf))) > 0
         if not supports_method then
             return
@@ -368,7 +368,7 @@ OutlineComponent.new = function(name, config)
             return
         end
         self.tree.collapse_node(node)
-        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
+        self.tree.marshal({ no_guides_leaf = true, })
         self.state["cursor"].restore()
     end
 
@@ -382,7 +382,7 @@ OutlineComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({ no_guides_leaf = true, virt_text_pos = 'eol' })
+        self.tree.marshal({ no_guides_leaf = true, })
         self.state["cursor"].restore()
     end
 

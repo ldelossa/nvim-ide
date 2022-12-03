@@ -21,16 +21,22 @@ local config_prototype = {
         collapse = "zc",
         collapse_all = "zM",
         checkout = "c",
-        jump = "<CR>",
-        jump_split = "s",
-        jump_vsplit = "v",
-        jump_tab = "t",
+        diff = "<CR>",
+        diff_split = "s",
+        diff_vsplit = "v",
+        diff_tab = "t",
         refresh = "r",
         hide = "<C-[>",
         close = "X",
         details = "d",
         maximize = "+",
-        minimize = "-"
+        minimize = "-",
+
+        -- deprecated, here for backwards compat
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
     },
 }
 
@@ -141,10 +147,10 @@ CommitsComponent.new = function(name, config)
                 { silent = true, callback = function() self.collapse_all() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.checkout, "",
                 { silent = true, callback = function() self.checkout_commitnode({ fargs = {} }) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
-                { silent = true, callback = function() self.jump_commitnode({ fargs = {} }) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
-                { silent = true, callback = function() self.jump_commitnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff, "",
+                { silent = true, callback = function() self.diff({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff_tab, "",
+                { silent = true, callback = function() self.diff({ fargs = { "tab" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "",
                 { silent = true, callback = function() self.get_commits() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
@@ -155,6 +161,12 @@ CommitsComponent.new = function(name, config)
                 callback = self.maximize })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
                 callback = self.minimize })
+
+            -- deprecated, here for backwards compat
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.diff({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.diff({ fargs = { "tab" } }) end })
         end
 
         return buf
@@ -202,7 +214,7 @@ CommitsComponent.new = function(name, config)
             end
         end
         commitnode.expand(function()
-            self.marshal_tree(function() 
+            self.marshal_tree(function()
                 self.state["cursor"].restore()
             end)
         end)
@@ -226,7 +238,7 @@ CommitsComponent.new = function(name, config)
         end
         self.tree.collapse_subtree(commitnode)
 
-        self.marshal_tree(function() 
+        self.marshal_tree(function()
             self.state["cursor"].restore()
         end)
     end
@@ -355,7 +367,7 @@ CommitsComponent.new = function(name, config)
         end)
     end
 
-    function self.jump_commitnode(args)
+    function self.diff(args)
         local log = self.logger.logger_from(nil, "Component.jump_commitnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])

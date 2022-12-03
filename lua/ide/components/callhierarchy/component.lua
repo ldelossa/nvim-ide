@@ -104,7 +104,7 @@ CallHierarchyComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({ virt_text_pos = 'eol' })
+            self.tree.marshal({})
         end
         return self.buf
     end
@@ -139,7 +139,7 @@ CallHierarchyComponent.new = function(name, config)
             end
         end
         callnode.expand()
-        self.tree.marshal({ virt_text_pos = 'eol' })
+        self.tree.marshal({})
         self.state["cursor"].restore()
     end
 
@@ -160,7 +160,7 @@ CallHierarchyComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(callnode)
-        self.tree.marshal({ virt_text_pos = 'eol' })
+        self.tree.marshal({})
         self.state["cursor"].restore()
     end
 
@@ -179,7 +179,7 @@ CallHierarchyComponent.new = function(name, config)
             end
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({ virt_text_pos = 'eol' })
+        self.tree.marshal({})
         self.state["cursor"].restore()
     end
 
@@ -209,7 +209,7 @@ CallHierarchyComponent.new = function(name, config)
 
 
         self.tree.add_node(root, children)
-        self.tree.marshal({ virt_text_pos = 'eol' })
+        self.tree.marshal({})
         -- focus ourselves
         self.focus()
         -- set the winbar header to the current direction

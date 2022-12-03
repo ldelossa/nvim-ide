@@ -22,12 +22,16 @@ local config_prototype = {
         add = "s",
         amend = "a",
         commit = "c",
-        jump = "<CR>",
-        jump_tab = "t",
+        edit = "e",
+        diff = "<CR>",
+        diff_tab = "t",
         hide = "<C-[>",
         close = "X",
         maximize = "+",
-        minimize = "-"
+        minimize = "-",
+        -- deprecated, here for backwards compat
+        jump = "<CR>",
+        jump_tab = "t",
     },
 }
 
@@ -80,16 +84,24 @@ ChangesComponent.new = function(name, config)
                 { silent = true, callback = function() self.amend({ fargs = {} }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "",
                 { silent = true, callback = function() self.commit({ fargs = {} }) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
-                { silent = true, callback = function() self.jump_statusnode({ fargs = {} }) end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
-                { silent = true, callback = function() self.jump_statusnode({ fargs = { "tab" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit, "",
+                { silent = true, callback = function() self.edit() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff, "",
+                { silent = true, callback = function() self.diff({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff_tab, "",
+                { silent = true, callback = function() self.diff({ fargs = { "tab" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
                 { silent = true, callback = function() self.hide() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
                 callback = self.maximize })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
                 callback = self.minimize })
+            
+            -- deprecated, here for backwards compat
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
+                { silent = true, callback = function() self.diff({ fargs = {} }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "",
+                { silent = true, callback = function() self.diff({ fargs = { "tab" } }) end })
         end
 
         return buf
@@ -265,7 +277,19 @@ ChangesComponent.new = function(name, config)
         })
     end
 
-    function self.jump_statusnode(args)
+    function self.edit(args)
+        local log = self.logger.logger_from(nil, "Component.edit")
+
+        local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+
+        vim.api.nvim_set_current_win(self.workspace.get_win())
+        vim.cmd("edit " .. node.path)
+    end
+
+    function self.diff(args)
         local log = self.logger.logger_from(nil, "Component.jump_statusnode")
 
         local node = self.tree.unmarshal(self.state["cursor"].cursor[1])

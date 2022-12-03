@@ -442,25 +442,26 @@ navigating to the `Changes` subcommand.
 
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            restore = "r",
-            add = "s",
-            amend = "a",
-            commit = "c",
-            jump = "<CR>",
-            jump_tab = "t",
-            hide = "<C-[>",
-            close = "X",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+	{
+		default_height = nil,
+		disabled_keymaps = false,
+		keymaps = {
+			expand = "zo",
+			collapse = "zc",
+			collapse_all = "zM",
+			restore = "r",
+			add = "s",
+			amend = "a",
+			commit = "c",
+			edit = "e",
+			diff = "<CR>",
+			diff_tab = "t",
+			hide = "<C-[>",
+			close = "X",
+			maximize = "+",
+			minimize = "-"
+		},
+	}
 <
 
 ====================================================================================
@@ -485,26 +486,26 @@ navigating to the `Commits` subcommand.
 Config:
 
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            checkout = "c",
-            jump = "<CR>",
-            jump_split = "s",
-            jump_vsplit = "v",
-            jump_tab = "t",
-            refresh = "r",
-            hide = "<C-[>",
-            close = "X",
-            details = "d",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+	{
+		default_height = nil,
+		disabled_keymaps = false,
+		keymaps = {
+			expand = "zo",
+			collapse = "zc",
+			collapse_all = "zM",
+			checkout = "c",
+			diff = "<CR>",
+			diff_split = "s",
+			diff_vsplit = "v",
+			diff_tab = "t",
+			refresh = "r",
+			hide = "<C-[>",
+			close = "X",
+			details = "d",
+			maximize = "+",
+			minimize = "-"
+		},
+	}
 <
 
 ====================================================================================

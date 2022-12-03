@@ -84,7 +84,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
         local callback = function(direction, call_hierarchy_item, call_hierarchy_calls)
             if call_hierarchy_calls == nil then
                 self.expanded = true
-                self.tree.marshal({ virt_text_pos = 'eol' })
+                self.tree.marshal({  })
                 self.component.state["cursor"].restore()
                 return
             end
@@ -94,7 +94,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
             end
             self.tree.add_node(self, children)
             self.expanded = true
-            self.tree.marshal({ virt_text_pos = 'eol' })
+            self.tree.marshal({  })
             self.component.state["cursor"].restore()
         end
         if self.direction == "incoming" then
