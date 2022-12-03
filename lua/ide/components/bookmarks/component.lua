@@ -20,6 +20,8 @@ local config_prototype = {
         jump_tab = "t",
         jump_split = "s",
         jump_vsplit = "v",
+        remove_bookmark = "D",
+        details = "d",
         hide = "<C-[>",
         close = "X",
         maximize = "+",
@@ -78,6 +80,10 @@ BookmarksComponent.new = function(name, config)
                 { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "split" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "",
                 { silent = true, callback = function() self.jump_bookmarknode({ fargs = { "vsplit" } }) end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.remove_bookmark, "",
+                { silent = true, callback = function() self.remove_bookmark() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "",
+                { silent = true, callback = function() self.details() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
                 { silent = true, callback = function() self.hide() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
@@ -322,6 +328,14 @@ BookmarksComponent.new = function(name, config)
             return
         end
         self.notebook.remove_bookmark(node.key)
+    end
+
+    function self.details(args)
+        local node = self.notebook.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+        node.details()
     end
 
     return self
