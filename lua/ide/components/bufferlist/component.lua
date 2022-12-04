@@ -99,7 +99,7 @@ BufferListComponent.new = function(name, config)
             end,
             group = self.augroup,
         })
-        vim.api.nvim_create_autocmd({ "BufEnter" }, {
+        vim.api.nvim_create_autocmd({ "CursorHold" }, {
             callback = function(args)
                 if libbuf.is_listed_buf(args.buf) then
                     vim.schedule(self.refresh)
@@ -203,6 +203,9 @@ BufferListComponent.new = function(name, config)
                 if self.is_displayed() then
                     libwin.safe_cursor_restore(self.win, {i, 1})
                 end
+            end
+            if vim.api.nvim_buf_get_option(buf.id, 'modified') then
+                line = line .. " [+]"
             end
             table.insert(lines, line)
         end
