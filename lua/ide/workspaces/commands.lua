@@ -25,13 +25,6 @@ Commands.new = function(ws)
         local commands = {
             libcmd.new(
                 libcmd.KIND_ACTION,
-                "WorkspaceTopPanelToggle",
-                "TopPanelToggle",
-                function(_) ws.toggle_panel(panel.PANEL_POS_TOP) end,
-                { desc = "Toggles the top panel in the current workspace."}
-            ),
-            libcmd.new(
-                libcmd.KIND_ACTION,
                 "WorkspaceLeftPanelToggle",
                 "LeftPanelToggle",
                 function(_) ws.toggle_panel(panel.PANEL_POS_LEFT) end,

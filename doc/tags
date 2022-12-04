@@ -1,8 +1,10 @@
 ide-bookmarks-components	nvim-ide.txt	/*ide-bookmarks-components*
 ide-branches-components	nvim-ide.txt	/*ide-branches-components*
+ide-bufferlist-components	nvim-ide.txt	/*ide-bufferlist-components*
 ide-callhierarchy-components	nvim-ide.txt	/*ide-callhierarchy-components*
 ide-changes-components	nvim-ide.txt	/*ide-changes-components*
 ide-commits-components	nvim-ide.txt	/*ide-commits-components*
+ide-components	nvim-ide.txt	/*ide-components*
 ide-components	nvim-ide.txt	/*ide-components*
 ide-contents	nvim-ide.txt	/*ide-contents*
 ide-default-components	nvim-ide.txt	/*ide-default-components*
