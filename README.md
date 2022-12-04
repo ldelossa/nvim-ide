@@ -41,9 +41,16 @@ file for introduction, usage, and development information.
 
 1. Get the plugin via your favorite plugin manager.
 
-Plug:
+[Plug](https://github.com/junegunn/vim-plug):
 ```
 Plug 'ldelossa/nvim-ide'
+```
+
+[Packer.nvim](https://github.com/wbthomason/packer.nvim): 
+```
+use {
+    'ldelossa/nvim-ide'
+}
 ```
 
 2. Call the setup function (optionally with the default config):
