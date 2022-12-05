@@ -130,7 +130,7 @@ fuzzy-searching:
 
 [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) 
 
-[fzf-lua](https://github.com/nvim-telescope/telescope.nvim) 
+[fzf-lua](https://github.com/ibhagwan/fzf-lua) 
 
 pretty notifications:
 
