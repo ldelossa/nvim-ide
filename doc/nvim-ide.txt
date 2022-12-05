@@ -22,6 +22,7 @@ CONTENTS                                                            *ide-content
   3     Panels.............................................|ide-panels|
   4     Components.........................................|ide-components|
   5     Default Components.................................|ide-default-components|
+  6     Integration with other Plugins.....................|ide-plugin-integration|
 
 ====================================================================================
 INTRODUCTION                                                           *ide-intro*
@@ -658,5 +659,27 @@ Config:
         },
     }
 <
+
+====================================================================================
+Integration with other plugins   							*ide-timeline-components*
+
+
+bufferline.nvim (https://github.com/akinsho/bufferline.nvim), to offset the
+start of the first tab:
+>
+  require("bufferline").setup({
+	options = {
+		offsets = {
+			{
+				filetype = "filetree",
+				text = "",
+				highlight = "Explorer",
+				text_align = "left",
+			}
+		},
+	},
+  })
+<
+
 
 vim:tw=78:fo=tcq2mM:ts=4:ft=help:norl:noet:fdm=marker:fen
