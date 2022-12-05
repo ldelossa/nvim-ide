@@ -661,9 +661,10 @@ Config:
 <
 
 ====================================================================================
-Integration with other plugins   							*ide-timeline-components*
+Integration with other plugins   							*ide-plugin-integration*
 
 
+                                                            *ide-bufferline-integration*
 bufferline.nvim (https://github.com/akinsho/bufferline.nvim), to offset the
 start of the first tab:
 >
@@ -681,5 +682,35 @@ start of the first tab:
   })
 <
 
+                                                            *ide-nvim-dap-ui-integration*
+nvim-dap-ui (https://github.com/rcarriga/nvim-dap-ui), to close `nvim-ide` panels on
+debugging start:
+
+>
+  require('dapui').setup()
+
+  local function close_nvim_ide_panels()
+	  if pcall(require, 'ide') then
+		  local ws = require('ide.workspaces.workspace_registry').get_workspace(vim.api.nvim_get_current_tabpage())
+		  if ws ~= nil then
+			  ws.close_panel(require('ide.panels.panel').PANEL_POS_BOTTOM)
+			  ws.close_panel(require('ide.panels.panel').PANEL_POS_LEFT)
+			  ws.close_panel(require('ide.panels.panel').PANEL_POS_RIGHT)
+		  end
+	  end
+  end
+
+  local dap, dapui = require("dap"), require("dapui")
+  dap.listeners.after.event_initialized["dapui_config"] = function()
+	dapui.open()
+	close_nvim_ide_panels()
+  end
+  dap.listeners.before.event_terminated["dapui_config"] = function()
+	dapui.close()
+  end
+  dap.listeners.before.event_exited["dapui_config"] = function()
+	dapui.close()
+  end
+<
 
 vim:tw=78:fo=tcq2mM:ts=4:ft=help:norl:noet:fdm=marker:fen
