@@ -51,7 +51,7 @@ M.config = {
     -- panels defined by groups of components, user is free to redefine the defaults
     -- and/or add additional.
     panel_groups = {
-        explorer = { outline.Name, bufferlist.Name, explorer.Name, bookmarks.Name, callhierarchy.Name,
+        explorer = { bufferlist.Name, explorer.Name, outline.Name, callhierarchy.Name, bookmarks.Name,
             terminalbrowser.Name },
         terminal = { terminal.Name },
         git = { changes.Name, commits.Name, timeline.Name, branches.Name }
