@@ -2,6 +2,7 @@ local tree = require('ide.trees.tree')
 local libbuf = require('ide.lib.buf')
 local icon_set = require('ide.icons').global_icon_set
 local bookmarknode = require('ide.components.bookmarks.bookmarknode')
+local base64 = require('ide.lib.encoding.base64')
 
 local Notebook = {}
 
@@ -28,9 +29,8 @@ Notebook.new = function(buf, name, file, bookmarks_component)
         error("attempted to open notebook for non-existent notebook directory")
     end
 
-
     local function _get_bookmark_file_full(buf_name)
-        local bookmark_file = vim.fn.sha256(buf_name)
+        local bookmark_file = base64.encode(buf_name)
         local bookmark_file_path = self.file .. "/" .. bookmark_file
         local full_path = vim.fn.fnamemodify(bookmark_file_path, ":p")
         return full_path
