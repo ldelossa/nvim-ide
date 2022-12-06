@@ -1,5 +1,17 @@
 local Buf = {}
 
+function Buf.is_in_workspace(buf)
+    local name = vim.api.nvim_buf_get_name(buf)
+    -- make it absolute
+    name = vim.fn.fnamemodify(name,":p")
+    local cwd = vim.fn.getcwd()
+    cwd = vim.fn.fnamemodify(cwd, ":p")
+    if vim.fn.match(name, cwd) == -1 then
+        return false
+    end
+    return true
+end
+
 function Buf.buf_is_valid(buf)
     if buf ~= nil and vim.api.nvim_buf_is_valid(buf) then
         return true

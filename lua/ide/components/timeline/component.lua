@@ -233,6 +233,9 @@ TimelineComponent.new = function(name, config)
         if not libbuf.is_regular_buffer(cur_buf) then
             return
         end
+        if not libbuf.is_in_workspace(cur_buf) then
+            return
+        end
         if libbuf.is_component_buf(cur_buf) then
             return
         end

@@ -1,5 +1,6 @@
 ide-bookmarks-components	nvim-ide.txt	/*ide-bookmarks-components*
 ide-branches-components	nvim-ide.txt	/*ide-branches-components*
+ide-bufferline-integration	nvim-ide.txt	/*ide-bufferline-integration*
 ide-bufferlist-components	nvim-ide.txt	/*ide-bufferlist-components*
 ide-callhierarchy-components	nvim-ide.txt	/*ide-callhierarchy-components*
 ide-changes-components	nvim-ide.txt	/*ide-changes-components*
@@ -10,8 +11,10 @@ ide-contents	nvim-ide.txt	/*ide-contents*
 ide-default-components	nvim-ide.txt	/*ide-default-components*
 ide-explorer-components	nvim-ide.txt	/*ide-explorer-components*
 ide-intro	nvim-ide.txt	/*ide-intro*
+ide-nvim-dap-ui-integration	nvim-ide.txt	/*ide-nvim-dap-ui-integration*
 ide-outline-components	nvim-ide.txt	/*ide-outline-components*
 ide-panels	nvim-ide.txt	/*ide-panels*
+ide-plugin-integration	nvim-ide.txt	/*ide-plugin-integration*
 ide-terminalbrowser-components	nvim-ide.txt	/*ide-terminalbrowser-components*
 ide-timeline-components	nvim-ide.txt	/*ide-timeline-components*
 ide-usage	nvim-ide.txt	/*ide-usage*
