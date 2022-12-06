@@ -7,7 +7,7 @@ local notebook = require('ide.components.bookmarks.notebook')
 
 local BookmarksComponent = {}
 
-BookmarksComponent.NotebooksPath = "~/.config/nvim/bookmarks"
+BookmarksComponent.NotebooksPath = vim.fn.stdpath('config') .. "/bookmarks"
 
 local config_prototype = {
     default_height = nil,
