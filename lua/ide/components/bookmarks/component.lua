@@ -4,6 +4,7 @@ local logger = require('ide.logger.logger')
 local libwin = require('ide.lib.win')
 local icon_set = require('ide.icons').global_icon_set
 local notebook = require('ide.components.bookmarks.notebook')
+local base64 = require('ide.lib.encoding.base64')
 
 local BookmarksComponent = {}
 
@@ -200,7 +201,7 @@ BookmarksComponent.new = function(name, config)
 
     local function _get_notebooks_dir()
         local project_dir = vim.fn.getcwd()
-        local project_sha = vim.fn.sha256(project_dir)
+        local project_sha = base64.encode(project_dir)
         local notebook_dir = vim.fn.fnamemodify(BookmarksComponent.NotebooksPath, ":p") .. "/" .. project_sha
         local exists = false
         if vim.fn.isdirectory(notebook_dir) ~= 0 then
