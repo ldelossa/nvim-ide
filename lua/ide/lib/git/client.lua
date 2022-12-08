@@ -26,16 +26,8 @@ function Git.compare_sha(sha_a, sha_b)
 end
 
 function Git.in_git_repo()
-    local handle = io.popen([[git rev-parse --is-inside-work-tree 2>&1 /dev/null]])
-    if handle == nil then
-        return false
-    end
-    _ = handle:read('*a')
-    local code = handle.close(handle)
-    if code == nil then
-        return false
-    end
-    return code
+    vim.fn.system('git rev-parse --is-inside-work-tree')
+    return (vim.v.shell_error == 0)
 end
 
 Git.new = function()
