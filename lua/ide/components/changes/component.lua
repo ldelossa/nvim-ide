@@ -8,6 +8,7 @@ local libbuf = require('ide.lib.buf')
 local statusnode = require('ide.components.changes.statusnode')
 local icon_set = require('ide.icons').global_icon_set
 local git = require('ide.lib.git.client').new()
+local gitutil = require('ide.lib.git.client')
 
 local ChangesComponent = {}
 
@@ -96,7 +97,7 @@ ChangesComponent.new = function(name, config)
                 callback = self.maximize })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
                 callback = self.minimize })
-            
+
             -- deprecated, here for backwards compat
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",
                 { silent = true, callback = function() self.diff({ fargs = {} }) end })
@@ -207,6 +208,9 @@ ChangesComponent.new = function(name, config)
     end
 
     function self.event_handler(args)
+        if not gitutil.in_git_repo() then
+            return
+        end
         git.status(function(stats)
             if stats == nil then
                 return
