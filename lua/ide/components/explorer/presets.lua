@@ -26,7 +26,7 @@ Presets.default = {
 	minimize = "-",
 }
 
-Presets.nvim_tree = vim.tbl_deep_extend("keep", Presets.default, {
+Presets.nvim_tree = vim.tbl_deep_extend("force", Presets.default, {
 	-- new_file can be used to create direcotries
 	-- by just ending with a `/`, like in nvim_tree
 	new_dir = "<NOP>",
