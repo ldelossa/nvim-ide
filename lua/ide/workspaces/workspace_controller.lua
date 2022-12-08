@@ -249,7 +249,7 @@ function WorkspaceController.new(config)
         local function init_callback()
             -- do not assign if we are git tool.
             local buf_name = vim.api.nvim_buf_get_name(0)
-            if vim.fn.match(buf_name, ".git/") > -1 then
+            if vim.fn.match(buf_name, "\\.git/") > -1 then
                 return
             end
 
