@@ -224,6 +224,9 @@ TimelineComponent.new = function(name, config)
         if not gitutil.in_git_repo() then
             return
         end
+        if not gitutil.repo_has_commits() then
+            return
+        end
         local cur_buf = vim.api.nvim_get_current_buf()
         local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(cur_buf), ":.")
         local cur_tab = vim.api.nvim_get_current_tabpage()

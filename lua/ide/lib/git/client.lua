@@ -30,6 +30,11 @@ function Git.in_git_repo()
     return (vim.v.shell_error == 0)
 end
 
+function Git.repo_has_commits()
+    vim.fn.system('git log -n 1')
+    return (vim.v.shell_error == 0)
+end
+
 Git.new = function()
     local self = async_client.new("git")
 
