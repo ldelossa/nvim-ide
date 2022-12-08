@@ -124,7 +124,7 @@ require('ide').setup({
 
 ## Best used with
 
-`nvim-ide` is bested used with:
+`nvim-ide` is best used with:
 
 fuzzy-searching:
 
