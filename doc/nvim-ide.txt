@@ -569,18 +569,31 @@ The following keymapping presets are available in the
 		minimize = "-"
 	}
 
-	Presets.nvim_tree = vim.tbl_deep_extend('keep', Presets.default, {
-		-- new_file can be used to create direcotries
-		-- by just ending with a `/`, like in nvim_tree
-		new_dir = '<NOP>',
-		new_file = 'a',
-		hide = '<NOP>',
-		delete_file = 'd',
-		edit_split = '<C-x>',
-		edit_vsplit = '<C-v>',
-		edit_tab = '<C-t>',
-		collapse_all = 'W',
-	})
+	Presets.nvim_tree = {
+	  change_dir = "cd",
+	  close = "X",
+	  collapse = "zc",
+	  collapse_all = "W",
+	  copy_file = "p",
+	  delete_file = "d",
+	  deselect_file = "<Space><Space>",
+	  edit = "<CR>",
+	  edit_split = "<C-x>",
+	  edit_tab = "<C-t>",
+	  edit_vsplit = "<C-v>",
+	  expand = "zo",
+	  file_details = "i",
+	  hide = "<NOP>",
+	  maximize = "+",
+	  minimize = "-",
+	  move_file = "m",
+	  new_dir = "<NOP>",
+	  new_file = "a",
+	  rename_file = "r",
+	  select_file = "<Space>",
+	  toggle_exec_perm = "*",
+	  up_dir = ".."
+	}
 <
 
 ====================================================================================
