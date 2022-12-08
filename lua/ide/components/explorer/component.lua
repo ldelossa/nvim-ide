@@ -6,6 +6,7 @@ local libwin   = require('ide.lib.win')
 local libbuf   = require('ide.lib.buf')
 local logger   = require('ide.logger.logger')
 local prompts  = require('ide.components.explorer.prompts')
+local presets  = require('ide.components.explorer.presets')
 local icon_set = require('ide.icons').global_icon_set
 
 local ExplorerComponent = {}
@@ -15,37 +16,13 @@ local config_prototype = {
     list_directories_first = false,
     -- show file permissions as virtual text on the right hand side.
     show_file_permissions = true,
-    -- open the file on create in an editor window. 
+    -- open the file on create in an editor window.
     edit_on_create = true,
     -- default component height
     default_height = nil,
     -- disable all keymaps for the Explorer component.
     disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        edit = "<CR>",
-        edit_split = "s",
-        edit_vsplit = "v",
-        edit_tab = "t",
-        hide = "<C-[>",
-        close = "X",
-        new_file = "n",
-        delete_file = "D",
-        new_dir = "d",
-        rename_file = "r",
-        move_file = "m",
-        copy_file = "p",
-        select_file = "<Space>",
-        deselect_file = "<Space><Space>",
-        change_dir = "cd",
-        up_dir = "..",
-        file_details = "i",
-        toggle_exec_perm = "*",
-        maximize = "+",
-        minimize = "-"
-    },
+    keymaps = presets.default,
 }
 
 -- ExplorerComponent is a derived @Component implementing a file explorer.
