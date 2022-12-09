@@ -368,7 +368,7 @@ ChangesComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold" },
+    vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "InsertLeave" },
         { callback = self.event_handler })
 
     return self
