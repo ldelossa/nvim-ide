@@ -236,7 +236,6 @@ ExplorerComponent.new = function(name, config)
         prompts.get_filename(function(input)
             fnode.touch(input)
             self.tree.marshal({ virt_text_pos = 'right_align' })
-            self.refresh()
             self.state["cursor"].restore()
             local path = fnode.path .. "/" .. input
             -- only edit if the created path is a file, not a directory
