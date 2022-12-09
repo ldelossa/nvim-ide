@@ -162,18 +162,6 @@ ExplorerComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    -- Will walk the tree and refresh any nodes which are currently expanded.
-    --
-    -- return: void
-    function self.refresh()
-        local log = self.logger.logger_from(nil, "Component.get_commands")
-        self.tree.walk_subtree(self.tree.root, function(fnode)
-            if fnode.expanded then
-                fnode.expand()
-            end
-        end)
-    end
-
     -- implements optional @Component interface
     -- Expand the @FileNode at the current cursor location
     --
@@ -248,6 +236,7 @@ ExplorerComponent.new = function(name, config)
         prompts.get_filename(function(input)
             fnode.touch(input)
             self.tree.marshal({ virt_text_pos = 'right_align' })
+            self.refresh()
             self.state["cursor"].restore()
             local path = fnode.path .. "/" .. input
             -- only edit if the created path is a file, not a directory
@@ -356,7 +345,6 @@ ExplorerComponent.new = function(name, config)
             local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
             rm(fnode)
         end
-        self.refresh()
         self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end

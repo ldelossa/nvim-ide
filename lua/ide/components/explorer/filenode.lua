@@ -102,8 +102,16 @@ FileNode.new = function(path, kind, perms, depth, opts)
             local child_path = self.path .. "/" .. child
             local child_kind = vim.fn.getftype(child_path)
             local child_perms = vim.fn.getfperm(child_path)
+
+            local existing_node = self.tree.search_key(child_path)
+            if existing_node then
+                table.insert(children, existing_node)
+                goto continue
+            end
+
             local fnode = FileNode.new(child_path, child_kind, child_perms, nil, vim.deepcopy(self.opts))
             table.insert(children, fnode)
+            ::continue::
         end
         log.debug("found %d children", #children)
 
@@ -246,7 +254,14 @@ FileNode.new = function(path, kind, perms, depth, opts)
             error("failed to remove " .. self.path)
         end
         log.debug("deletion successful. expanding parent to get latest listing.", self.path)
-        self.parent.expand()
+        local new_children = {}
+        for _, child in ipairs(self.parent.children) do
+            if child.key ~= self.key then
+                table.insert(new_children, child)
+            end
+        end
+        self.parent.children = (function() return {} end)()
+        self.parent.children = new_children
     end
 
     -- Recursively copy this filenode to the provided directory filenode.
