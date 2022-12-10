@@ -196,9 +196,7 @@ Panel.new = function(tab, position, components)
             table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", false))
         end
 
-        -- make a copy of the last layout, we'll use it to determine if we can
-        -- restore dimensions.
-        local old_layout = vim.deepcopy(self.layout)
+        local old_layout = self.layout
 
         -- if all components are hidden, don't open the panel at all.
         local continue = false
