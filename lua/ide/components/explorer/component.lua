@@ -46,7 +46,7 @@ ExplorerComponent.new = function(name, config)
     -- libuv's fs_event_t types.
     --
     -- when a dir fnode is expanded, its visible in the UI, so we register a watcher
-    -- on it, and the dir fnode will be refreshed on event. 
+    -- on it, and the dir fnode will be refreshed on event.
     --
     -- when the dir fnode is collapsed the fs_event_t is stopped and unregistered
     -- from this table.
@@ -60,25 +60,6 @@ ExplorerComponent.new = function(name, config)
     if config ~= nil then
         self.config = vim.tbl_deep_extend("force", config_prototype, config)
     end
-
-    -- we can create the initial root tree at creation time, it will be marshalled
-    -- and displayed into a buffer when the associated @Panel calls self.open()
-    local cwd = vim.fn.getcwd()
-    local kind = vim.fn.getftype(cwd)
-    local perms = vim.fn.getfperm(cwd)
-    local root = filenode.new(
-        cwd,
-        kind,
-        perms,
-        0,
-        {
-            list_directories_first = self.config.list_directories_first,
-            show_file_permissions = self.config.show_file_permissions,
-        }
-    )
-    self.tree = tree.new("file")
-    self.tree.add_node(root, {})
-    root.expand()
 
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
@@ -94,7 +75,8 @@ ExplorerComponent.new = function(name, config)
         vim.api.nvim_buf_set_option(buf, 'wrapmargin', 0)
 
         if not self.config.disable_keymaps then
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", { silent = true, callback = self.expand })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "",
+                { silent = true, callback = self.expand })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", { silent = true,
                 callback = self.collapse })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "",
@@ -108,13 +90,18 @@ ExplorerComponent.new = function(name, config)
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_tab, "",
                 { silent = true, callback = function() self.open_filenode({ fargs = { "tab" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", { silent = true, callback = self.hide })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_file, "", { silent = true, callback = self.touch })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete_file, "", { silent = true, callback = self.rm })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_dir, "", { silent = true, callback = self.mkdir })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_file, "",
+                { silent = true, callback = self.touch })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete_file, "",
+                { silent = true, callback = self.rm })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.new_dir, "",
+                { silent = true, callback = self.mkdir })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.rename_file, "",
                 { silent = true, callback = self.rename })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.move_file, "", { silent = true, callback = self.mv })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.copy_file, "", { silent = true, callback = self.cp })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.move_file, "",
+                { silent = true, callback = self.mv })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.copy_file, "",
+                { silent = true, callback = self.cp })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.select_file, "",
                 { silent = true, callback = self.select })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.deselect_file, "",
@@ -128,21 +115,52 @@ ExplorerComponent.new = function(name, config)
         return buf
     end
 
+    -- (re)init the Explorer component, used on first construction and also when
+    -- 'DirChanged event is fired.'
+    function self.init()
+        local log = self.logger.logger_from(nil, "Component.init")
+
+        -- we can create the initial root tree at creation time, it will be marshalled
+        -- and displayed into a buffer when the associated @Panel calls self.open()
+        local cwd = vim.fn.getcwd()
+        log.debug("initializing explorer: [workspace] %d [root] %s", vim.api.nvim_get_current_tabpage(), cwd)
+
+        local kind = vim.fn.getftype(cwd)
+        local perms = vim.fn.getfperm(cwd)
+        local root = filenode.new(
+            cwd,
+            kind,
+            perms,
+            0,
+            {
+                list_directories_first = self.config.list_directories_first,
+                show_file_permissions = self.config.show_file_permissions,
+            }
+        )
+        self.tree = tree.new("file")
+        self.tree.add_node(root, {})
+        root.expand()
+
+        -- create a buffer if we don't have one.
+        if self.buf == nil then
+            -- log.debug("buffer does not exist, creating.", vim.api.nvim_get_current_tabpage())
+            self.buf = setup_buffer()
+        end
+        log.debug("using buffer %d", self.buf)
+
+        -- give our filenode tree a buffer
+        self.tree.set_buffer(self.buf)
+    end
+
     -- implements @Component interface
     function self.open()
         local log = self.logger.logger_from(nil, "Component.open")
         log.debug("Explorer component opening, workspace %s", vim.api.nvim_get_current_tabpage())
 
-        -- create a buffer if we don't have one.
+        -- if we've never setup a buffer it means we haven't initialized at all.
         if self.buf == nil then
-            log.debug("buffer does not exist, creating.", vim.api.nvim_get_current_tabpage())
-            self.buf = setup_buffer()
+            self.init()
         end
-        log.debug("using buffer %d", self.buf)
-
-
-        -- give our filenode tree a buffer
-        self.tree.set_buffer(self.buf)
 
         -- do an initial marshal into the buffer
         self.tree.marshal({ virt_text_pos = 'right_align' })
@@ -613,6 +631,31 @@ ExplorerComponent.new = function(name, config)
 
     vim.api.nvim_create_autocmd({ "BufEnter" },
         { callback = self.expand_to_file_aucmd })
+
+    vim.api.nvim_create_autocmd(
+        { "DirChanged" },
+        {
+            callback = function(args)
+                if not libbuf.is_regular_buffer(0) then
+                    return
+                end
+                local ws = self.workspace.tab
+                local cwd = vim.fn.getcwd(-1, ws)
+                if (ws == vim.api.nvim_get_current_tabpage()) then
+                    local lcwd = vim.fn.getcwd(0, 0)
+                    if self.tree.root.path ~= lcwd then
+                        self.init()
+                        self.tree.marshal({ virt_text_pos = 'right_align' })
+                    end
+                    return
+                end
+                if self.tree.root.path ~= cwd then
+                    self.init()
+                    self.tree.marshal({ virt_text_pos = 'right_align' })
+                end
+            end
+        }
+    )
 
     return self
 end
