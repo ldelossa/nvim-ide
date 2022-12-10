@@ -41,6 +41,19 @@ ExplorerComponent.new = function(name, config)
     self.selected = {}
     -- a logger that will be used across this class and its base class methods.
     self.logger = logger.new("explorer")
+    -- holds fs_event_t watchers for currently expanded dir file nodes.
+    -- this is a table where the keys are Filenode.key and the values are
+    -- libuv's fs_event_t types.
+    --
+    -- when a dir fnode is expanded, its visible in the UI, so we register a watcher
+    -- on it, and the dir fnode will be refreshed on event. 
+    --
+    -- when the dir fnode is collapsed the fs_event_t is stopped and unregistered
+    -- from this table.
+    --
+    -- when a "collapse all" is done, all fs_event_t's are stopped and unregistered
+    -- from this table.
+    self.fsevents = {}
 
     -- seup config, use default and merge in user config if not nil
     self.config = vim.deepcopy(config_prototype)
@@ -162,6 +175,42 @@ ExplorerComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
+    function self.register_fsevent(fnode)
+        local log = self.logger.logger_from(nil, "Component.register_fsevent")
+        if self.fsevents[fnode.key] ~= nil then
+            self.unregister_fsevent(fnode)
+        end
+        log.debug("Registered fs_event watcher for %s", fnode.path)
+        self.fsevents[fnode.key] = vim.loop.new_fs_event()
+        self.fsevents[fnode.key]:start(fnode.path, {}, vim.schedule_wrap(function(err, filename, status)
+            local log = self.logger.logger_from(nil, string.format("fs_event_%s", fnode.key))
+            log.debug('received event: [err] %s [filename] %s [status] %s',
+                vim.inspect(err),
+                vim.inspect(filename),
+                vim.inspect(status)
+            )
+            self.expand(nil, fnode)
+        end))
+    end
+
+    function self.unregister_fsevent(fnode)
+        local log = self.logger.logger_from(nil, "Component.unregister_fsevent")
+        if self.fsevents[fnode.key] ~= nil then
+            self.fsevents[fnode.key]:stop()
+            self.fsevents[fnode.key] = nil
+            log.debug("Unregistered fs_event watcher for %s", fnode.path)
+        end
+    end
+
+    function self.unregister_all_fsevents()
+        local log = self.logger.logger_from(nil, "Component.unregister_all_fsevents")
+        for key, timer in pairs(self.fsevents) do
+            timer:stop()
+            self.fsevents[key] = nil
+        end
+        log.debug("Unregistered all fs_event watchers")
+    end
+
     -- implements optional @Component interface
     -- Expand the @FileNode at the current cursor location
     --
@@ -179,7 +228,11 @@ ExplorerComponent.new = function(name, config)
                 return
             end
         end
+        if fnode.kind ~= "dir" then
+            return
+        end
         fnode.expand()
+        self.register_fsevent(fnode)
         self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
@@ -214,6 +267,7 @@ ExplorerComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
+        self.unregister_all_fsevents()
         self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
@@ -343,6 +397,10 @@ ExplorerComponent.new = function(name, config)
         else
             local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
             rm(fnode)
+            -- cleanup if we have a dir watcher
+            if fnode.kind == "dir" then
+                self.unregister_fsevent(fnode)
+            end
         end
         self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
@@ -496,10 +554,11 @@ ExplorerComponent.new = function(name, config)
             if vim.fn.match(dest, current) >= 0 then
                 -- expanding will set a node's children to collapsed, so only do
                 -- this if the node is not currently expanded, this allows the
-                -- tree to keep existing open directories open but still nap to
+                -- tree to keep existing open directories open but still snap to
                 -- the currently opened file.
                 if not root.expanded then
-                    root.expand()
+                    -- call self.expand so we setup an fs_event watcher
+                    self.expand(nil, root)
                 end
 
                 -- we expanded to our destination, marshal the tree and set cursor.
