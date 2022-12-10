@@ -14,10 +14,11 @@ local DoomScrollBuffer = {}
 --              append to the buffer.
 --              the function is called with the @DoomScrollBuffer performing the
 --              callback.
-DoomScrollBuffer.new = function(on_scroll, buf, listed, scratch)
+DoomScrollBuffer.new = function(on_scroll, buf, listed, scratch, opts)
     local self = buffer.new(buf, listed, scratch)
     self.on_scroll = on_scroll
     self.on_scroll_aucmd = nil
+    self.debouncing = false
 
     function self.doomscroll_aucmd(args)
         local event_win = vim.api.nvim_get_current_win()
@@ -43,12 +44,18 @@ DoomScrollBuffer.new = function(on_scroll, buf, listed, scratch)
         self.buf,
         function()
             self.on_scroll_aucmd = vim.api.nvim_create_autocmd({ "CursorHold" }, {
-                callback = self.doomscroll_aucmd
+                callback = function ()
+                    if not self.debouncing then
+                        self.doomscroll_aucmd()
+                        self.debouncing = true
+                        vim.defer_fn(function() self.debouncing = false end, 350)
+                    end
+                end
             })
         end,
         function()
             if self.on_scroll_aucmd ~= nil then
-                -- vim.api.nvim_del_autocmd(self.on_scroll_aucmd)
+                vim.api.nvim_del_autocmd(self.on_scroll_aucmd)
             end
         end
     )

@@ -366,7 +366,14 @@ ChangesComponent.new = function(name, config)
     end
 
     vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", },
-        { callback = function() git.if_in_git_repo(self.event_handler) end })
+        { callback = function() 
+            -- this really helps us avoid running in streaming buffers such as
+            -- the log buffer.
+            if not libbuf.is_regular_buffer(0) then
+                return
+            end
+            git.if_in_git_repo(self.event_handler) 
+        end })
 
     return self
 end

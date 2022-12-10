@@ -279,14 +279,14 @@ CommitsComponent.new = function(name, config)
                 end
                 local children = {}
                 for _, commit in ipairs(commits) do
-                    local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
+                    local node = commitnode.new(commit.sha, commit.sha, commit.subject, commit.author, commit.date)
                     table.insert(children, node)
                 end
                 local root = commitnode.new("", "", repo, "", "", 0)
                 self.tree.add_node(root, children)
 
                 self.marshal_tree(function()
-                    self.paging[name] = 25
+                    self.paging[repo] = 25
                     self.last_commits = name
                 end)
             end)

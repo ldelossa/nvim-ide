@@ -1,6 +1,6 @@
 local Logger = {}
 
-Logger.session_id = string.format("%s-%s", "nvim-ide", vim.fn.rand())
+Logger.session_id = string.format("nvim-ide-log://%s-%s", "nvim-ide", vim.fn.rand())
 
 Logger.buffer = (function()
     local buf = vim.api.nvim_create_buf(false, true)
