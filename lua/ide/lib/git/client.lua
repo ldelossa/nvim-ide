@@ -51,6 +51,21 @@ Git.new = function()
         end
     end
 
+    function self.if_in_git_repo(cb)
+        self.make_request(
+            string.format("rev-parse --is-inside-work-tree"),
+            nil,
+            function(resp)
+                if resp == nil then
+                    return
+                end
+                if resp.error then
+                    return
+                end
+                cb()
+            end)
+    end
+
     -- issues a git log with a specified --format string.
     --
     -- the @format param must be an array of format specifiers as outlined in

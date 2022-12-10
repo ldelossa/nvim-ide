@@ -208,9 +208,6 @@ ChangesComponent.new = function(name, config)
     end
 
     function self.event_handler(args)
-        if not gitutil.in_git_repo() then
-            return
-        end
         git.status(function(stats)
             if stats == nil then
                 return
@@ -368,8 +365,8 @@ ChangesComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "InsertLeave" },
-        { callback = self.event_handler })
+    vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", },
+        { callback = function() git.if_in_git_repo(self.event_handler) end })
 
     return self
 end

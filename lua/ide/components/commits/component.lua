@@ -264,33 +264,31 @@ CommitsComponent.new = function(name, config)
     end
 
     function self.get_commits()
-        if not gitutil.in_git_repo() then
-            return
-        end
-        if not gitutil.repo_has_commits() then
-            return
-        end
-        local cur_buf = vim.api.nvim_get_current_buf()
-        local cur_tab = vim.api.nvim_get_current_tabpage()
-        if self.workspace.tab ~= cur_tab then
-            return
-        end
-        local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
-        git.log_commits(0, 25, function(commits)
-            if commits == nil then
+        git.if_in_git_repo(function()
+            if not gitutil.repo_has_commits() then
                 return
             end
-            local children = {}
-            for _, commit in ipairs(commits) do
-                local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
-                table.insert(children, node)
+            local cur_tab = vim.api.nvim_get_current_tabpage()
+            if self.workspace.tab ~= cur_tab then
+                return
             end
-            local root = commitnode.new("", "", repo, "", "", 0)
-            self.tree.add_node(root, children)
+            local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+            git.log_commits(0, 25, function(commits)
+                if commits == nil then
+                    return
+                end
+                local children = {}
+                for _, commit in ipairs(commits) do
+                    local node = commitnode.new(commit.sha, name, commit.subject, commit.author, commit.date)
+                    table.insert(children, node)
+                end
+                local root = commitnode.new("", "", repo, "", "", 0)
+                self.tree.add_node(root, children)
 
-            self.marshal_tree(function()
-                self.paging[name] = 25
-                self.last_commits = name
+                self.marshal_tree(function()
+                    self.paging[name] = 25
+                    self.last_commits = name
+                end)
             end)
         end)
     end
@@ -334,7 +332,7 @@ CommitsComponent.new = function(name, config)
             dbuff.write_lines(file_a, "a", o)
 
             if vim.fn.glob(path) == "" then
-                dbuff.write_lines({""}, "b", o)
+                dbuff.write_lines({ "" }, "b", o)
             else
                 dbuff.open_buffer(path, "b")
             end
@@ -357,7 +355,7 @@ CommitsComponent.new = function(name, config)
             if i == nil then
                 error("failed to find index of node in depth table")
             end
-            local pcommit = self.tree.depth_table.table[commit.depth][i+1]
+            local pcommit = self.tree.depth_table.table[commit.depth][i + 1]
             if pcommit ~= nil then
                 git.show_file(pcommit.sha, node.file, function(file)
                     do_diff(file, pcommit.sha, node.file)
@@ -388,7 +386,7 @@ CommitsComponent.new = function(name, config)
         if i == nil then
             error("failed to find index of node in depth table")
         end
-        local pcommit = self.tree.depth_table.table[commit.depth][i+1]
+        local pcommit = self.tree.depth_table.table[commit.depth][i + 1]
 
         local function do_diff(file_a, file_b, sha_a, sha_b, path)
             local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)

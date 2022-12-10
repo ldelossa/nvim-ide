@@ -115,31 +115,30 @@ BranchesComponent.new = function(name, config)
     end
 
     function self.get_branches()
-        if not gitutil.in_git_repo() then
-            return
-        end
-        local cur_tab = vim.api.nvim_get_current_tabpage()
-        local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
-        if self.workspace.tab ~= cur_tab then
-            return
-        end
-        git.branch(function(branches)
-            if branches == nil or #branches == 0 then
+        git.if_in_git_repo(function()
+            local cur_tab = vim.api.nvim_get_current_tabpage()
+            local repo = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+            if self.workspace.tab ~= cur_tab then
                 return
             end
-            local children = { {} } -- reserve first item for head.
-            for _, branch in ipairs(branches) do
-                local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
-                if node.is_head then
-                    children[1] = node
-                    goto continue
+            git.branch(function(branches)
+                if branches == nil or #branches == 0 then
+                    return
                 end
-                table.insert(children, node)
-                ::continue::
-            end
-            local root = branchnode.new("", repo, false, 0)
-            self.tree.add_node(root, children)
-            self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
+                local children = { {} } -- reserve first item for head.
+                for _, branch in ipairs(branches) do
+                    local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
+                    if node.is_head then
+                        children[1] = node
+                        goto continue
+                    end
+                    table.insert(children, node)
+                    ::continue::
+                end
+                local root = branchnode.new("", repo, false, 0)
+                self.tree.add_node(root, children)
+                self.tree.marshal({ no_guides_leafs = true, virt_text_pos = "eol" })
+            end)
         end)
     end
 
@@ -173,7 +172,7 @@ BranchesComponent.new = function(name, config)
                 prompt = "Enter a branch name: "
             },
             function(branch)
-                if branch == nil or branch == "" then 
+                if branch == nil or branch == "" then
                     return
                 end
                 git.checkout_branch(branch, function(ok)

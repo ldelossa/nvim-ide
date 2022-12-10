@@ -221,9 +221,6 @@ TimelineComponent.new = function(name, config)
     end
 
     function self.on_buf_enter()
-        if not gitutil.in_git_repo() then
-            return
-        end
         if not gitutil.repo_has_commits() then
             return
         end
@@ -340,7 +337,7 @@ TimelineComponent.new = function(name, config)
     end
 
     vim.api.nvim_create_autocmd({ "BufEnter" }, {
-        callback = self.on_buf_enter
+        callback = function() git.if_in_git_repo(self.on_buf_enter) end
     })
 
     return self
