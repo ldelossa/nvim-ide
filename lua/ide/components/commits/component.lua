@@ -2,7 +2,6 @@ local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local ds_buf = require('ide.buffers.doomscrollbuffer')
 local diff_buf = require('ide.buffers.diffbuffer')
-local gitutil = require('ide.lib.git.client')
 local git = require('ide.lib.git.client').new()
 local gitutil = require('ide.lib.git.client')
 local commitnode = require('ide.components.commits.commitnode')
@@ -341,14 +340,7 @@ CommitsComponent.new = function(name, config)
             dbuff.diff()
         end
 
-        -- checkout the commit so all the LSP tools work when viewing the diff.
-        git.checkout(commit.sha, function(ok)
-            if ok == nil then
-                return
-            end
-            if not node.is_file then
-                return
-            end
+        local function _resolve_diff()
             -- we need to find the parent node, but this is a list where all commits
             -- are at depth one,
             local _, i = self.tree.depth_table.search(commit.depth, commit.key)
@@ -365,6 +357,24 @@ CommitsComponent.new = function(name, config)
                 do_diff({}, "null", node.file)
                 self.marshal_tree()
             end
+        end
+
+        if not node.is_file then
+            return
+        end
+
+        -- commit is already head, don't do the checkout.
+        if commit.is_head then
+            _resolve_diff()
+            return
+        end
+
+        -- checkout the commit so all the LSP tools work when viewing the diff.
+        git.checkout(commit.sha, function(ok)
+            if ok == nil then
+                return
+            end
+            _resolve_diff()
         end)
     end
 
@@ -388,10 +398,7 @@ CommitsComponent.new = function(name, config)
         end
         local pcommit = self.tree.depth_table.table[commit.depth][i + 1]
 
-        local function do_diff(file_a, file_b, sha_a, sha_b, path)
-            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
-            local buf_name_b = string.format("%s:%d://%s", sha_b, vim.fn.rand(), path)
-
+        function _do_tabnew()
             local tab = false
             for _, arg in ipairs(args.fargs) do
                 if arg == "tab" then
@@ -402,6 +409,13 @@ CommitsComponent.new = function(name, config)
             if tab then
                 vim.cmd("tabnew")
             end
+        end
+
+        local function do_diff(file_a, file_b, sha_a, sha_b, path)
+            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
+            local buf_name_b = string.format("%s:%d://%s", sha_b, vim.fn.rand(), path)
+
+            _do_tabnew()
 
             local dbuff = diff_buf.new()
             dbuff.setup()
@@ -414,12 +428,32 @@ CommitsComponent.new = function(name, config)
             dbuff.diff()
         end
 
-        git.show_file(node.sha, node.file, function(file_b)
-            if file_b == nil then
+        local function do_diff_local(file_a, buffer_b, sha_a, path)
+            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
+
+            _do_tabnew()
+
+            local dbuff = diff_buf.new()
+            dbuff.setup()
+            local o = { listed = false, scratch = true, modifiable = false }
+            dbuff.write_lines(file_a, "a", o)
+            dbuff.open_buffer(buffer_b, "b")
+            dbuff.buffer_a.set_name(buf_name_a)
+            dbuff.diff()
+        end
+
+        git.show_file(pcommit.sha, node.file, function(file_a)
+            if file_a == nil then
                 return
             end
-            git.show_file(pcommit.sha, node.file, function(file_a)
-                if file_a == nil then
+            if commit.is_head then
+                -- if the commit is the current commit, we can open the the local
+                -- file
+                do_diff_local(file_a, node.file, pcommit.sha, node.file)
+                return
+            end
+            git.show_file(node.sha, node.file, function(file_b)
+                if file_b == nil then
                     return
                 end
                 do_diff(file_a, file_b, pcommit.sha, node.sha, node.file)
