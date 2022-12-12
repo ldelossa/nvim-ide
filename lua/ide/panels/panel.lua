@@ -128,6 +128,29 @@ Panel.new = function(tab, position, components)
         -- refresh the component tracker since new component has been opened.
         self.component_tracker.refresh()
 
+        -- terminal takes up the bottom tab, and requires ability to switch
+        -- through multiple terminal buffers from the terminal explorer component
+        -- so do not "lock" the terminal component
+        if Component.name ~=  require('ide.components.terminal').Name then
+            -- "lock" the buf to the window with an autocmd
+            vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
+                callback = function()
+                  local curwin = vim.api.nvim_get_current_win()
+                    if curwin == panel_win then
+                        local curbuf = vim.api.nvim_win_get_buf(curwin)
+                        if curbuf ~= buf then
+                            -- restore ide component to panel win
+                            vim.api.nvim_win_set_buf(panel_win, buf)
+                            -- put the new buffer in the next appropriate editor window
+                            local last_win = self.workspace.get_win()
+                            vim.api.nvim_win_set_buf(last_win, curbuf)
+                            vim.api.nvim_set_current_win(last_win)
+                        end
+                    end
+                end,
+            })
+        end
+
         -- restore previous cursor if applicable
         Component.state["cursor"].restore()
 
