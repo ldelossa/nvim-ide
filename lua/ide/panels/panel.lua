@@ -128,9 +128,10 @@ Panel.new = function(tab, position, components)
         -- refresh the component tracker since new component has been opened.
         self.component_tracker.refresh()
 
-        -- terminal takes up the bottom tab, and requires ability to switch
-        -- through multiple terminal buffers from the terminal explorer component
-        -- so do not "lock" the terminal component
+
+        -- the bottom tab requires the ability to change buffers,
+        -- for example to switch between multiple terminals via the terminal
+        -- browser component.
         if self.position ~= Panel.PANEL_POS_BOTTOM then
             -- "lock" the buf to the window with an autocmd
             vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
