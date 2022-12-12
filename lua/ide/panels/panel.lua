@@ -125,24 +125,6 @@ Panel.new = function(tab, position, components)
 
         vim.api.nvim_buf_set_name(buf, string.format("component://%s:%d:%d", Component.name, panel_win, self.tab))
 
-        -- "lock" the buf to the window with an autocmd
-        vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
-            callback = function()
-              local curwin = vim.api.nvim_get_current_win()
-                if curwin == panel_win then
-                    local curbuf = vim.api.nvim_win_get_buf(curwin)
-                    if curbuf ~= buf then
-                        -- restore ide component to panel win
-                        vim.api.nvim_win_set_buf(panel_win, buf)
-                        -- put the new buffer in the next appropriate editor window
-                        local last_win = self.workspace.get_win()
-                        vim.api.nvim_win_set_buf(last_win, curbuf)
-                        vim.api.nvim_set_current_win(last_win)
-                    end
-                end
-            end,
-        })
-
         -- refresh the component tracker since new component has been opened.
         self.component_tracker.refresh()
 
