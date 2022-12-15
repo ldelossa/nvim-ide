@@ -73,6 +73,9 @@ require('ide').setup({
     -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
     icon_set = "default",
+    -- Set the log level for nvim-ide's log. Log can be accessed with 
+    -- 'Workspace OpenLog'. Values are 'debug', 'warn', 'info', 'error'
+    log_level = "info",
     -- Component specific configurations and default config overrides.
     components = {
         -- The global keymap is applied to all Components before construction.

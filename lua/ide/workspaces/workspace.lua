@@ -1,4 +1,4 @@
-local ide                = require('ide')
+local config             = require('ide.config').config
 local panel              = require('ide.panels.panel')
 local panel_registry     = require('ide.panels.panel_registry')
 local workspace_registry = require('ide.workspaces.workspace_registry')
@@ -44,7 +44,7 @@ Workspace.new = function(tab)
 
     -- ide.config contains the config already merged with any user modifications,
     -- we can just use the global here.
-    self.config = vim.deepcopy(ide.config)
+    self.config = vim.deepcopy(config)
 
     self.tab = tab
 
@@ -130,8 +130,8 @@ Workspace.new = function(tab)
                     if constructor ~= nil then
 
                         -- merge the global keymap before construction.
-                        local comp_config = (ide.config.components[name] or {})
-                        comp_config.keymaps = vim.tbl_extend("force", ide.config.components.global_keymaps,
+                        local comp_config = (config.components[name] or {})
+                        comp_config.keymaps = vim.tbl_extend("force", config.components.global_keymaps,
                             (comp_config.keymaps or {}))
 
                         table.insert(components, constructor(name, comp_config))

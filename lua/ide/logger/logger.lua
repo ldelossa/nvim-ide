@@ -2,11 +2,33 @@ local Logger = {}
 
 Logger.session_id = string.format("nvim-ide-log://%s-%s", "nvim-ide", vim.fn.rand())
 
+Logger.log_level = vim.log.levels.INFO
+
 Logger.buffer = (function()
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buf, Logger.session_id)
     return buf
 end)()
+
+Logger.set_log_level = function(level)
+    if level == 'debug' then
+        Logger.log_level = vim.log.levels.DEBUG
+        return
+    end
+    if level == 'warn' then
+        Logger.log_level = vim.log.levels.WARN
+        return
+    end
+    if level == 'info' then
+        Logger.log_level = vim.log.levels.INFO
+        return
+    end
+    if level == 'info' then
+        Logger.log_level = vim.log.levels.ERROR
+        return
+    end
+    Logger.log_level = vim.log.levels.INFO
+end
 
 function Logger.open_log()
     vim.cmd("tabnew")
@@ -26,7 +48,7 @@ Logger.new = function(subsys, component)
     end
 
     local function _log(level, fmt, ...)
-        local arg = {...}
+        local arg = { ... }
         local str = string.format("[%s] [%s] [%s]: ", level, self.subsys, self.component)
         if arg ~= nil then
             str = str .. string.format(fmt, unpack(arg))
@@ -38,19 +60,27 @@ Logger.new = function(subsys, component)
     end
 
     function self.error(fmt, ...)
-        _log("error", fmt, ...)
+        if vim.log.levels.ERROR >= Logger.log_level then
+            _log("error", fmt, ...)
+        end
     end
 
     function self.warning(fmt, ...)
-        _log("warning", fmt, ...)
+        if vim.log.levels.WARN >= Logger.log_level then
+            _log("warning", fmt, ...)
+        end
     end
 
     function self.info(fmt, ...)
-        _log("info", fmt, ...)
+        if vim.log.levels.INFO >= Logger.log_level then
+            _log("info", fmt, ...)
+        end
     end
 
     function self.debug(fmt, ...)
-        _log("debug", fmt, ...)
+        if vim.log.levels.DEBUG >= Logger.log_level then
+            _log("debug", fmt, ...)
+        end
     end
 
     function self.logger_from(subsys, component)
