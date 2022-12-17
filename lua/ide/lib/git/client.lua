@@ -41,7 +41,7 @@ Git.new = function()
     local function handle_req(callback)
         return function(req)
             if req.error then
-                vim.notify(string.format("%s\n%s", req.reason, req.stderr),  "error", {
+                vim.notify(string.format("%s\n%s", req.reason, req.stderr), "error", {
                     title = "git",
                 })
                 callback(nil)
@@ -378,8 +378,24 @@ Git.new = function()
                     is_head = true
                     i = i + 1
                 end
+
                 local branch = parts[i]
-                local sha = parts[i + 1]
+                i = i + 1
+
+                -- if at a detached head, branch can take up multiple words 
+                -- surrounded by parenthesis.
+                print(branch)
+                if branch:sub(1,1) == "(" then
+                    while (true) do
+                        branch = branch .. " " .. parts[i]
+                        i = i + 1
+                        if branch:sub(-1, -1) == ")" then
+                            break
+                        end
+                    end
+                end
+
+                local sha = parts[i]
                 table.insert(out, {
                     sha = sha,
                     branch = branch,
@@ -390,6 +406,7 @@ Git.new = function()
         end
 
         self.make_nl_request(
+
             "branch -v",
             nil,
             handle_req(function(branches)
