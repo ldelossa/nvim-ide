@@ -52,6 +52,8 @@ BranchesComponent.new = function(name, config)
 
     self.hidden = false
 
+    self.refresh_aucmd = nil
+
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
         local buf = vim.api.nvim_create_buf(false, true)
@@ -181,6 +183,10 @@ BranchesComponent.new = function(name, config)
             end
         )
     end
+
+    self.refresh_aucmd = vim.api.nvim_create_autocmd({"CursorHold"}, {
+        callback = self.get_branches
+    })
 
     return self
 end
