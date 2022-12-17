@@ -24,19 +24,31 @@ BranchNode.new = function(sha, branch, is_head, depth)
     --          @details - @string, the details of the call hierarchy item
     function self.marshal()
         local icon = icon_set.get_icon("GitBranch")
+        local name = string.format("%s", self.branch)
+        local detail = ""
 
         -- root is the file we are displaying the timeline for.
         if self.depth == 0 then
             icon = icon_set.get_icon("GitRepo")
+            return icon, name, detail
         end
-
-        local name = string.format("%s", self.branch)
 
         if self.is_head then
             name = "* " .. name
         end
 
-        local detail = self.sha
+        if self.remote ~= nil then
+            detail = self.remote
+        end
+        if self.remote_branch ~= nil then
+            detail = detail .. self.remote_branch
+        end
+        if self.ahead ~= 0 then
+            detail = detail .. "↑"
+        end
+        if self.behind ~= 0 then
+            detail = detail .. "↓"
+        end
 
         return icon, name, detail, ""
     end

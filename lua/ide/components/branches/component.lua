@@ -131,6 +131,10 @@ BranchesComponent.new = function(name, config)
                 local children = { {} } -- reserve first item for head.
                 for _, branch in ipairs(branches) do
                     local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
+                    node.remote = branch.remote
+                    node.remote_branch = branch.remote_branch
+                    node.ahead = branch.ahead
+                    node.behind = branch.behind
                     if node.is_head then
                         children[1] = node
                         goto continue

@@ -363,6 +363,10 @@ Git.new = function()
     --          sha     - @string, the abbreviated sha of the branch object.
     --          branch  - @string, the branch's name
     --          is_head - @bool, whether this branch is the current HEAD.
+    --          remote  - @string, the remote the branch tracks
+    --          remote_branch - @string, the remote branch name at remote
+    --          ahead - @int, how many commits the branch is ahead of remote
+    --          behind - @int, how many commits the branch is behind or remote
     function self.branch(cb)
         local function parse(branches)
             if branches == nil then
@@ -395,10 +399,55 @@ Git.new = function()
                 end
 
                 local sha = parts[i]
+                i = i + 1
+
+                local remote = ""
+                local remote_branch = ""
+                local remote_and_branch = ""
+                local ahead = 0
+                local behind = 0
+
+                -- if next char starts with "[" we can start parsing out
+                -- the remote origin, branch, and ahead/behind stats
+                if parts[i]:sub(1,1) == "[" then
+                    -- if : then ahead/behind stats follow
+                    local end_char = parts[i]:sub(-1,-1)
+
+                    remote_and_branch = parts[i]:sub(2,-2)
+                    local remote_and_branch_parts = vim.fn.split(remote_and_branch, "/")
+                    remote = remote_and_branch_parts[1]
+
+                    for ii, part in ipairs(remote_and_branch_parts) do
+                        if ii ~= 1 then
+                            remote_branch = remote_branch .. "/" .. part
+                        end
+                    end
+
+                    if end_char == ":" then
+                        i = i + 1
+                        if parts[i] == "ahead" then
+                            i = i + 1
+                            ahead = parts[i]:gsub('%W','')
+                            ahead = tonumber(ahead)
+                            i = i + 1
+                        end
+                        if parts[i] == "behind" then
+                            i = i + 1
+                            behind = parts[i]:gsub('%W','')
+                            behind = tonumber(behind)
+                        end
+                    end
+                end
+
                 table.insert(out, {
                     sha = sha,
                     branch = branch,
-                    is_head = is_head
+                    is_head = is_head,
+                    remote = remote,
+                    remote_branch = remote_branch,
+                    remote_and_branch = remote_and_branch,
+                    ahead = ahead,
+                    behind = behind,
                 })
             end
             return out
@@ -406,7 +455,7 @@ Git.new = function()
 
         self.make_nl_request(
 
-            "branch -v",
+            "branch -vv",
             nil,
             handle_req(function(branches)
                 cb(parse(branches))
