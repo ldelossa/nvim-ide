@@ -1,6 +1,7 @@
 local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local git = require('ide.lib.git.client').new()
+local libbuf = require("ide.lib.buf")
 local gitutil = require('ide.lib.git.client')
 local branchnode = require('ide.components.branches.branchnode')
 local commands = require('ide.components.branches.commands')
@@ -185,7 +186,11 @@ BranchesComponent.new = function(name, config)
     end
 
     self.refresh_aucmd = vim.api.nvim_create_autocmd({"CursorHold"}, {
-        callback = self.get_branches
+        callback = function()
+            if libbuf.is_regular_buffer(0) then
+                self.get_branches()
+            end
+        end
     })
 
     return self
