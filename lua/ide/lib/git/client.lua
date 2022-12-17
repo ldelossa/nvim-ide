@@ -384,7 +384,6 @@ Git.new = function()
 
                 -- if at a detached head, branch can take up multiple words 
                 -- surrounded by parenthesis.
-                print(branch)
                 if branch:sub(1,1) == "(" then
                     while (true) do
                         branch = branch .. " " .. parts[i]
