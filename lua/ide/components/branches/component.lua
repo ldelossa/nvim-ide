@@ -24,7 +24,9 @@ local config_prototype = {
         close = "X",
         details = "d",
         maximize = "+",
-        minimize = "-"
+        minimize = "-",
+        pull = "p",
+        push = "P"
     },
 }
 
@@ -84,6 +86,10 @@ BranchesComponent.new = function(name, config)
                 { silent = true, callback = function() self.hide() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "",
                 { silent = true, callback = function() self.details() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.pull, "",
+                { silent = true, callback = function() self.pull_branch() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.push, "",
+                { silent = true, callback = function() self.push_branch() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
                 callback = self.maximize })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
@@ -189,7 +195,57 @@ BranchesComponent.new = function(name, config)
         )
     end
 
-    self.refresh_aucmd = vim.api.nvim_create_autocmd({"CursorHold"}, {
+    function self.pull_branch(args)
+        if not gitutil.in_git_repo() then
+            vim.notify("Must be in a git repo to create a branch", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
+        local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+
+        if node.remote == "" or node.remote == nil then
+            vim.notify("Local branch is not tracking remote branch.", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
+        git.pull(node.remote, node.branch, function()
+            self.get_branches()
+        end)
+    end
+
+    function self.push_branch(args)
+        if not gitutil.in_git_repo() then
+            vim.notify("Must be in a git repo to create a branch", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
+        local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+
+        if node.remote == "" or node.remote == nil then
+            vim.notify("Local branch is not tracking remote branch.", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
+        git.push(node.remote, node.branch, function()
+            self.get_branches()
+        end)
+    end
+
+    self.refresh_aucmd = vim.api.nvim_create_autocmd({ "CursorHold" }, {
         callback = function()
             if libbuf.is_regular_buffer(0) then
                 self.get_branches()

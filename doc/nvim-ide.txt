@@ -341,25 +341,28 @@ well.
 You can view all Branches commands by issuing the `Workspace` command and then
 navigating to the `Branches` subcommand.
 
+Be aware, you should use ssh for your remotes if you intend to push or pull
+changes to a branch via this component. HTTP auth is not supported.
+
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            jump = "<CR>",
-            create_branch = "c",
-            refresh = "r",
-            hide = "<C-[>",
-            close = "X",
-            details = "d",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+    default_height = nil,
+    disabled_keymaps = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        create_branch = "c",
+        refresh = "r",
+        hide = "<C-[>",
+        close = "X",
+        details = "d",
+        maximize = "+",
+        minimize = "-",
+        pull = "p",
+        push = "P"
+    },
 <
 
 ====================================================================================

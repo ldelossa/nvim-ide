@@ -506,6 +506,22 @@ Git.new = function()
         )
     end
 
+    function self.pull(remote, branch, cb)
+        self.make_request(
+            string.format("pull %s %s", remote, branch),
+            nil,
+            handle_req(cb)
+        )
+    end
+
+    function self.push(remote, branch, cb)
+        self.make_request(
+            string.format("push %s %s", remote, branch),
+            nil,
+            handle_req(cb)
+        )
+    end
+
     return self
 end
 
