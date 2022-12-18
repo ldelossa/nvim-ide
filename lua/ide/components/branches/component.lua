@@ -215,8 +215,14 @@ BranchesComponent.new = function(name, config)
             return
         end
 
-        git.pull(node.remote, node.branch, function()
+        git.pull(node.remote, node.branch, function(success)
+            if success == nil then
+                return
+            end
             self.get_branches()
+            vim.notify(string.format("Pulled latest branch: %s from remote: %s", node.branch, node.remote), "info", {
+                title = "Branches",
+            })
         end)
     end
 
@@ -240,8 +246,14 @@ BranchesComponent.new = function(name, config)
             return
         end
 
-        git.push(node.remote, node.branch, function()
+        git.push(node.remote, node.branch, function(success)
+            if success == nil then
+                return
+            end
             self.get_branches()
+            vim.notify(string.format("Pushed branch: %s to remote: %s", node.branch, node.remote), "info", {
+                title = "Branches",
+            })
         end)
     end
 
