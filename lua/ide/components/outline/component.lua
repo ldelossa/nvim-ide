@@ -5,6 +5,7 @@ local logger     = require('ide.logger.logger')
 local libwin     = require('ide.lib.win')
 local libbuf     = require('ide.lib.buf')
 local liblsp     = require('ide.lib.lsp')
+local libws  = require('ide.lib.workspace')
 local symbolnode = require('ide.components.outline.symbolnode')
 local icon_set   = require('ide.icons').global_icon_set
 
@@ -54,6 +55,8 @@ OutlineComponent.new = function(name, config)
     if config ~= nil then
         self.config = vim.tbl_deep_extend("force", config_prototype, config)
     end
+
+    self.debouncing = false
 
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
@@ -327,14 +330,23 @@ OutlineComponent.new = function(name, config)
 
     function self.event_handler(args)
         if args.event == "CursorHold" then
+            if not libws.is_current_ws(self.workspace) then
+                return
+            end
             local cur_win = vim.api.nvim_get_current_win()
             if cur_win == self.win then
                 self.sync_source_buffer()
                 return
             end
-            if libwin.win_is_valid(self.state["outlined_win"]) and
-                cur_win == self.state["outlined_win"] then
-                self.sync_symbol_buffer()
+            if
+                libwin.win_is_valid(self.state["outlined_win"]) and
+                cur_win == self.state["outlined_win"]
+            then
+                if not self.debouncing then
+                    self.debouncing = true
+                    self.sync_symbol_buffer()
+                    vim.defer_fn(function() self.debouncing = false end, 350)
+                end
                 return
             end
         end
@@ -443,7 +455,7 @@ OutlineComponent.new = function(name, config)
         return commands.new(self).get()
     end
 
-    vim.api.nvim_create_autocmd({ "CursorHold", "LspAttach", "BufEnter" },
+    vim.api.nvim_create_autocmd({ "CursorHold", "LspAttach", "BufEnter", "TextChanged" },
         { callback = self.event_handler })
 
     return self

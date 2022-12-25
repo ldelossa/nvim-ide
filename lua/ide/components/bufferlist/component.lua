@@ -2,6 +2,7 @@ local base = require("ide.panels.component")
 local sort = require('ide.lib.sort')
 local libwin = require("ide.lib.win")
 local libbuf = require("ide.lib.buf")
+local libws  = require('ide.lib.workspace')
 local logger = require("ide.logger.logger")
 local icon_set = require("ide.icons").global_icon_set
 local commands = require("ide.components.bufferlist.commands")
@@ -101,6 +102,9 @@ BufferListComponent.new = function(name, config)
         })
         vim.api.nvim_create_autocmd({ "CursorHold" }, {
             callback = function(args)
+                if not libws.is_current_ws(self.workspace) then
+                    return
+                end
                 if libbuf.is_listed_buf(args.buf) then
                     vim.schedule(self.refresh)
                 end

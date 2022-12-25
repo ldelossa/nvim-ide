@@ -5,6 +5,7 @@ local logger = require('ide.logger.logger')
 local diff_buf = require('ide.buffers.diffbuffer')
 local libwin = require('ide.lib.win')
 local libbuf = require('ide.lib.buf')
+local libws  = require('ide.lib.workspace')
 local statusnode = require('ide.components.changes.statusnode')
 local icon_set = require('ide.icons').global_icon_set
 local git = require('ide.lib.git.client').new()
@@ -367,6 +368,9 @@ ChangesComponent.new = function(name, config)
 
     vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", },
         { callback = function() 
+            if not libws.is_current_ws(self.workspace) then
+                return
+            end
             -- this really helps us avoid running in streaming buffers such as
             -- the log buffer.
             if not libbuf.is_regular_buffer(0) then
