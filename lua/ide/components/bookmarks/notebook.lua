@@ -1,5 +1,6 @@
 local tree = require('ide.trees.tree')
 local libbuf = require('ide.lib.buf')
+local libws  = require('ide.lib.workspace')
 local icon_set = require('ide.icons').global_icon_set
 local bookmarknode = require('ide.components.bookmarks.bookmarknode')
 local base64 = require('ide.lib.encoding.base64')
@@ -298,7 +299,12 @@ Notebook.new = function(buf, name, file, bookmarks_component)
     end
 
     self.sync_aucmd = vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI" }, {
-        callback = self.buf_sync_bookmarks
+        callback = function() 
+            if not libws.is_current_ws(self.component.workspace) then
+                return
+            end
+            self.buf_sync_bookmarks()
+        end
     })
 
     self.write_aucmd = vim.api.nvim_create_autocmd({ "BufWrite" }, {

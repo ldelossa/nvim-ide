@@ -2,6 +2,7 @@ local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local git = require('ide.lib.git.client').new()
 local libbuf = require("ide.lib.buf")
+local libws  = require('ide.lib.workspace')
 local gitutil = require('ide.lib.git.client')
 local branchnode = require('ide.components.branches.branchnode')
 local commands = require('ide.components.branches.commands')
@@ -56,6 +57,40 @@ BranchesComponent.new = function(name, config)
     self.hidden = false
 
     self.refresh_aucmd = nil
+
+    -- we register fs events for .git/HEAD and .git/refs/heads to identify when
+    -- branches are modified or checked out.
+    self.fsevents = {
+        vim.loop.new_fs_event(),
+        vim.loop.new_fs_event()
+    }
+
+    -- the HEAD file is re-created each time a branch change occurs, which breaks
+    -- the watch on the inode, must be recreated each time.
+    local function register_head_fs_event()
+        self.fsevents[1]:stop()
+        self.fsevents[1] = vim.loop.new_fs_event()
+        self.fsevents[1]:start(vim.fn.fnamemodify(".git/HEAD", ':p'), {}, vim.schedule_wrap(function()
+                if not libws.is_current_ws(self.workspace) then
+                    return
+                end
+                if libbuf.is_regular_buffer(0) then
+                    self.get_branches()
+                end
+                register_head_fs_event()
+        end))
+    end
+    register_head_fs_event()
+
+    -- watching on the heads/ directory, so no special case like above.
+    self.fsevents[2]:start(vim.fn.fnamemodify(".git/refs/heads", ':p'), {}, vim.schedule_wrap(function()
+            if not libws.is_current_ws(self.workspace) then
+                return
+            end
+            if libbuf.is_regular_buffer(0) then
+                self.get_branches()
+            end
+    end))
 
     local function setup_buffer()
         local log = self.logger.logger_from(nil, "Component._setup_buffer")
@@ -257,8 +292,11 @@ BranchesComponent.new = function(name, config)
         end)
     end
 
-    self.refresh_aucmd = vim.api.nvim_create_autocmd({ "CursorHold" }, {
+    self.refresh_aucmd = vim.api.nvim_create_autocmd({ "BufEnter" }, {
         callback = function()
+            if not libws.is_current_ws(self.workspace) then
+                return
+            end
             if libbuf.is_regular_buffer(0) then
                 self.get_branches()
             end
