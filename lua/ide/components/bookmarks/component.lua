@@ -228,7 +228,7 @@ BookmarksComponent.new = function(name, config)
             if self.notebook ~= nil then
                 self.notebook.close()
             end
-            self.notebook = notebook.new(self.buf, name, notebook_file)
+            self.notebook = notebook.new(self.buf, name, notebook_file, self)
             self.focus()
         end
 
