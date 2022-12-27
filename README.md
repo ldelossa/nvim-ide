@@ -76,7 +76,7 @@ require('ide').setup({
     -- Component specific configurations and default config overrides.
     components = {
         -- The global keymap is applied to all Components before construction.
-        -- It allows common keymaps such as "hide" to be overriden, without having
+        -- It allows common keymaps such as "hide" to be overridden, without having
         -- to make an override entry for all Components.
         --
         -- If a more specific keymap override is defined for a specific Component
