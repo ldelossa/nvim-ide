@@ -3,7 +3,7 @@ local component = require('ide.components.terminal.terminalbrowser.component')
 
 local Init = {}
 
-Init.Name = "TerminalBrowser"
+Init.Name = require('ide').config.default_names.TerminalBrowser
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

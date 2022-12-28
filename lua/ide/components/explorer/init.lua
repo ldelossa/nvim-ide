@@ -3,7 +3,7 @@ local component = require('ide.components.explorer.component')
 
 local Init = {}
 
-Init.Name = "Explorer"
+Init.Name = require('ide').config.default_names.Explorer
 
 local function register_component()
 

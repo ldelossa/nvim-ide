@@ -3,7 +3,7 @@ local component = require('ide.components.terminal.component')
 
 local Init = {}
 
-Init.Name = "Terminal"
+Init.Name = require('ide').config.default_names.Terminal
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

@@ -3,7 +3,7 @@ local component = require('ide.components.commits.component')
 
 local Init = {}
 
-Init.Name = "Commits"
+Init.Name = require('ide').config.default_names.Commits
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

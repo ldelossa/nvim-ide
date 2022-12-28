@@ -3,7 +3,7 @@ local component = require('ide.components.bookmarks.component')
 
 local Init = {}
 
-Init.Name = "Bookmarks"
+Init.Name = require('ide').config.default_names.Bookmarks
 
 
 local function register_component()

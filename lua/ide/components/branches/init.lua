@@ -3,7 +3,7 @@ local component = require('ide.components.branches.component')
 
 local Init = {}
 
-Init.Name = "Branches"
+Init.Name = require('ide').config.default_names.Branches
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

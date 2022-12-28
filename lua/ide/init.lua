@@ -1,15 +1,16 @@
--- default components
-local bufferlist      = require('ide.components.bufferlist')
-local explorer        = require('ide.components.explorer')
-local outline         = require('ide.components.outline')
-local callhierarchy   = require('ide.components.callhierarchy')
-local timeline        = require('ide.components.timeline')
-local terminal        = require('ide.components.terminal')
-local terminalbrowser = require('ide.components.terminal.terminalbrowser')
-local changes         = require('ide.components.changes')
-local commits         = require('ide.components.commits')
-local branches        = require('ide.components.branches')
-local bookmarks       = require('ide.components.bookmarks')
+local default_names = {
+    BufferList = "BufferList",
+    Explorer = "Explorer",
+    Outline = "Outline",
+    CallHierarchy = "CallHierarchy",
+    Bookmarks = "Bookmarks",
+    TerminalBrowser = "TerminalBrowser",
+    Terminal = "Terminal",
+    Changes = "Changes",
+    Commits = "Commits",
+    Timeline = "Timeline",
+    Branches = "Branches",
+}
 
 local M = {}
 
@@ -21,6 +22,7 @@ local M = {}
 -- Modules can read from this field to get config values. For example
 -- require('ide').config.
 M.config = {
+    default_names = default_names,
     -- The global icon set to use.
     -- values: "nerd", "codicon", "default"
     icon_set = "default",
@@ -51,10 +53,16 @@ M.config = {
     -- panels defined by groups of components, user is free to redefine the defaults
     -- and/or add additional.
     panel_groups = {
-        explorer = { bufferlist.Name, explorer.Name, outline.Name, callhierarchy.Name, bookmarks.Name,
-            terminalbrowser.Name },
-        terminal = { terminal.Name },
-        git = { changes.Name, commits.Name, timeline.Name, branches.Name }
+        explorer = {
+            default_names.BufferList,
+            default_names.Explorer,
+            default_names.Outline,
+            default_names.CallHierarchy,
+            default_names.Bookmarks,
+            default_names.TerminalBrowser,
+        },
+        terminal = { default_names.Terminal },
+        git = { default_names.Changes, default_names.Commits, default_names.Timeline, default_names.Branches },
     },
     -- workspaces config
     workspaces = {
@@ -81,6 +89,18 @@ function M.setup(config)
     if M.config["icon_set"] == "codicon" then
         require('ide.icons').global_icon_set = require('ide.icons.codicon_icon_set').new()
     end
+
+    require("ide.components.bufferlist")
+    require("ide.components.explorer")
+    require("ide.components.outline")
+    require("ide.components.callhierarchy")
+    require("ide.components.timeline")
+    require("ide.components.terminal")
+    require("ide.components.terminal.terminalbrowser")
+    require("ide.components.changes")
+    require("ide.components.commits")
+    require("ide.components.branches")
+    require("ide.components.bookmarks")
 
     -- create and launch a workspace controller.
     local wsctrl = require('ide.workspaces.workspace_controller').new(M.config.workspaces)

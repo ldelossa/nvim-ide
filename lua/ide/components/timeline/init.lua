@@ -3,7 +3,7 @@ local component = require('ide.components.timeline.component')
 
 local Init = {}
 
-Init.Name = "Timeline"
+Init.Name = require('ide').config.default_names.Timeline
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

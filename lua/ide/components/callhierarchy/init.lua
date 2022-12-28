@@ -3,7 +3,7 @@ local component = require('ide.components.callhierarchy.component')
 
 local Init = {}
 
-Init.Name = "CallHierarchy"
+Init.Name = require('ide').config.default_names.CallHierarchy
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

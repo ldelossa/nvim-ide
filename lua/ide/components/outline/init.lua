@@ -3,7 +3,7 @@ local component = require('ide.components.outline.component')
 
 local Init = {}
 
-Init.Name = "Outline"
+Init.Name = require('ide').config.default_names.Outline
 
 local function register_component()
     component_factory.register(Init.Name, component.new)

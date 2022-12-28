@@ -3,7 +3,7 @@ local component = require("ide.components.bufferlist.component")
 
 local Init = {}
 
-Init.Name = "BufferList"
+Init.Name = require('ide').config.default_names.BufferList
 
 local function register_component()
 	component_factory.register(Init.Name, component.new)

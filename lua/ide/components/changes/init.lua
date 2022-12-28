@@ -3,7 +3,7 @@ local component = require('ide.components.changes.component')
 
 local Init = {}
 
-Init.Name = "Changes"
+Init.Name = require('ide').config.default_names.Changes
 
 local function register_component()
     component_factory.register(Init.Name, component.new)
