@@ -141,6 +141,8 @@ ExplorerComponent.new = function(name, config)
         self.tree.add_node(root, {})
         root.expand()
 
+        self.register_fsevent(root)
+
         -- create a buffer if we don't have one.
         if self.buf == nil then
             -- log.debug("buffer does not exist, creating.", vim.api.nvim_get_current_tabpage())
