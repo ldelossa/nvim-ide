@@ -365,100 +365,54 @@ Git.new = function()
     --          is_head - @bool, whether this branch is the current HEAD.
     --          remote  - @string, the remote the branch tracks
     --          remote_branch - @string, the remote branch name at remote
-    --          ahead - @int, how many commits the branch is ahead of remote
-    --          behind - @int, how many commits the branch is behind or remote
+    --          remote_ref - @string, the full remote ref in {origin}/{branch} format
+    --          tracking - @string, the tracking status of the remote, 'ahead', 'behind', 
+    --                     'diverged', or 'sync'
     function self.branch(cb)
-        local function parse(branches)
-            if branches == nil then
-                cb(nil)
-                return
-            end
-            local out = {}
-            for _, b in ipairs(branches) do
-                local parts = vim.fn.split(b)
-                local is_head = false
-                local i = 1
-                if parts[i] == "*" then
-                    is_head = true
-                    i = i + 1
-                end
-
-                local branch = parts[i]
-                i = i + 1
-
-                -- if at a detached head, branch can take up multiple words 
-                -- surrounded by parenthesis.
-                if branch:sub(1,1) == "(" then
-                    while (true) do
-                        branch = branch .. " " .. parts[i]
-                        i = i + 1
-                        if branch:sub(-1, -1) == ")" then
-                            break
-                        end
-                    end
-                end
-
-                local sha = parts[i]
-                i = i + 1
-
-                local remote = ""
-                local remote_branch = ""
-                local remote_and_branch = ""
-                local ahead = 0
-                local behind = 0
-
-                -- if next char starts with "[" we can start parsing out
-                -- the remote origin, branch, and ahead/behind stats
-                if parts[i]:sub(1,1) == "[" then
-                    -- if : then ahead/behind stats follow
-                    local end_char = parts[i]:sub(-1,-1)
-
-                    remote_and_branch = parts[i]:sub(2,-2)
-                    local remote_and_branch_parts = vim.fn.split(remote_and_branch, "/")
-                    remote = remote_and_branch_parts[1]
-
-                    for ii, part in ipairs(remote_and_branch_parts) do
-                        if ii ~= 1 then
-                            remote_branch = remote_branch .. "/" .. part
-                        end
-                    end
-
-                    if end_char == ":" then
-                        i = i + 1
-                        if parts[i] == "ahead" then
-                            i = i + 1
-                            ahead = parts[i]:gsub('%W','')
-                            ahead = tonumber(ahead)
-                            i = i + 1
-                        end
-                        if parts[i] == "behind" then
-                            i = i + 1
-                            behind = parts[i]:gsub('%W','')
-                            behind = tonumber(behind)
-                        end
-                    end
-                end
-
-                table.insert(out, {
-                    sha = sha,
-                    branch = branch,
-                    is_head = is_head,
-                    remote = remote,
-                    remote_branch = remote_branch,
-                    remote_and_branch = remote_and_branch,
-                    ahead = ahead,
-                    behind = behind,
-                })
-            end
-            return out
-        end
-
         self.make_nl_request(
-
-            "branch -vv",
+            "for-each-ref refs/heads --format=%(HEAD)␞%(objectname)␞%(refname:short)␞%(upstream:short)␞%(upstream:trackshort)"
+            ,
             nil,
             handle_req(function(branches)
-                cb(parse(branches))
+                local out = {}
+                for _, b in ipairs(branches) do
+                    b = vim.fn.split(b, Git.RECORD_SEP, true)
+                    local tracking = ""
+                    if b[5] == "<" then
+                        tracking = "behind"
+                    end
+                    if b[5] == ">" then
+                        tracking = "ahead"
+                    end
+                    if b[5] == "<>" then
+                        tracking = "diverged"
+                    end
+                    if b[5] == "=" then
+                        tracking = "sync"
+                    end
+
+
+                    local remote_parts = vim.fn.split(b[4], "/")
+                    local remote = remote_parts[1]
+                    local remote_branch = ""
+                    for i = 2, #remote_parts, 1 do
+                        if i ~= 2 then
+                            remote_branch = remote_branch .. "/"
+                        end
+                        remote_branch = remote_branch .. remote_parts[i]
+                    end
+
+                    table.insert(out, {
+                        is_head = (b[1] == "*"),
+                        sha = b[2],
+                        branch = b[3],
+                        remote = remote,
+                        remote_branch = remote_branch,
+                        remote_ref = b[4],
+                        tracking = tracking,
+                    })
+                end
+                cb(out)
             end)
         )
     end
