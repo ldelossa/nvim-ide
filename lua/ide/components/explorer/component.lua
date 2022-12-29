@@ -7,7 +7,7 @@ local libbuf   = require('ide.lib.buf')
 local logger   = require('ide.logger.logger')
 local prompts  = require('ide.components.explorer.prompts')
 local presets  = require('ide.components.explorer.presets')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local ExplorerComponent = {}
 
@@ -182,7 +182,7 @@ ExplorerComponent.new = function(name, config)
             end
         end
         -- set highlights for global icon theme
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
         if self.tree.root ~= nil then
             local title = vim.fn.fnamemodify(self.tree.root.path, ":t")
             libwin.set_winbar_title(0, title)

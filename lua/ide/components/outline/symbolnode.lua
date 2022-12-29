@@ -1,5 +1,5 @@
 local node = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local SymbolNode = {}
 
@@ -41,7 +41,7 @@ SymbolNode.new = function(document_symbol, depth)
         local icon = "s"
         local kind = vim.lsp.protocol.SymbolKind[self.document_symbol.kind]
         if kind ~= "" then
-            icon = icon_set.get_icon(kind) or "[" .. kind .. "]"
+            icon = icons.global_icon_set.get_icon(kind) or "[" .. kind .. "]"
         end
 
         local name = self.document_symbol.name

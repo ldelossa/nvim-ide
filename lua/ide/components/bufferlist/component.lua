@@ -4,7 +4,7 @@ local libwin = require("ide.lib.win")
 local libbuf = require("ide.lib.buf")
 local libws  = require('ide.lib.workspace')
 local logger = require("ide.logger.logger")
-local icon_set = require("ide.icons").global_icon_set
+local icons = require("ide.icons")
 local commands = require("ide.components.bufferlist.commands")
 
 local BufferListComponent = {}
@@ -142,7 +142,7 @@ BufferListComponent.new = function(name, config)
             end
         end
         -- set highlights for global icon theme
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
         libwin.set_winbar_title(0, "BUFFERS")
     end
 
@@ -169,9 +169,9 @@ BufferListComponent.new = function(name, config)
                 end
             else
                 if self.kind ~= "dir" then
-                    icon = icon_set.get_icon("File")
+                    icon = icons.global_icon_set.get_icon("File")
                 else
-                    icon = icon_set.get_icon("Folder")
+                    icon = icons.global_icon_set.get_icon("Folder")
                 end
             end
             return {

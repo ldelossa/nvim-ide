@@ -8,7 +8,7 @@ local commitnode = require('ide.components.commits.commitnode')
 local commands = require('ide.components.commits.commands')
 local libwin = require('ide.lib.win')
 local logger = require('ide.logger.logger')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local CommitsComponent = {}
 
@@ -186,7 +186,7 @@ CommitsComponent.new = function(name, config)
     -- implements @Component interface
     function self.post_win_create()
         local log = self.logger.logger_from(nil, "Component.post_win_create")
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
     end
 
     -- implements @Component interface

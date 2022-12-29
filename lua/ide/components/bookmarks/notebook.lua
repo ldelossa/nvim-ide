@@ -1,7 +1,7 @@
 local tree = require('ide.trees.tree')
 local libbuf = require('ide.lib.buf')
 local libws  = require('ide.lib.workspace')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local bookmarknode = require('ide.components.bookmarks.bookmarknode')
 local base64 = require('ide.lib.encoding.base64')
 
@@ -62,7 +62,7 @@ Notebook.new = function(buf, name, file, bookmarks_component)
             0,
             {
                 virt_text_pos = "right_align",
-                virt_text = { { icon_set.get_icon("Bookmark") .. " " .. bm.title, "Keyword" } },
+                virt_text = { { icons.global_icon_set.get_icon("Bookmark") .. " " .. bm.title, "Keyword" } },
                 hl_mode = "combine"
             }
         )
