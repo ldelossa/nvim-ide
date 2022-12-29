@@ -1,6 +1,6 @@
 local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local termnode = require('ide.components.terminal.terminalbrowser.terminalnode')
 local logger = require('ide.logger.logger')
 local commands = require('ide.components.terminal.terminalbrowser.commands')
@@ -92,7 +92,7 @@ TerminalBrowserComponent.new = function(name, config)
 
     function self.post_win_create()
         local log = self.logger.logger_from(nil, "Component.post_win_create")
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
     end
 
     function self.new_term(args, name, command)

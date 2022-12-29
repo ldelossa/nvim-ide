@@ -6,7 +6,7 @@ local libwin   = require('ide.lib.win')
 local libbuf   = require('ide.lib.buf')
 local liblsp   = require('ide.lib.lsp')
 local logger   = require('ide.logger.logger')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local CallHierarchyComponent = {}
 
@@ -112,7 +112,7 @@ CallHierarchyComponent.new = function(name, config)
     -- implements @Component interface
     function self.post_win_create()
         local log = self.logger.logger_from(nil, "Component.post_win_create")
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
     end
 
     -- implements @Component interface

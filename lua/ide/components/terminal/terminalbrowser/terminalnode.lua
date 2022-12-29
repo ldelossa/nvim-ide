@@ -1,5 +1,5 @@
 local node = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local TerminalNode = {}
 
@@ -15,7 +15,7 @@ TerminalNode.new = function(id, name, depth)
     --          @name - @string, symbol's name
     --          @details - @string, symbol's detail if exists.
     function self.marshal()
-        local icon = icon_set.get_icon("Terminal")
+        local icon = icons.global_icon_set.get_icon("Terminal")
         local name = self.name
         local detail = ""
         return icon, name, detail

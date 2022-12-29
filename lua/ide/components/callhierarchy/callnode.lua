@@ -1,5 +1,5 @@
 local node     = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local liblsp   = require('ide.lib.lsp')
 local prompts  = require('ide.components.explorer.prompts')
 local logger   = require('ide.logger.logger')
@@ -60,7 +60,7 @@ CallNode.new = function(component, direction, call_hierarchy_item_call, depth)
         local icon = "s"
         local kind = vim.lsp.protocol.SymbolKind[call_hierarchy_item.kind]
         if kind ~= "" then
-            icon = icon_set.get_icon(kind) or "[" .. kind .. "]"
+            icon = icons.global_icon_set.get_icon(kind) or "[" .. kind .. "]"
         end
 
         local name = call_hierarchy_item.name

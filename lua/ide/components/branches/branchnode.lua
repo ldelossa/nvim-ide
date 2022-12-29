@@ -1,5 +1,5 @@
 local node     = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local BranchNode = {}
 
@@ -23,13 +23,13 @@ BranchNode.new = function(sha, branch, is_head, depth)
     --          @name - @string, the name of the call hierarchy item
     --          @details - @string, the details of the call hierarchy item
     function self.marshal()
-        local icon = icon_set.get_icon("GitBranch")
+        local icon = icons.global_icon_set.get_icon("GitBranch")
         local name = string.format("%s", self.branch)
         local detail = ""
 
         -- root is the file we are displaying the timeline for.
         if self.depth == 0 then
-            icon = icon_set.get_icon("GitRepo")
+            icon = icons.global_icon_set.get_icon("GitRepo")
             return icon, name, detail
         end
 

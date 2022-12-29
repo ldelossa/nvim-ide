@@ -7,7 +7,7 @@ local libwin = require('ide.lib.win')
 local libbuf = require('ide.lib.buf')
 local libws  = require('ide.lib.workspace')
 local statusnode = require('ide.components.changes.statusnode')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local git = require('ide.lib.git.client').new()
 local gitutil = require('ide.lib.git.client')
 
@@ -133,7 +133,7 @@ ChangesComponent.new = function(name, config)
             end
         end
 
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
     end
 
     function self.expand(args)

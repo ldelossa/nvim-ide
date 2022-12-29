@@ -1,5 +1,5 @@
 local node = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local libpopup = require('ide.lib.popup')
 
 local BookmarkNode = {}
@@ -52,9 +52,9 @@ BookmarkNode.new = function(file, start_line, end_line, title, note, depth)
     --          @name - @string, bookmark's name
     --          @details - @string, bookmark's detail if exists.
     function self.marshal()
-        local icon = icon_set.get_icon("Bookmark")
+        local icon = icons.global_icon_set.get_icon("Bookmark")
         if self.depth == 0 then
-            icon = icon_set.get_icon("Notebook")
+            icon = icons.global_icon_set.get_icon("Notebook")
         end
         local name = self.title
         if self.depth ~= 0 then
@@ -88,8 +88,8 @@ BookmarkNode.new = function(file, start_line, end_line, title, note, depth)
     function self.details()
         local lines = {}
 
-        table.insert(lines, string.format("%s %s", icon_set.get_icon("Bookmark"), self.title))
-        table.insert(lines, string.format("%s %s", icon_set.get_icon("File"), self.file .. ':' .. self.start_line))
+        table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Bookmark"), self.title))
+        table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("File"), self.file .. ':' .. self.start_line))
 
         libpopup.until_cursor_move(lines)
     end

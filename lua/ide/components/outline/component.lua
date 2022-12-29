@@ -7,7 +7,7 @@ local libbuf     = require('ide.lib.buf')
 local liblsp     = require('ide.lib.lsp')
 local libws  = require('ide.lib.workspace')
 local symbolnode = require('ide.components.outline.symbolnode')
-local icon_set   = require('ide.icons').global_icon_set
+local icons   = require('ide.icons')
 
 local OutlineComponent = {}
 
@@ -114,7 +114,7 @@ OutlineComponent.new = function(name, config)
     -- implements @Component interface
     function self.post_win_create()
         local log = self.logger.logger_from(nil, "Component.post_win_create")
-        icon_set.set_win_highlights()
+        icons.global_icon_set.set_win_highlights()
     end
 
     local function _build_outline_recursive(cur_node, document_symbols)

@@ -1,5 +1,5 @@
 local node     = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 local git      = require('ide.lib.git.client').new()
 local libpopup = require('ide.lib.popup')
 
@@ -25,10 +25,10 @@ TimelineNode.new = function(sha, file, subject, author, date, depth)
     --          @name - @string, the name of the call hierarchy item
     --          @details - @string, the details of the call hierarchy item
     function self.marshal()
-        local icon = icon_set.get_icon("GitCommit")
+        local icon = icons.global_icon_set.get_icon("GitCommit")
         -- root is the file we are displaying the timeline for.
         if self.depth == 0 then
-            icon = icon_set.get_icon("File")
+            icon = icons.global_icon_set.get_icon("File")
         end
         local name = string.format("%s", self.subject)
         local detail = string.format("%s %s", self.author, self.date)
@@ -47,9 +47,9 @@ TimelineNode.new = function(sha, file, subject, author, date, depth)
             end
 
             local lines = {}
-            table.insert(lines, string.format("%s %s", icon_set.get_icon("GitCommit"), commit.sha))
-            table.insert(lines, string.format("%s %s", icon_set.get_icon("Account"), commit.author))
-            table.insert(lines, string.format("%s %s", icon_set.get_icon("Calendar"), commit.date))
+            table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("GitCommit"), commit.sha))
+            table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Account"), commit.author))
+            table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Calendar"), commit.date))
             table.insert(lines, "")
 
             local subject = vim.fn.split(commit.subject, "\n")

@@ -1,5 +1,5 @@
 local node = require('ide.trees.node')
-local icon_set = require('ide.icons').global_icon_set
+local icons = require('ide.icons')
 
 local StatusNode = {}
 
@@ -22,13 +22,13 @@ StatusNode.new = function(status, path, staged, depth)
             icon = require("nvim-web-devicons").get_icon(self.path, nil, { default = true })
         end
         if self.depth == 1 then
-            icon = icon_set.get_icon("GitCompare")
+            icon = icons.global_icon_set.get_icon("GitCompare")
         end
         if vim.fn.isdirectory(self.path) ~= 0 then
-            icon = icon_set.get_icon("Folder")
+            icon = icons.global_icon_set.get_icon("Folder")
         end
         if self.depth == 0 then
-            icon = icon_set.get_icon("GitRepo")
+            icon = icons.global_icon_set.get_icon("GitRepo")
         end
         local name = self.path
         local detail = self.status
