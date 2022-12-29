@@ -174,8 +174,8 @@ BranchesComponent.new = function(name, config)
                     local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
                     node.remote = branch.remote
                     node.remote_branch = branch.remote_branch
-                    node.ahead = branch.ahead
-                    node.behind = branch.behind
+                    node.remote_ref = branch.remote_ref
+                    node.tracking = branch.tracking
                     if node.is_head then
                         children[1] = node
                         goto continue
@@ -250,7 +250,7 @@ BranchesComponent.new = function(name, config)
             return
         end
 
-        git.pull(node.remote, node.branch, function(success)
+        git.pull(node.remote, node.remote_branch, function(success)
             if success == nil then
                 return
             end
@@ -281,7 +281,7 @@ BranchesComponent.new = function(name, config)
             return
         end
 
-        git.push(node.remote, node.branch, function(success)
+        git.push(node.remote, node.remote_branch, function(success)
             if success == nil then
                 return
             end

@@ -1,4 +1,4 @@
-local node     = require('ide.trees.node')
+local node  = require('ide.trees.node')
 local icons = require('ide.icons')
 
 local BranchNode = {}
@@ -37,17 +37,20 @@ BranchNode.new = function(sha, branch, is_head, depth)
             name = "* " .. name
         end
 
-        if self.remote ~= nil then
-            detail = self.remote
+        if self.remote_ref ~= nil then
+            detail = self.remote_ref
         end
-        if self.remote_branch ~= nil then
-            detail = detail .. self.remote_branch
-        end
-        if self.ahead ~= 0 then
-            detail = detail .. "↑"
-        end
-        if self.behind ~= 0 then
-            detail = detail .. "↓"
+
+        if self.tracking ~= "" then
+            if self.tracking == "ahead" then
+                detail = detail .. "↑"
+            end
+            if self.tracking == "behind" then
+                detail = detail .. "↓"
+            end
+            if self.tracking == "diverged" then
+                detail = detail .. "↑" .. "↓"
+            end
         end
 
         return icon, name, detail, ""
