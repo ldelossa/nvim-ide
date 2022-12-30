@@ -310,8 +310,8 @@ BranchesComponent.new = function(name, config)
         end
 
         vim.ui.input({
-            prompt = "Set upstream to ({remote}/{branch}): ",
-            default = "origin/",
+            prompt = "Set upstream to (remote/branch): ",
+            default = "origin/" .. node.branch,
         }, function(input)
             if input == nil or input == "" then
                 return

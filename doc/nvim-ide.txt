@@ -344,14 +344,11 @@ navigating to the `Branches` subcommand.
 Be aware, you should use ssh for your remotes if you intend to push or pull
 changes to a branch via this component. HTTP auth is not supported.
 
-The Branches component will attempt to parse out the `git` command 
-`git branch -vvv` to discover the tracked upstream branch and whether the
-local branch is behind/ahead/diverged from the upstream. Therefore, it is
-sometimes necessary to tell `git` the upstream branch, a local branch tracks, by
-issuing `git branch --set-upstream={upstream-remote/upstream-branch}`. If the
-Branches component is failing to show you whether the local branch is
-ahead/behind/diverged, ensure you have set the upstream branch with this
-command.
+The Branches component requires an upstream to be in order to display
+ahead/behind/diverged status. 
+
+You can set an upstream with the 'set_upstream' keymap below. This is the
+equivalent of performing 'git branch {branch} --set-upstream-to:'
 
 Config:
 >
@@ -371,6 +368,7 @@ Config:
         minimize = "-",
         pull = "p",
         push = "P"
+        set_upstream = "s"
     },
 <
 
