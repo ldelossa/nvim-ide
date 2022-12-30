@@ -159,10 +159,6 @@ Workspace.new = function(tab)
                 self.panel_groups[i] = panel.new(self.tab, nil, components)
                 self.panel_groups[i].set_workspace(self)
             end
-            if self.component_tracker ~= nil then
-                self.component_tracker.stop()
-                self.component_tracker = nil
-            end
         end
 
         init_panels()

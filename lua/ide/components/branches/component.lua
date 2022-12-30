@@ -1,13 +1,13 @@
-local base = require('ide.panels.component')
-local tree = require('ide.trees.tree')
-local git = require('ide.lib.git.client').new()
-local libbuf = require("ide.lib.buf")
-local libws  = require('ide.lib.workspace')
-local gitutil = require('ide.lib.git.client')
+local base       = require('ide.panels.component')
+local tree       = require('ide.trees.tree')
+local git        = require('ide.lib.git.client').new()
+local libbuf     = require("ide.lib.buf")
+local libws      = require('ide.lib.workspace')
+local gitutil    = require('ide.lib.git.client')
 local branchnode = require('ide.components.branches.branchnode')
-local commands = require('ide.components.branches.commands')
-local logger = require('ide.logger.logger')
-local icons = require('ide.icons')
+local commands   = require('ide.components.branches.commands')
+local logger     = require('ide.logger.logger')
+local icons      = require('ide.icons')
 
 local BranchesComponent = {}
 
@@ -27,7 +27,8 @@ local config_prototype = {
         maximize = "+",
         minimize = "-",
         pull = "p",
-        push = "P"
+        push = "P",
+        set_upstream = "s"
     },
 }
 
@@ -71,25 +72,26 @@ BranchesComponent.new = function(name, config)
         self.fsevents[1]:stop()
         self.fsevents[1] = vim.loop.new_fs_event()
         self.fsevents[1]:start(vim.fn.fnamemodify(".git/HEAD", ':p'), {}, vim.schedule_wrap(function()
-                if not libws.is_current_ws(self.workspace) then
-                    return
-                end
-                if libbuf.is_regular_buffer(0) then
-                    self.get_branches()
-                end
-                register_head_fs_event()
-        end))
-    end
-    register_head_fs_event()
-
-    -- watching on the heads/ directory, so no special case like above.
-    self.fsevents[2]:start(vim.fn.fnamemodify(".git/refs/heads", ':p'), {}, vim.schedule_wrap(function()
             if not libws.is_current_ws(self.workspace) then
                 return
             end
             if libbuf.is_regular_buffer(0) then
                 self.get_branches()
             end
+            register_head_fs_event()
+        end))
+    end
+
+    register_head_fs_event()
+
+    -- watching on the heads/ directory, so no special case like above.
+    self.fsevents[2]:start(vim.fn.fnamemodify(".git/refs/heads", ':p'), {}, vim.schedule_wrap(function()
+        if not libws.is_current_ws(self.workspace) then
+            return
+        end
+        if libbuf.is_regular_buffer(0) then
+            self.get_branches()
+        end
     end))
 
     local function setup_buffer()
@@ -125,6 +127,8 @@ BranchesComponent.new = function(name, config)
                 { silent = true, callback = function() self.pull_branch() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.push, "",
                 { silent = true, callback = function() self.push_branch() end })
+            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.set_upstream, "",
+                { silent = true, callback = function() self.set_upstream() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
                 callback = self.maximize })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
@@ -290,6 +294,35 @@ BranchesComponent.new = function(name, config)
                 title = "Branches",
             })
         end)
+    end
+
+    function self.set_upstream(args)
+        if not gitutil.in_git_repo() then
+            vim.notify("Must be in a git repo to create a branch", "error", {
+                title = "Branches",
+            })
+            return
+        end
+
+        local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+        if node == nil then
+            return
+        end
+
+        vim.ui.input({
+            prompt = "Set upstream to ({remote}/{branch}): ",
+            default = "origin/",
+        }, function(input)
+            if input == nil or input == "" then
+                return
+            end
+            git.set_upstream(node.branch, input, function(resp)
+                if resp ~= nil then
+                    self.get_branches()
+                end
+            end)
+        end)
+
     end
 
     self.refresh_aucmd = vim.api.nvim_create_autocmd({ "BufEnter" }, {
