@@ -4,6 +4,7 @@ local panel_registry     = require('ide.panels.panel_registry')
 local workspace_registry = require('ide.workspaces.workspace_registry')
 local workspace_cmds     = require('ide.workspaces.commands')
 local component_factory  = require('ide.panels.component_factory')
+local component_tracker  = require('ide.workspaces.component_tracker')
 local libwin             = require('ide.lib.win')
 local logger             = require('ide.logger.logger')
 
@@ -36,7 +37,9 @@ Workspace.new = function(tab)
         panel_groups = {},
         -- a running list of editor windows (non-component windows) that this
         -- workspace has visited.
-        win_history = {}
+        win_history = {},
+        -- tracks component and panel sizes for the workspace.
+        component_tracker = nil
     }
 
     -- ide.config contains the config already merged with any user modifications,
@@ -156,6 +159,10 @@ Workspace.new = function(tab)
                 self.panel_groups[i] = panel.new(self.tab, nil, components)
                 self.panel_groups[i].set_workspace(self)
             end
+            if self.component_tracker ~= nil then
+                self.component_tracker.stop()
+                self.component_tracker = nil
+            end
         end
 
         init_panels()
@@ -185,6 +192,8 @@ Workspace.new = function(tab)
             self.panels.left.open()
             self.panels.right.close()
         end
+        self.component_tracker = component_tracker.new(self)
+        self.component_tracker.refresh()
     end
 
     -- Closes the workspace.
