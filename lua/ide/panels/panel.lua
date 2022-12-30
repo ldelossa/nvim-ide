@@ -1,5 +1,4 @@
 local registry = require('ide.panels.panel_registry')
-local component_tracker = require('ide.panels.component_tracker')
 local libwin = require('ide.lib.win')
 
 local Panel = {}
@@ -32,8 +31,6 @@ Panel.new = function(tab, position, components)
         size = 30,
         -- an array of registered Component_i implementations.
         components = {},
-        -- a @ComponentTracker which tracks stateful information about components.
-        component_tracker = nil,
         -- the panel's current layout, an array of Component_i implementations.
         layout = {},
         -- the workspace this panel is associated with.
@@ -41,7 +38,6 @@ Panel.new = function(tab, position, components)
         -- whether the panel has been opened already
         has_opened_once = false,
     }
-    self.component_tracker = component_tracker.new(self)
     self.tab = tab
 
     -- construction validation
@@ -124,10 +120,6 @@ Panel.new = function(tab, position, components)
         Component.buf = buf
 
         vim.api.nvim_buf_set_name(buf, string.format("component://%s:%d:%d", Component.name, panel_win, self.tab))
-
-        -- refresh the component tracker since new component has been opened.
-        self.component_tracker.refresh()
-
 
         -- the bottom tab requires the ability to change buffers,
         -- for example to switch between multiple terminals via the terminal
@@ -361,9 +353,6 @@ Panel.new = function(tab, position, components)
             end
         end
 
-        -- refresh the component tracker as some component windows may have 
-        -- changed
-        self.component_tracker.refresh()
     end
 
     -- Hides a currently displayed Component. 
