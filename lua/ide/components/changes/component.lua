@@ -116,7 +116,7 @@ ChangesComponent.new = function(name, config)
     -- implements @Component.open()
     function self.open()
         if self.tree.root ~= nil then
-            self.tree.marshal({ no_guides_leaf = true })
+            self.tree.marshal({ no_guides_leaf = true, virt_text_pos='right_align'})
         end
         return self.buf
     end
@@ -146,7 +146,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.expand_node(node)
-        self.tree.marshal({ no_guides_leaf = true })
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos='right_align'})
         self.state["cursor"].restore()
     end
 
@@ -160,7 +160,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_node(node)
-        self.tree.marshal({ no_guides_leaf = true })
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos='right_align'})
         self.state["cursor"].restore()
     end
 
@@ -174,7 +174,7 @@ ChangesComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(self.tree.root)
-        self.tree.marshal({ no_guides_leaf = true })
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos='right_align'})
         self.state["cursor"].restore()
     end
 
@@ -202,7 +202,7 @@ ChangesComponent.new = function(name, config)
             ::continue::
         end
 
-        self.tree.marshal({ no_guides_leaf = true })
+        self.tree.marshal({ no_guides_leaf = true, virt_text_pos='right_align'})
         if self.is_displayed() then
             self.state["cursor"].restore()
         end
