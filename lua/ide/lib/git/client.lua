@@ -476,6 +476,14 @@ Git.new = function()
         )
     end
 
+    function self.set_upstream(branch, upstream_ref, cb)
+        self.make_request(
+            string.format("branch %s --set-upstream-to=%s", branch, upstream_ref),
+            nil,
+            handle_req(cb)
+        )
+    end
+
     return self
 end
 

@@ -47,9 +47,6 @@ ComponentTracker.new = function(workspace)
         end
 
         local function handle_panel(panel)
-            local max_height = 0
-            local max_width = 0
-
             -- update all components h/w, this is necessary since scrolling a
             -- a window does not recursively fire a WinScrolled event for
             -- adjacent component windows.
@@ -62,19 +59,6 @@ ComponentTracker.new = function(workspace)
                     local w = vim.api.nvim_win_get_width(cc.win)
                     cc.state["dimensions"].height = h
                     cc.state["dimensions"].width = w
-                    if h > max_height then
-                        max_height = h
-                    end
-                    if w > max_width then
-                        max_width = h
-                    end
-                end
-
-                -- set the major size of the panel to be remembered on toggle
-                if panel.position == "top" or panel.position == "bottom" then
-                    panel.size = max_height
-                else
-                    panel.size = max_width
                 end
             end
         end
