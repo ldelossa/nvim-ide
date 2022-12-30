@@ -69,24 +69,6 @@ Workspace.new = function(tab)
         end
     end
 
-    local function _normalize_panels(pos)
-        -- normalize the panels, because vim is vim, there is no way to ensure
-        -- the side panels retain the full height of the editor, other then
-        -- the order they are opened in.
-        if pos == panel.PANEL_POS_BOTTOM or pos == panel.PANEL_POS_TOP then
-            if self.panels[panel.PANEL_POS_LEFT] ~= nil and
-                self.panels[panel.PANEL_POS_LEFT].is_open() then
-                self.panels[panel.PANEL_POS_LEFT].close()
-                self.panels[panel.PANEL_POS_LEFT].open()
-            end
-            if self.panels[panel.PANEL_POS_RIGHT] ~= nil and
-                self.panels[panel.PANEL_POS_RIGHT].is_open() then
-                self.panels[panel.PANEL_POS_RIGHT].close()
-                self.panels[panel.PANEL_POS_RIGHT].open()
-            end
-        end
-    end
-
     function self.swap_panel(position, panel_group)
         if self.panels[position] ~= nil then
             self.panels[position].close()
