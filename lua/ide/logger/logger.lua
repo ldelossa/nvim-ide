@@ -23,7 +23,7 @@ Logger.set_log_level = function(level)
         Logger.log_level = vim.log.levels.INFO
         return
     end
-    if level == 'info' then
+    if level == 'error' then
         Logger.log_level = vim.log.levels.ERROR
         return
     end
