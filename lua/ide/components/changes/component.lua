@@ -319,10 +319,7 @@ ChangesComponent.new = function(name, config)
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines({}, "a", o)
 
-            local buf_name = "diff://" .. node.path
-            if libbuf.buf_exists_by_name(buf_name) then
-                libbuf.delete_buffer_by_name(buf_name)
-            end
+            local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
 
             dbuff.buffer_a.set_name(buf_name)
             dbuff.open_buffer(node.path, "b")
@@ -348,10 +345,7 @@ ChangesComponent.new = function(name, config)
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file, "a", o)
-            local buf_name = "diff://" .. node.path
-            if libbuf.buf_exists_by_name(buf_name) then
-                libbuf.delete_buffer_by_name(buf_name)
-            end
+            local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
 
             dbuff.buffer_a.set_name(buf_name)
             dbuff.open_buffer(node.path, "b")

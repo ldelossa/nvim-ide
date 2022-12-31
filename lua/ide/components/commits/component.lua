@@ -312,7 +312,7 @@ CommitsComponent.new = function(name, config)
         end
 
         local function do_diff(file_a, sha_a, path)
-            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
+            local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
 
             local tab = false
             for _, arg in ipairs(args.fargs) do
@@ -412,8 +412,8 @@ CommitsComponent.new = function(name, config)
         end
 
         local function do_diff(file_a, file_b, sha_a, sha_b, path)
-            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
-            local buf_name_b = string.format("%s:%d://%s", sha_b, vim.fn.rand(), path)
+            local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
+            local buf_name_b = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_b, path)
 
             _do_tabnew()
 
@@ -429,7 +429,7 @@ CommitsComponent.new = function(name, config)
         end
 
         local function do_diff_local(file_a, buffer_b, sha_a, path)
-            local buf_name_a = string.format("%s:%d://%s", sha_a, vim.fn.rand(), path)
+            local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
 
             _do_tabnew()
 

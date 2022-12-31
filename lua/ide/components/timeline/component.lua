@@ -280,7 +280,7 @@ TimelineComponent.new = function(name, config)
 
         local pnode = self.tree.depth_table.table[1][i + 1]
 
-        local function do_diff(file_a, file_b)
+        local function do_diff(file_a, file_b, sha_a, sha_b, path_a, path_b)
             local tab = false
             for _, arg in ipairs(args.fargs) do
                 if arg == "tab" then
@@ -292,11 +292,18 @@ TimelineComponent.new = function(name, config)
                 vim.cmd("tabnew")
             end
 
+            local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path_a)
+            local buf_name_b = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_b, path_b)
+
             local dbuff = diff_buf.new()
             dbuff.setup()
             local o = { listed = false, scratch = true, modifiable = false }
             dbuff.write_lines(file_a, "a", o)
             dbuff.write_lines(file_b, "b", o)
+
+            dbuff.buffer_a.set_name(buf_name_a)
+            dbuff.buffer_b.set_name(buf_name_b)
+
             dbuff.diff()
         end
 
@@ -306,7 +313,7 @@ TimelineComponent.new = function(name, config)
                 if file_b == nil then
                     return
                 end
-                do_diff({ "" }, file_b)
+                do_diff({ "" }, file_b, "", node.sha, "", node.file)
             end)
             return
         end
@@ -316,7 +323,7 @@ TimelineComponent.new = function(name, config)
                 if file_b == nil then
                     return
                 end
-                do_diff(file_a, file_b)
+                do_diff(file_a, file_b, pnode.sha, node.sha, pnode.file, node.file)
             end)
         end)
     end
