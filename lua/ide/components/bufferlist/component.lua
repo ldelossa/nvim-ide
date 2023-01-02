@@ -1,10 +1,10 @@
-local base = require("ide.panels.component")
-local sort = require('ide.lib.sort')
-local libwin = require("ide.lib.win")
-local libbuf = require("ide.lib.buf")
-local libws  = require('ide.lib.workspace')
-local logger = require("ide.logger.logger")
-local icons = require("ide.icons")
+local base     = require("ide.panels.component")
+local sort     = require('ide.lib.sort')
+local libwin   = require("ide.lib.win")
+local libbuf   = require("ide.lib.buf")
+local libws    = require('ide.lib.workspace')
+local logger   = require("ide.logger.logger")
+local icons    = require("ide.icons")
 local commands = require("ide.components.bufferlist.commands")
 
 local BufferListComponent = {}
@@ -23,8 +23,6 @@ local config_prototype = {
         hide = "<C-[>",
         close = "X",
         details = "d",
-        maximize = "+",
-        minimize = "-"
     },
 }
 
@@ -82,14 +80,6 @@ BufferListComponent.new = function(name, config)
                 callback = function()
                     self.hide()
                 end,
-            })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", {
-                silent = true,
-                callback = self.maximize
-            })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", {
-                silent = true,
-                callback = self.minimize
             })
         end
 
@@ -183,7 +173,7 @@ BufferListComponent.new = function(name, config)
         end, libbuf.get_listed_bufs())
         self.bufs = bufs
         if self.config.current_buffer_top then
-            sort(self.bufs, function(a,_)
+            sort(self.bufs, function(a, _)
                 if a.is_current then
                     return true
                 end
@@ -205,7 +195,7 @@ BufferListComponent.new = function(name, config)
                 line = string.format(" %s * %s ", buf.icon, buf.name)
                 -- track the currently opened buffer if we are displayed.
                 if self.is_displayed() then
-                    libwin.safe_cursor_restore(self.win, {i, 1})
+                    libwin.safe_cursor_restore(self.win, { i, 1 })
                 end
             end
             if vim.api.nvim_buf_get_option(buf.id, 'modified') then

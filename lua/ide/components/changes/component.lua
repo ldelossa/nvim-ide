@@ -29,8 +29,6 @@ local config_prototype = {
         diff_tab = "t",
         hide = "<C-[>",
         close = "X",
-        maximize = "+",
-        minimize = "-",
         -- deprecated, here for backwards compat
         jump = "<CR>",
         jump_tab = "t",
@@ -94,10 +92,6 @@ ChangesComponent.new = function(name, config)
                 { silent = true, callback = function() self.diff({ fargs = { "tab" } }) end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
                 { silent = true, callback = function() self.hide() end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
-                callback = self.maximize })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
-                callback = self.minimize })
 
             -- deprecated, here for backwards compat
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "",

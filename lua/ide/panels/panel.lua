@@ -109,6 +109,19 @@ Panel.new = function(tab, position, components)
         vim.api.nvim_win_set_option(win, 'winhighlight', 'Normal:NormalSB')
     end
 
+    local function _set_default_buf_opts(buf, component)
+        -- all component buffers will map "=" to the `Workspace Reset` command.
+        -- see: https://github.com/ldelossa/nvim-ide/discussions/91
+        vim.api.nvim_buf_set_keymap(buf, "n", "=", "",
+            { silent = true, callback = self.workspace.equal_components })
+        -- all component buffers will map "+" to the `{Component}Maximize` command.
+        -- see: https://github.com/ldelossa/nvim-ide/discussions/91
+        vim.api.nvim_buf_set_keymap(buf, "n", "+", "",
+            { silent = true, callback = component.maximize })
+        vim.api.nvim_buf_set_keymap(buf, "n", "-", "",
+            { silent = true, callback = component.minimize })
+    end
+
     local function _attach_component(Component)
         local panel_win = vim.api.nvim_get_current_win()
 
@@ -120,6 +133,7 @@ Panel.new = function(tab, position, components)
         Component.buf = buf
 
         vim.api.nvim_buf_set_name(buf, string.format("component://%s:%d:%d", Component.name, panel_win, self.tab))
+        _set_default_buf_opts(buf, Component)
 
         -- the bottom tab requires the ability to change buffers,
         -- for example to switch between multiple terminals via the terminal

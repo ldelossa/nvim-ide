@@ -16,8 +16,6 @@ local config_prototype = {
         hide = "<C-[>",
         delete = "D",
         rename = "r",
-        maximize = "+",
-        minimize = "-"
     },
 }
 
@@ -55,10 +53,6 @@ TerminalBrowserComponent.new = function(name, config)
                 { silent = true, callback = function() self.hide() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.delete, "",
                 { silent = true, callback = function() self.delete_term() end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
-                callback = self.maximize })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
-                callback = self.minimize })
         end
 
         return buf

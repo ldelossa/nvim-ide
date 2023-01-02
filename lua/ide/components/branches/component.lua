@@ -24,8 +24,6 @@ local config_prototype = {
         hide = "<C-[>",
         close = "X",
         details = "d",
-        maximize = "+",
-        minimize = "-",
         pull = "p",
         push = "P",
         set_upstream = "s"
@@ -129,10 +127,6 @@ BranchesComponent.new = function(name, config)
                 { silent = true, callback = function() self.push_branch() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.set_upstream, "",
                 { silent = true, callback = function() self.set_upstream() end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
-                callback = self.maximize })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
-                callback = self.minimize })
         end
 
         return buf

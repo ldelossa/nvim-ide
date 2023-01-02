@@ -25,8 +25,6 @@ local config_prototype = {
         details = "d",
         hide = "<C-[>",
         close = "X",
-        maximize = "+",
-        minimize = "-"
     },
 }
 
@@ -87,10 +85,6 @@ BookmarksComponent.new = function(name, config)
                 { silent = true, callback = function() self.details() end })
             vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "",
                 { silent = true, callback = function() self.hide() end })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.maximize, "", { silent = true,
-                callback = self.maximize })
-            vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.minimize, "", { silent = true,
-                callback = self.minimize })
         end
 
         return buf

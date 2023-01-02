@@ -279,6 +279,13 @@ Default Components                                         *ide-default-componen
 
 `nvim-ide` ships with several default components available for immediate use.
 
+All component buffers support the following keybinds (cannot re-map).
+
+"+" - maximize the component to full height.
+"-" - minimize the component to minimal height.
+"=" - set all components to equal width, or their default heights if provided
+by user config.
+
 We'll cover each one along with their configuration here. 
 
 
