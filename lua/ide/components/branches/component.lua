@@ -167,7 +167,7 @@ BranchesComponent.new = function(name, config)
                 if branches == nil or #branches == 0 then
                     return
                 end
-                local children = { {} } -- reserve first item for head.
+                local children = {}
                 for _, branch in ipairs(branches) do
                     local node = branchnode.new(branch.sha, branch.branch, branch.is_head)
                     node.remote = branch.remote
@@ -175,11 +175,10 @@ BranchesComponent.new = function(name, config)
                     node.remote_ref = branch.remote_ref
                     node.tracking = branch.tracking
                     if node.is_head then
-                        children[1] = node
-                        goto continue
+                        table.insert(children, 1, node)
+                    else
+                        table.insert(children, node)
                     end
-                    table.insert(children, node)
-                    ::continue::
                 end
                 local root = branchnode.new("", repo, false, 0)
                 self.tree.add_node(root, children)
