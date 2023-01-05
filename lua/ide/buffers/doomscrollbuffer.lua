@@ -56,6 +56,7 @@ DoomScrollBuffer.new = function(on_scroll, buf, listed, scratch, opts)
         function()
             if self.on_scroll_aucmd ~= nil then
                 vim.api.nvim_del_autocmd(self.on_scroll_aucmd)
+                self.on_scroll_aucmd = nil
             end
         end
     )

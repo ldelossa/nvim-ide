@@ -1,5 +1,6 @@
 local registry = require('ide.panels.panel_registry')
 local libwin = require('ide.lib.win')
+local logger = require('ide.logger.logger')
 
 local Panel = {}
 
@@ -11,6 +12,35 @@ Panel.PANEL_POS_BOTTOM = "bottom"
 Panel.PANEL_POSITIONS = {
     Panel.PANEL_POS_TOP, Panel.PANEL_POS_LEFT, Panel.PANEL_POS_RIGHT, Panel.PANEL_POS_BOTTOM
 }
+
+local bool_to_string = function(b)
+    return b and "true" or "false"
+end
+
+local debug_winsize = false
+local winsize_debug = function(log, msg)
+    if not debug_winsize then
+        return
+    end
+
+    local current = vim.api.nvim_get_current_win()
+    for _, w in ipairs(vim.api.nvim_list_wins()) do
+        local width = vim.api.nvim_win_get_width(w)
+        local height = vim.api.nvim_win_get_height(w)
+        local title = vim.api.nvim_win_get_option(w, "winbar")
+        local fixwidth = vim.api.nvim_win_get_option(w, "winfixwidth")
+        local fixheight = vim.api.nvim_win_get_option(w, "winfixheight")
+        local is_current = w == current
+
+        log.info(os.date("%c|") .. msg .. "|width=" .. width
+            .. ", fixwidth=" .. bool_to_string(fixwidth)
+            .. ", height=" .. height .. ", fixheight=" .. bool_to_string(fixheight)
+            .. ", win=" .. w .. ", title=" .. title
+            .. ", is_current=" .. bool_to_string(is_current)
+        )
+    end
+end
+
 
 -- Construct a new Panel for a given tab and position.
 --
@@ -37,6 +67,7 @@ Panel.new = function(tab, position, components)
         workspace = nil,
         -- whether the panel has been opened already
         has_opened_once = false,
+        logger = logger.new("panel", nil)
     }
     self.tab = tab
 
@@ -90,11 +121,15 @@ Panel.new = function(tab, position, components)
         if not self.is_open() then
             return
         end
+        local log = self.logger.logger_from("panel=" .. self.position)
+
+        winsize_debug(log, "before close")
         for _, c in ipairs(self.layout) do
             if c.is_valid() and c.is_displayed() then
                 vim.api.nvim_win_close(c.win, true)
             end
         end
+        winsize_debug(log, "after close")
     end
 
     local function _set_default_win_opts(pos, win, name)
@@ -104,8 +139,11 @@ Panel.new = function(tab, position, components)
         vim.api.nvim_win_set_option(win, 'relativenumber', false)
         vim.api.nvim_win_set_option(win, 'signcolumn', 'no')
         vim.api.nvim_win_set_option(win, 'wrap', false)
-        vim.api.nvim_win_set_option(win, 'winfixwidth', true)
-        vim.api.nvim_win_set_option(win, 'winfixheight', true)
+
+        local winfixwidth = self.position == Panel.PANEL_POS_LEFT or self.position == Panel.PANEL_POS_RIGHT
+        local winfixheight = not winfixwidth
+        vim.api.nvim_win_set_option(win, "winfixwidth", winfixwidth)
+        vim.api.nvim_win_set_option(win, "winfixheight", winfixheight)
         vim.api.nvim_win_set_option(win, 'winhighlight', 'Normal:NormalSB')
     end
 
@@ -200,19 +238,9 @@ Panel.new = function(tab, position, components)
             return
         end
 
-        local restores = {}
-
-        -- make all windows across vim unfixed
-        for _, w in ipairs(vim.api.nvim_list_wins()) do
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixwidth", false))
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", false))
-        end
-
-        local old_layout = self.layout
-
         -- if all components are hidden, don't open the panel at all.
         local continue = false
-        for i, rc in ipairs(self.components) do
+        for _, rc in ipairs(self.components) do
             if not rc.is_hidden() then
                 continue = true
             end
@@ -220,6 +248,11 @@ Panel.new = function(tab, position, components)
         if not continue then
             return
         end
+
+        local log = self.logger.logger_from(nil, "panel.open=" .. self.position)
+        winsize_debug(log, "starting open")
+
+        local old_layout = vim.tbl_extend('keep', self.layout, {})
 
         -- if we are configuring a top or bottom panel, we want to split right
         -- for vsplits to preserve config's ordering.
@@ -239,29 +272,32 @@ Panel.new = function(tab, position, components)
             return function() end
         end)()
 
+        local resize_func
         -- run all win creation commands with no autocmd, so they won't get
         -- tracked as visited windows in @Workspace.
         if self.position == Panel.PANEL_POS_LEFT then
             vim.cmd("noautocmd topleft vsplit")
-            vim.cmd("vertical resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_width
         elseif self.position == Panel.PANEL_POS_RIGHT then
             vim.cmd("noautocmd botright vsplit")
-            vim.cmd("vertical resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_width
         elseif self.position == Panel.PANEL_POS_TOP then
             vim.cmd("noautocmd topleft split")
-            vim.cmd("resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_height
         elseif self.position == Panel.PANEL_POS_BOTTOM then
             vim.cmd("noautocmd botright split")
-            vim.cmd("resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_height
         end
+        winsize_debug(log, "after first split")
+
+        local current = vim.api.nvim_get_current_win()
+        resize_func(current, self.size)
+        winsize_debug(log, "after first resize")
 
         -- place non-hidden components, we already have the sidebar window, so 
         -- only split after the first attached component.
         local attached = 1
+        self.layout = {}
         for _, rc in ipairs(self.components) do
             if not rc.is_hidden() then
                 if attached ~= 1 then
@@ -283,7 +319,14 @@ Panel.new = function(tab, position, components)
             end
         end
 
+        winsize_debug(log, "before normalize_panel")
         self.workspace.normalize_panels(self.position)
+        winsize_debug(log, "after normalize_panel")
+
+        -- normalizing may change the height of the bottom window
+        -- even when winfixheight is set to the bottom window
+        resize_func(current, self.size)
+        winsize_debug(log, "after 2nd resize")
 
         -- if the layout is exactly the same as previous, restore dimensions.
         local restore_dimensions = true
@@ -301,11 +344,8 @@ Panel.new = function(tab, position, components)
         end
 
         restore()
-        for _, f in ipairs(restores) do
-            f()
-        end
-
         self.init_component_sizes()
+        winsize_debug(log, "finishing open")
     end
 
     function self.restore_default_heights()
@@ -396,7 +436,6 @@ Panel.new = function(tab, position, components)
                 table.insert(new_layout, cc)
             end
         end
-        self.layout = (function() return {} end)
         self.layout = new_layout
     end
 
@@ -432,19 +471,19 @@ Panel.new = function(tab, position, components)
 
         -- make all windows across vim fixed (unaffected by "=")
         for _, w in ipairs(vim.api.nvim_list_wins()) do
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixwidth", true))
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", true))
+            table.insert(restores, 1, libwin.set_option_with_restore(w, "winfixwidth", true))
+            table.insert(restores, 1, libwin.set_option_with_restore(w, "winfixheight", true))
         end
 
         -- set any of our open component windows to false.
         for _, c in ipairs(self.components) do
             if c.is_displayed() then
                 if self.position == Panel.PANEL_POS_BOTTOM or self.position == Panel.PANEL_POS_TOP then
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", false))
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", true))
+                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixwidth", false))
+                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixheight", true))
                 else
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", true))
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", false))
+                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixwidth", true))
+                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixheight", false))
                 end
             end
         end
