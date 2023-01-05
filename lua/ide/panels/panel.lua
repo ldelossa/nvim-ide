@@ -200,19 +200,9 @@ Panel.new = function(tab, position, components)
             return
         end
 
-        local restores = {}
-
-        -- make all windows across vim unfixed
-        for _, w in ipairs(vim.api.nvim_list_wins()) do
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixwidth", false))
-            table.insert(restores, libwin.set_option_with_restore(w, "winfixheight", false))
-        end
-
-        local old_layout = self.layout
-
         -- if all components are hidden, don't open the panel at all.
         local continue = false
-        for i, rc in ipairs(self.components) do
+        for _, rc in ipairs(self.components) do
             if not rc.is_hidden() then
                 continue = true
             end
@@ -221,6 +211,21 @@ Panel.new = function(tab, position, components)
             return
         end
 
+        local old_layout = vim.tbl_extend('keep', self.layout, {})
+        local restores = {}
+
+        for _, pos in ipairs(Panel.PANEL_POSITIONS) do
+            local current_panel = self.workspace.panels[pos]
+            if current_panel ~= nil then
+                local winfixwidth = pos == Panel.PANEL_POS_LEFT or pos == Panel.PANEL_POS_RIGHT
+                for _, c in ipairs(current_panel.components) do
+                    if c.win ~= nil and libwin.win_is_valid(c.win) then
+                        table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", winfixwidth))
+                        table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", not winfixwidth))
+                    end
+                end
+            end
+        end
         -- if we are configuring a top or bottom panel, we want to split right
         -- for vsplits to preserve config's ordering.
         --
@@ -239,29 +244,30 @@ Panel.new = function(tab, position, components)
             return function() end
         end)()
 
+        local resize_func
         -- run all win creation commands with no autocmd, so they won't get
         -- tracked as visited windows in @Workspace.
         if self.position == Panel.PANEL_POS_LEFT then
             vim.cmd("noautocmd topleft vsplit")
-            vim.cmd("vertical resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_width
         elseif self.position == Panel.PANEL_POS_RIGHT then
             vim.cmd("noautocmd botright vsplit")
-            vim.cmd("vertical resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_width
         elseif self.position == Panel.PANEL_POS_TOP then
             vim.cmd("noautocmd topleft split")
-            vim.cmd("resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_height
         elseif self.position == Panel.PANEL_POS_BOTTOM then
             vim.cmd("noautocmd botright split")
-            vim.cmd("resize " ..
-                self.size)
+            resize_func = vim.api.nvim_win_set_height
         end
+
+        local current = vim.api.nvim_get_current_win()
+        resize_func(current, self.size)
 
         -- place non-hidden components, we already have the sidebar window, so 
         -- only split after the first attached component.
         local attached = 1
+        self.layout = {}
         for _, rc in ipairs(self.components) do
             if not rc.is_hidden() then
                 if attached ~= 1 then
@@ -284,6 +290,10 @@ Panel.new = function(tab, position, components)
         end
 
         self.workspace.normalize_panels(self.position)
+
+        -- normalizing may change the height of the bottom window
+        -- even when winfixheight is set to the bottom window
+        resize_func(current, self.size)
 
         -- if the layout is exactly the same as previous, restore dimensions.
         local restore_dimensions = true
@@ -396,7 +406,6 @@ Panel.new = function(tab, position, components)
                 table.insert(new_layout, cc)
             end
         end
-        self.layout = (function() return {} end)
         self.layout = new_layout
     end
 
@@ -439,13 +448,9 @@ Panel.new = function(tab, position, components)
         -- set any of our open component windows to false.
         for _, c in ipairs(self.components) do
             if c.is_displayed() then
-                if self.position == Panel.PANEL_POS_BOTTOM or self.position == Panel.PANEL_POS_TOP then
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", false))
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", true))
-                else
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixwidth", true))
-                    table.insert(restores, libwin.set_option_with_restore(c.win, "winfixheight", false))
-                end
+                local winfixwidth = self.position == Panel.PANEL_POS_LEFT or self.position == Panel.PANEL_POS_RIGHT
+                vim.api.nvim_win_set_option(c.win, "winfixwidth", winfixwidth)
+                vim.api.nvim_win_set_option(c.win, "winfixheight", not winfixwidth)
             end
         end
 
