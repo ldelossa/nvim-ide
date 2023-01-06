@@ -304,6 +304,10 @@ CommitsComponent.new = function(name, config)
             commit = node.parent
         end
 
+        local restore_win = function()
+            vim.api.nvim_set_current_win(self.win)
+        end
+
         local function do_diff(file_a, sha_a, path)
             local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
 
@@ -331,6 +335,8 @@ CommitsComponent.new = function(name, config)
 
             dbuff.buffer_a.set_name(buf_name_a)
             dbuff.diff()
+            restore_win()
+            self.state["cursor"].restore()
         end
 
         local function _resolve_diff()
