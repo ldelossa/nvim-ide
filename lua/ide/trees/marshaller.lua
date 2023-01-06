@@ -58,7 +58,7 @@ Marshaller.new = function()
         table.insert(self.buffer_lines, buffer_line)
         self.buffer_line_mapping[#self.buffer_lines] = node
         node.line = #self.buffer_lines
-        table.insert(self.virtual_text_lines,{{detail, "TSKeyword"}} )
+        table.insert(self.virtual_text_lines,{{detail, "Keyword"}} )
 
         -- don't recurse if current node is not expanded.
         if not node.expanded then
