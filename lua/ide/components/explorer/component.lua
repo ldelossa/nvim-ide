@@ -552,6 +552,14 @@ ExplorerComponent.new = function(name, config)
         vim.cmd("edit " .. vim.fn.fnamemodify(fnode.path, ":."))
     end
 
+    local has_substring = function(s, substring)
+        if #s < #substring then
+            return false
+        end
+
+        return string.sub(s, 1, #substring) == substring
+    end
+
     function self.expand_to_file(path)
 
         local dest = vim.fn.fnamemodify(path, ":.")
@@ -560,14 +568,19 @@ ExplorerComponent.new = function(name, config)
             -- ignore root node, we want to start searching at children.
             if root.depth == 0 then
                 for _, child in ipairs(root.children) do
-                    recursive_expand(child, path)
+                    if recursive_expand(child, path) then
+                        return true
+                    end
                 end
-                return
+                return false
             end
 
             local current = vim.fn.fnamemodify(root.path, ":.")
 
-            if vim.fn.match(dest, current) >= 0 then
+            if has_substring(dest, current) then
+                if not self.tree.root.expanded then
+                    self.expand(self.tree.root)
+                end
                 -- expanding will set a node's children to collapsed, so only do
                 -- this if the node is not currently expanded, this allows the
                 -- tree to keep existing open directories open but still snap to
@@ -584,15 +597,17 @@ ExplorerComponent.new = function(name, config)
                         vim.api.nvim_win_set_cursor(self.win, { root.line, 1 })
                         vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line - 1, 0, -1)
                     end
-                    return
+                    return true
                 end
 
                 -- not at destination yet, continue walking the tree.
                 for _, child in ipairs(root.children) do
-                    recursive_expand(child, path)
+                    if recursive_expand(child, path) then
+                        return true
+                    end
                 end
-
             end
+            return false
         end
 
         recursive_expand(self.tree.root, path)
