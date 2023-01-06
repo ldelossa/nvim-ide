@@ -552,14 +552,6 @@ ExplorerComponent.new = function(name, config)
         vim.cmd("edit " .. vim.fn.fnamemodify(fnode.path, ":."))
     end
 
-    local has_substring = function(s, substring)
-        if #s < #substring then
-            return false
-        end
-
-        return string.sub(s, 1, #substring) == substring
-    end
-
     function self.expand_to_file(path)
 
         local dest = vim.fn.fnamemodify(path, ":.")
@@ -577,7 +569,7 @@ ExplorerComponent.new = function(name, config)
 
             local current = vim.fn.fnamemodify(root.path, ":.")
 
-            if has_substring(dest, current) then
+            if vim.fn.strpart(dest, 0, #current) == current then
                 if not self.tree.root.expanded then
                     self.expand(self.tree.root)
                 end
