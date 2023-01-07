@@ -132,6 +132,12 @@ Panel.new = function(tab, position, components)
         winsize_debug(log, "after close")
     end
 
+    local function _fix_win_size(win)
+        local winfixwidth = self.position == Panel.PANEL_POS_LEFT or self.position == Panel.PANEL_POS_RIGHT
+        vim.api.nvim_win_set_option(win, "winfixwidth", winfixwidth)
+        vim.api.nvim_win_set_option(win, "winfixheight", not winfixwidth)
+    end
+
     local function _set_default_win_opts(pos, win, name)
         libwin.set_winbar_title(win, name)
         vim.api.nvim_win_set_option(win, 'number', false)
@@ -139,11 +145,7 @@ Panel.new = function(tab, position, components)
         vim.api.nvim_win_set_option(win, 'relativenumber', false)
         vim.api.nvim_win_set_option(win, 'signcolumn', 'no')
         vim.api.nvim_win_set_option(win, 'wrap', false)
-
-        local winfixwidth = self.position == Panel.PANEL_POS_LEFT or self.position == Panel.PANEL_POS_RIGHT
-        local winfixheight = not winfixwidth
-        vim.api.nvim_win_set_option(win, "winfixwidth", winfixwidth)
-        vim.api.nvim_win_set_option(win, "winfixheight", winfixheight)
+        _fix_win_size(win)
         vim.api.nvim_win_set_option(win, 'winhighlight', 'Normal:NormalSB')
     end
 
@@ -478,13 +480,7 @@ Panel.new = function(tab, position, components)
         -- set any of our open component windows to false.
         for _, c in ipairs(self.components) do
             if c.is_displayed() then
-                if self.position == Panel.PANEL_POS_BOTTOM or self.position == Panel.PANEL_POS_TOP then
-                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixwidth", false))
-                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixheight", true))
-                else
-                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixwidth", true))
-                    table.insert(restores, 1, libwin.set_option_with_restore(c.win, "winfixheight", false))
-                end
+                _fix_win_size(c.win)
             end
         end
 
