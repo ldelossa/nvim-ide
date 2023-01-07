@@ -273,6 +273,7 @@ ExplorerComponent.new = function(name, config)
             return
         end
         self.tree.collapse_subtree(fnode)
+        self.unregister_fsevent(fnode)
         self.tree.marshal({ virt_text_pos = 'right_align' })
         self.state["cursor"].restore()
     end
