@@ -304,6 +304,10 @@ CommitsComponent.new = function(name, config)
             commit = node.parent
         end
 
+        local restore_win = function()
+            vim.api.nvim_set_current_win(self.win)
+        end
+
         local function do_diff(file_a, sha_a, path)
             local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
 
@@ -331,6 +335,8 @@ CommitsComponent.new = function(name, config)
 
             dbuff.buffer_a.set_name(buf_name_a)
             dbuff.diff()
+            restore_win()
+            self.state["cursor"].restore()
         end
 
         local function _resolve_diff()
@@ -391,7 +397,11 @@ CommitsComponent.new = function(name, config)
         end
         local pcommit = self.tree.depth_table.table[commit.depth][i + 1]
 
-        function _do_tabnew()
+        local restore_win = function()
+            vim.api.nvim_set_current_win(self.win)
+        end
+
+        local function _do_tabnew()
             local tab = false
             for _, arg in ipairs(args.fargs) do
                 if arg == "tab" then
@@ -401,6 +411,7 @@ CommitsComponent.new = function(name, config)
 
             if tab then
                 vim.cmd("tabnew")
+                restore_win = function() end
             end
         end
 
@@ -419,6 +430,7 @@ CommitsComponent.new = function(name, config)
             dbuff.buffer_a.set_name(buf_name_a)
             dbuff.buffer_b.set_name(buf_name_b)
             dbuff.diff()
+            restore_win()
         end
 
         local function do_diff_local(file_a, buffer_b, sha_a, path)
@@ -433,6 +445,7 @@ CommitsComponent.new = function(name, config)
             dbuff.open_buffer(buffer_b, "b")
             dbuff.buffer_a.set_name(buf_name_a)
             dbuff.diff()
+            restore_win()
         end
 
         git.show_file(pcommit.sha, node.file, function(file_a)
