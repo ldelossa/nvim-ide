@@ -571,7 +571,7 @@ ExplorerComponent.new = function(name, config)
 
             if vim.fn.strpart(dest, 0, #current) == current then
                 if not self.tree.root.expanded then
-                    self.expand(self.tree.root)
+                    self.expand(nil, self.tree.root)
                 end
                 -- expanding will set a node's children to collapsed, so only do
                 -- this if the node is not currently expanded, this allows the
