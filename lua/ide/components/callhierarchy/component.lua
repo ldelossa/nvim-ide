@@ -24,6 +24,7 @@ local config_prototype = {
         hide = "<C-[>",
         close = "X",
         next_reference = "n",
+        switch_directions = "s",
     },
 }
 
