@@ -48,8 +48,13 @@ Marshaller.new = function()
 
         local buffer_line = ""
 
-        for _=1, node.depth do
+        for i=1, node.depth do
+            if node.depth > 1 and i > 1 then
+                buffer_line = buffer_line .. icon_set.get_icon('IndentGuide') 
+                goto continue
+            end
             buffer_line = buffer_line .. icon_set.get_icon("Space")
+            ::continue::
         end
 
         buffer_line = buffer_line .. expand_guide .. icon_set.get_icon("Space")
