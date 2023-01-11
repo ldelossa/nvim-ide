@@ -1,6 +1,7 @@
 local base = require('ide.panels.component')
 local tree = require('ide.trees.tree')
 local icons = require('ide.icons')
+local libbuf = require('ide.lib.buf')
 local termnode = require('ide.components.terminal.terminalbrowser.terminalnode')
 local logger = require('ide.logger.logger')
 local commands = require('ide.components.terminal.terminalbrowser.commands')
@@ -99,7 +100,7 @@ TerminalBrowserComponent.new = function(name, config)
         local aucmd = nil
         aucmd = vim.api.nvim_create_autocmd({ "TermClose" }, {
             callback = function(e)
-                if e.buf == term.buf then
+                if e.buf == term.buf and libbuf.buf_is_valid(e.buf) then
                     tc.component.delete_term(term.id)
                     self.refresh()
                     vim.api.nvim_del_autocmd(aucmd)
