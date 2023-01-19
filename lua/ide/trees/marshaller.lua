@@ -60,6 +60,7 @@ Marshaller.new = function()
         buffer_line = buffer_line .. expand_guide .. icon_set.get_icon("Space")
         buffer_line = buffer_line .. icon .. icon_set.get_icon("Space")  .. icon_set.get_icon("Space") .. name
 
+        buffer_line = vim.fn.substitute(buffer_line, "\\n", " ", "g")
         table.insert(self.buffer_lines, buffer_line)
         self.buffer_line_mapping[#self.buffer_lines] = node
         node.line = #self.buffer_lines

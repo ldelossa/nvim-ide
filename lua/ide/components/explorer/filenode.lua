@@ -312,6 +312,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
             -- expand node we are being copied to in order to get the new directory
             -- node we just created.
             dir_node.expand()
+
             -- expand self to get latest children we'll be copying over to new_dir.
             -- self.expand(EXPAND_REFRESH_ONLY)
 
