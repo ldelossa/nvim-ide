@@ -122,7 +122,7 @@ Marshaller.new = function()
         -- recursive marshalling done, now write out buffer lines and apply
         -- virtual text.
         vim.api.nvim_buf_set_option(Tree.buffer, 'modifiable', true)
-        vim.api.nvim_buf_set_lines(Tree.buffer, 0, -1, true, {})
+        pcall(vim.api.nvim_buf_set_lines, 0, -1, true, {})
         vim.api.nvim_buf_set_lines(Tree.buffer, 0, #self.buffer_lines, false, self.buffer_lines)
         vim.api.nvim_buf_set_option(Tree.buffer, 'modifiable', false)
         for i, vt in ipairs(self.virtual_text_lines) do
