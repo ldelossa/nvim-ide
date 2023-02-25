@@ -161,7 +161,7 @@ definitions of which components make up a panel group.
 As a high level user, you can just assume that each component module will have
 a global "Name" variable to use, `nvim-ide` handles everything else involved in
 displaying a Component plugin. If you are interested in developing out-of-tree
-components, then check out *ide-components* section.
+components, then check out the |ide-components| section.
 
 Once the setup function is called a new 'Workspace' is created for each tab and
 the default panels will be loaded and displayed. By default only the left panel
