@@ -323,6 +323,9 @@ Panel.new = function(tab, position, components)
             local default_height = vim.tbl_get(component, 'config', 'default_height')
             if default_height ~= nil then
                 vim.defer_fn(function()
+                    if not libwin.win_is_valid(component.win) then
+                        return
+                    end
                     vim.api.nvim_win_set_height(component.win, default_height)
                 end, 1)
             end
