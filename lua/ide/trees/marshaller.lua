@@ -39,6 +39,17 @@ Marshaller.new = function()
 
         local icon, name, detail, guide = node.marshal()
 
+        -- do some nil checking to be safe
+        if icon == nil then
+            icon = " "
+        end
+        if name == nil then
+            name = ""
+        end
+        if detail == nil then
+            detail = ""
+        end
+
         -- pad detail a bit
         detail = detail .. " "
 

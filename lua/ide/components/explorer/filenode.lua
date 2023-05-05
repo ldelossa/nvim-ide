@@ -61,6 +61,11 @@ FileNode.new = function(path, kind, perms, depth, opts)
                 icon = require('ide.icons').global_icon_set.get_icon("Folder")
             end
         end
+        -- the above call to nvim-web-devicons could result in a nil, check and
+        -- set back to string for safety
+        if icon == nil then
+            icon = " "
+        end
 
         if self.opts.show_file_permissions or self.opts.show_file_permissions == nil then
             return icon, name, self.perms, guide
