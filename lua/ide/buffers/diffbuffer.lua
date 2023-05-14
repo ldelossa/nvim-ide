@@ -41,10 +41,12 @@ DiffBuffer.new = function(path_a, path_b)
 
         -- if no wins, create one
         if #wins == 0 then
+            local cur_win = vim.api.nvim_get_current_win()
             vim.cmd("vsplit")
             -- may inherit the SB win highlight, reset it.
             vim.api.nvim_win_set_option(cur_win, 'winhighlight', 'Normal:Normal')
         else
+            table.sort(wins)
             vim.api.nvim_set_current_win(wins[1])
         end
 
