@@ -568,7 +568,7 @@ ExplorerComponent.new = function(name, config)
                 return false
             end
 
-            local current = vim.fn.fnamemodify(root.path, ":.")
+            local current = vim.fn.fnamemodify(root.path, ":.") .. '/'
 
             if vim.fn.strpart(dest, 0, #current) == current then
                 if not self.tree.root.expanded then
