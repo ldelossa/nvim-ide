@@ -1,12 +1,12 @@
-local component_factory = require('ide.panels.component_factory')
-local component = require('ide.components.terminal.component')
+local component_factory = require("ide.panels.component_factory")
+local component = require("ide.components.terminal.component")
 
 local Init = {}
 
 Init.Name = "Terminal"
 
 local function register_component()
-    component_factory.register(Init.Name, component.new)
+	component_factory.register(Init.Name, component.new)
 end
 
 -- call yourself, this will be triggered when another module wants to reference

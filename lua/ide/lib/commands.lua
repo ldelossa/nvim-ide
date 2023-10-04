@@ -1,13 +1,13 @@
 local Command = {}
 
 local prototype = {
-    name = nil,
-    shortname = nil,
-    callback = nil,
-    kind = "action",
-    opts = {
-        desc = ""
-    }
+	name = nil,
+	shortname = nil,
+	callback = nil,
+	kind = "action",
+	opts = {
+		desc = "",
+	},
 }
 
 -- Signifies the command performs an action when its callback field is invoked.
@@ -34,14 +34,14 @@ Command.KIND_SUBCOMMAND = "subcommand"
 --                that exist under @Command.name.
 -- @opts        - an options table as described in ":h nvim_create_user_command".
 Command.new = function(kind, name, shortname, callback, opts)
-    local self = vim.deepcopy(prototype)
-    self.kind = kind
-    self.name = name
-    self.shortname = shortname
-    self.callback = callback
-    self.opts = opts
+	local self = vim.deepcopy(prototype)
+	self.kind = kind
+	self.name = name
+	self.shortname = shortname
+	self.callback = callback
+	self.opts = opts
 
-    return self
+	return self
 end
 
 return Command
