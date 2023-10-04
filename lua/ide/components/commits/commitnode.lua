@@ -58,11 +58,13 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 	function self.details()
 		git.log(self.sha, 1, function(data)
 			if data == nil then
+				print("here1")
 				return
 			end
 
 			local commit = data[1]
 			if commit == nil then
+				print("here2")
 				return
 			end
 
@@ -82,6 +84,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 				table.insert(lines, l)
 			end
 
+			print("here3")
 			libpopup.until_cursor_move(lines)
 		end)
 	end
