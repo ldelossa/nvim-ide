@@ -15,6 +15,7 @@ local prototype = {
 		CircleSlash = "⊘",
 		CircleStop = "⦻",
 		Class = "c",
+		Code = "{}",
 		Collapsed = "▶",
 		Color = "🖌",
 		Comment = "🗩",

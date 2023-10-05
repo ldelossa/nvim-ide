@@ -230,6 +230,24 @@ ExplorerComponent.new = function(name, config)
 		return self.buf
 	end
 
+	-- a bit of a hack but this gets the last valid window and expands
+	-- the tree to this path when focusing the explorer.
+	--
+	-- ensures the explorer is the in the correct spot when first focused or
+	-- focused after hiding.
+	function self.focus_with_expand()
+		local last_win = self.workspace.get_win()
+		if not libwin.win_is_valid(last_win) then
+			return
+		end
+		local last_buf = libwin.get_buf(last_win)
+		if not libbuf.is_regular_buffer(last_buf) then
+			return
+		end
+		self.focus()
+		self.expand_to_file(vim.api.nvim_buf_get_name(last_buf))
+	end
+
 	-- implements @Component interface
 	function self.post_win_create()
 		local log = self.logger.logger_from(nil, "Component.post_win_create")
@@ -622,7 +640,7 @@ ExplorerComponent.new = function(name, config)
 	end
 
 	function self.expand_to_file(path)
-		if (not self.is_displayed or self.tree == nil) then
+		if not self.is_displayed or self.tree == nil then
 			return
 		end
 
@@ -682,6 +700,10 @@ ExplorerComponent.new = function(name, config)
 
 	function self.expand_to_file_aucmd(args)
 		local log = self.logger.logger_from(nil, "Component.expand_to_file_aucmd")
+		if not self.is_displayed() then
+			log.debug("component is not being displayed, won't expand.")
+			return
+		end
 
 		if not libbuf.is_regular_buffer(0) then
 			log.debug("event was for a non file buffer, returning.")

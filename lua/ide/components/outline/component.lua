@@ -22,6 +22,7 @@ local config_prototype = {
 		jump_split = "s",
 		jump_vsplit = "v",
 		jump_tab = "t",
+		details = "d",
 		hide = "<C-[>",
 		close = "X",
 	},
@@ -109,6 +110,12 @@ OutlineComponent.new = function(name, config)
 				silent = true,
 				callback = function()
 					self.jump_symbolnode({ fargs = { "tab" } })
+				end,
+			})
+			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
+				silent = true,
+				callback = function()
+					self.details()
 				end,
 			})
 			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
@@ -485,8 +492,23 @@ OutlineComponent.new = function(name, config)
 		}, "utf-8", reuse_win)
 	end
 
+	function self.details(args)
+		local log = self.logger.logger_from(self.name, "Component.details")
+
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+
+		if node.depth == 0 then
+			return
+		end
+
+		node.details()
+	end
+
 	function self.get_commands()
-		log = self.logger.logger_from(nil, "Component.get_commands")
+		log = self.logger.logger_from(self.name, "Component.get_commands")
 		return commands.new(self).get()
 	end
 

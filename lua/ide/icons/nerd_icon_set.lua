@@ -17,6 +17,7 @@ local prototype = {
 		CircleSlash = "",
 		CircleStop = "",
 		Class = "ﴯ",
+		Code = "",
 		Collapsed = "",
 		Color = "",
 		Comment = "",

@@ -19,7 +19,7 @@ Commands.new = function(ex)
                 libcmd.KIND_ACTION,
                 "ExplorerFocus",
                 "Focus",
-                self.explorer.focus,
+                self.explorer.focus_with_expand,
                 { desc = "Open and focus the Explorer." }
             ),
             libcmd.new(
