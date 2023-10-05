@@ -524,6 +524,7 @@ Config:
 			hide = "<C-[>",
 			close = "X",
 			details = "d",
+			details_tab = "D",
 			maximize = "+",
 			minimize = "-"
 		},

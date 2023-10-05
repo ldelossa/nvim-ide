@@ -28,6 +28,7 @@ local config_prototype = {
 		hide = "<C-[>",
 		close = "X",
 		details = "d",
+		details_tab = "D",
 		-- deprecated, here for backwards compat
 		jump = "<CR>",
 		jump_split = "s",
@@ -186,7 +187,13 @@ CommitsComponent.new = function(name, config)
 			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
 				silent = true,
 				callback = function()
-					self.details()
+					self.details(nil, false)
+				end,
+			})
+			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details_tab, "", {
+				silent = true,
+				callback = function()
+					self.details(nil, true)
 				end,
 			})
 
@@ -511,7 +518,7 @@ CommitsComponent.new = function(name, config)
 		end)
 	end
 
-	function self.details(args)
+	function self.details(args, tab)
 		local log = self.logger.logger_from(nil, "Component.details")
 
 		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
@@ -523,7 +530,11 @@ CommitsComponent.new = function(name, config)
 			return
 		end
 
-		node.details()
+		node.details(tab)
+	end
+
+	function self.details_tab(args)
+		self.details(true)
 	end
 
 	return self

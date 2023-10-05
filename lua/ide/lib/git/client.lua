@@ -113,7 +113,6 @@ Git.new = function()
 				separated = separated .. Git.GROUP_SEP
 			end
 		end
-		print(rev)
 
 		self.make_request(string.format("log -n %d --format=%s %s", n, separated, rev), nil, function(resp)
 			if resp == nil then

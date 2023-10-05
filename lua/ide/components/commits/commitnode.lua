@@ -55,7 +55,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 		return icon, name, detail
 	end
 
-	function self.details()
+	function self.details(tab)
 		git.log(self.sha, 1, function(data)
 			if data == nil then
 				return
@@ -80,6 +80,15 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 			local body = vim.fn.split(commit.body, "\n")
 			for _, l in ipairs(body) do
 				table.insert(lines, l)
+			end
+
+			if tab then
+				vim.cmd("tabnew")
+				local buf = vim.api.nvim_get_current_buf()
+				vim.api.nvim_buf_set_lines(buf, 0, #lines, false, lines)
+				vim.api.nvim_buf_set_option(buf, "modifiable", false)
+				vim.api.nvim_buf_set_name(buf, commit.sha .. " details")
+				return
 			end
 
 			libpopup.until_cursor_move(lines)
