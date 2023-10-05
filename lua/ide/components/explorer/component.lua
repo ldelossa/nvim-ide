@@ -223,6 +223,7 @@ ExplorerComponent.new = function(name, config)
 		end
 
 		-- do an initial marshal into the buffer
+		--
 		self.tree.marshal({ virt_text_pos = "right_align" })
 
 		-- return the buffer for display
@@ -271,7 +272,7 @@ ExplorerComponent.new = function(name, config)
 					vim.inspect(filename),
 					vim.inspect(status)
 				)
-				self.expand(nil, fnode)
+				self.expand(nil, fnode.path .. "/" .. filename)
 			end)
 		)
 	end
@@ -316,6 +317,7 @@ ExplorerComponent.new = function(name, config)
 		end
 		fnode.expand()
 		self.register_fsevent(fnode)
+
 		self.tree.marshal({ virt_text_pos = "right_align" })
 		self.state["cursor"].restore()
 	end
