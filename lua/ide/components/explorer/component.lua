@@ -622,6 +622,10 @@ ExplorerComponent.new = function(name, config)
 	end
 
 	function self.expand_to_file(path)
+		if (not self.is_displayed or self.tree == nil) then
+			return
+		end
+
 		local dest = vim.fn.fnamemodify(path, ":.")
 
 		local function recursive_expand(root, path)

@@ -49,7 +49,7 @@ Logger.new = function(subsys, component)
 
     local function _log(level, fmt, ...)
         local arg = { ... }
-        local str = string.format("[%s] [%s] [%s]: ", level, self.subsys, self.component)
+        local str = string.format("[%s] [%s] [%s] [%s]: ", os.date("!%Y-%m-%dT%H:%M:%S"), level, self.subsys, self.component)
         if arg ~= nil then
             str = str .. string.format(fmt, unpack(arg))
         else

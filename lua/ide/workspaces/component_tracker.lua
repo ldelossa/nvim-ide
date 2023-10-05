@@ -40,7 +40,8 @@ ComponentTracker.new = function(workspace)
 	end
 
 	function self.on_win_resized_event(args, component)
-		local log = logger.new("workspaces", "ComponentTracker.on_win_scrolled_event")
+		local log = logger.new("workspaces", "ComponentTracker.on_win_resized_event")
+		log.debug("recording window resizing for each component")
 		if self.workspace.tab ~= vim.api.nvim_get_current_tabpage() then
 			log.debug("Not for this workspace, returning.")
 			return
@@ -120,7 +121,7 @@ ComponentTracker.new = function(workspace)
 		end)()
 
 		table.insert(self.active_autocmds, {
-			id = vim.api.nvim_create_autocmd({ "WinResized" }, {
+			id = vim.api.nvim_create_autocmd("WinResized", {
 				callback = self.on_win_resized_event,
 			}),
 		})
@@ -132,20 +133,8 @@ ComponentTracker.new = function(workspace)
 			}),
 		})
 
-		local function init(panel)
-			for _, c in ipairs(panel.components) do
-				if c.state["cursor"] == nil then
-					self.on_cursor_moved(nil, c)
-				end
-				if c.state["dimensions"] == nil then
-					self.on_win_resized_event(nil, c)
-				end
-			end
-		end
-
-		init(self.workspace.panels.left)
-		init(self.workspace.panels.right)
-		init(self.workspace.panels.bottom)
+			self.on_cursor_moved(nil)
+			self.on_win_resized_event(nil)
 	end
 
 	function self.stop() end

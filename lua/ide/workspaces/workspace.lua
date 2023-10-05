@@ -67,7 +67,7 @@ Workspace.new = function(tab)
 		end
 	end
 
-	function self.swap_panel(position, panel_group)
+	function self.swap_panel(position, panel_group, open)
 		if self.panels[position] ~= nil then
 			self.panels[position].close()
 		end
@@ -76,15 +76,17 @@ Workspace.new = function(tab)
 		end
 		self.panels[position] = self.panel_groups[panel_group]
 		self.panels[position].set_position(position, self.config.panel_sizes[position])
-		self.panels[position].open()
-		self.equal_components()
+		if open then
+			self.panels[position].open()
+			self.equal_components()
+		end
 	end
 
 	function self.select_swap_panel(args)
 		local groups = {}
 		for group, _ in pairs(self.panel_groups) do
 			if -- filter our groups we don't want to let users swap.
-					group ~= "terminal"
+				group ~= "terminal"
 			then
 				table.insert(groups, group)
 			end
@@ -101,7 +103,7 @@ Workspace.new = function(tab)
 				if position == nil or position == "" then
 					return
 				end
-				self.swap_panel(position, group)
+				self.swap_panel(position, group, true)
 			end)
 		end)
 	end
@@ -121,7 +123,7 @@ Workspace.new = function(tab)
 						-- merge the global keymap before construction.
 						local comp_config = (config.components[name] or {})
 						comp_config.keymaps =
-								vim.tbl_extend("force", config.components.global_keymaps, (comp_config.keymaps or {}))
+							vim.tbl_extend("force", config.components.global_keymaps, (comp_config.keymaps or {}))
 
 						table.insert(components, constructor(name, comp_config))
 					end
@@ -134,29 +136,24 @@ Workspace.new = function(tab)
 		init_panels()
 
 		-- bottom panel is always terminal, user cannot swap this.
-		self.swap_panel(panel.PANEL_POS_BOTTOM, "terminal")
+		self.swap_panel(panel.PANEL_POS_BOTTOM, "terminal", false)
 
 		for pos, group in pairs(self.config.panels) do
-			self.swap_panel(pos, group)
+			self.swap_panel(pos, group, false)
 		end
-
+		--
 		-- set panels open/closed based on config
 		if self.config.workspaces.auto_open == "left" then
 			self.panels.left.open()
-			self.panels.right.close()
 		elseif self.config.workspaces.auto_open == "right" then
 			self.panels.right.open()
-			self.panels.left.close()
 		elseif self.config.workspaces.auto_open == "both" then
 			self.panels.right.open()
 			self.panels.left.open()
 		elseif self.config.workspaces.auto_open == "none" then
-			self.panels.left.close()
-			self.panels.right.close()
 		else
 			-- default to 'left'
 			self.panels.left.open()
-			self.panels.right.close()
 		end
 		self.component_tracker = component_tracker.new(self)
 		self.component_tracker.refresh()
