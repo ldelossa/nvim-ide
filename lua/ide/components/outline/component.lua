@@ -362,6 +362,11 @@ OutlineComponent.new = function(name, config)
 	end
 
 	function self.event_handler(args)
+
+		if (not self.is_displayed) then
+			return
+		end
+
 		if args.event == "CursorHold" then
 			if not libws.is_current_ws(self.workspace) then
 				return
