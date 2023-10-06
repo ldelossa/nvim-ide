@@ -7,6 +7,7 @@ local gitutil = require("ide.lib.git.client")
 local commitnode = require("ide.components.commits.commitnode")
 local commands = require("ide.components.commits.commands")
 local libwin = require("ide.lib.win")
+local libbuf = require("ide.lib.buf")
 local logger = require("ide.logger.logger")
 local icons = require("ide.icons")
 
@@ -16,24 +17,20 @@ local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
 	keymaps = {
-		expand = "zo",
+		checkout = "c",
+		close = "X",
 		collapse = "zc",
 		collapse_all = "zM",
-		checkout = "c",
-		diff = "<CR>",
-		diff_split = "s",
-		diff_vsplit = "v",
-		diff_tab = "t",
-		refresh = "r",
-		hide = "<C-[>",
-		close = "X",
 		details = "d",
 		details_tab = "D",
-		-- deprecated, here for backwards compat
-		jump = "<CR>",
-		jump_split = "s",
-		jump_vsplit = "v",
-		jump_tab = "t",
+		diff = "<CR>",
+		diff_split = "s",
+		diff_tab = "t",
+		diff_vsplit = "v",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		refresh = "r",
 	},
 }
 
@@ -135,81 +132,79 @@ CommitsComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
-		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
+		local keymaps = {
+			{
+				self.config.keymaps.expand,
+				function()
 					self.expand()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse,
+				function()
 					self.collapse()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse_all,
+				function()
 					self.collapse_all()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.checkout, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.checkout,
+				function()
 					self.checkout_commitnode({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.diff,
+				function()
 					self.diff({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff_tab, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.diff_tab,
+				function()
 					self.diff({ fargs = { "tab" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.refresh,
+				function()
 					self.get_commits()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.hide,
+				function()
 					self.hide()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.details,
+				function()
 					self.details(nil, false)
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details_tab, "", {
-				silent = true,
-				callback = function()
-					self.details(true)
+			},
+			{
+				self.config.keymaps.details_tab,
+				function()
+					self.details(nil, true)
 				end,
-			})
+			},
+			{
+				self.config.keymaps.help,
+				function()
+					self.help_keymaps()
+				end,
+			},
+		}
 
-			-- deprecated, here for backwards compat
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
-					self.diff({ fargs = {} })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {
-				silent = true,
-				callback = function()
-					self.diff({ fargs = { "tab" } })
-				end,
-			})
+		if not self.config.disable_keymaps then
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf
@@ -429,7 +424,6 @@ CommitsComponent.new = function(name, config)
 	end
 
 	function self.diff(args)
-
 		local log = self.logger.logger_from(nil, "Component.jump_commitnode")
 
 		local restore_win = function()
@@ -459,7 +453,7 @@ CommitsComponent.new = function(name, config)
 		end
 		local commit_node = node.parent
 
-		-- find the index our commit_node in the flat representation of the commit 
+		-- find the index our commit_node in the flat representation of the commit
 		-- tree and then increment by one to get parent of the commit_node.
 		local _, i = self.tree.depth_table.search(commit_node.depth, commit_node.key)
 		if i == nil then
@@ -467,23 +461,23 @@ CommitsComponent.new = function(name, config)
 		end
 		local parent_commit_node = self.tree.depth_table.table[commit_node.depth][i + 1]
 
-		git.show_file(parent_commit_node.sha, node.file, function(file_a) 
+		git.show_file(parent_commit_node.sha, node.file, function(file_a)
 			git.show_file(commit_node.sha, node.file, function(file_b)
-			local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), parent_commit_node.sha, node.file)
-			local buf_name_b = string.format("diff:///%d/%s/%s", vim.fn.rand(), commit_node.sha, node.file)
+				local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), parent_commit_node.sha, node.file)
+				local buf_name_b = string.format("diff:///%d/%s/%s", vim.fn.rand(), commit_node.sha, node.file)
 
-			_do_tabnew()
+				_do_tabnew()
 
-			local dbuff = diff_buf.new()
-			dbuff.setup()
-			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines(file_a, "a", o)
-			dbuff.write_lines(file_b, "b", o)
+				local dbuff = diff_buf.new()
+				dbuff.setup()
+				local o = { listed = false, scratch = true, modifiable = false }
+				dbuff.write_lines(file_a, "a", o)
+				dbuff.write_lines(file_b, "b", o)
 
-			dbuff.buffer_a.set_name(buf_name_a)
-			dbuff.buffer_b.set_name(buf_name_b)
-			dbuff.diff()
-			restore_win()
+				dbuff.buffer_a.set_name(buf_name_a)
+				dbuff.buffer_b.set_name(buf_name_b)
+				dbuff.diff()
+				restore_win()
 			end)
 		end)
 	end

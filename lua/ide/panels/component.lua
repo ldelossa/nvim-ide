@@ -1,5 +1,6 @@
 local logger = require("ide.logger.logger")
 local libwin = require("ide.lib.win")
+local libpopup = require("ide.lib.popup")
 
 local Component = {}
 
@@ -218,6 +219,31 @@ Component.new = function(name, config)
 			vim.api.nvim_win_close(self.win, true)
 		end
 		self.hidden = true
+	end
+
+	-- If a derived component has a 'self.config.keymaps' field we can display
+	-- it nicely for the user.
+	function self.help_keymaps()
+		if self.config == nil or self.config.keymaps == nil then
+			return
+		end
+		local lines = {}
+		table.insert(lines, string.format("Keymaps:"))
+		-- short self.config.keymaps alphabetically for consistent printing
+		local sorted = {}
+		for k, _ in pairs(self.config.keymaps) do
+			table.insert(sorted, k)
+		end
+		table.sort(sorted, function(a, b)
+			return a < b
+		end)
+		-- iterate over key and value in self.config.keymaps and format it
+		-- nicely for the user
+		for _, k in ipairs(sorted) do
+			local v = self.config.keymaps[k]
+			table.insert(lines, string.format("\t%s => %s\t\t\t\t", k, v))
+		end
+		libpopup.until_cursor_move(lines)
 	end
 
 	function self.minimize()

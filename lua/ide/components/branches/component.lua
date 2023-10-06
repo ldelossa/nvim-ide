@@ -27,6 +27,7 @@ local config_prototype = {
 		pull = "p",
 		push = "P",
 		set_upstream = "s",
+		help = "?"
 	},
 }
 
@@ -112,73 +113,25 @@ BranchesComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
+		local keymaps = {
+			{ self.config.keymaps.expand,        function() self.expand() end },
+			{ self.config.keymaps.collapse,      function() self.collapse() end },
+			{ self.config.keymaps.collapse_all,  function() self.collapse_all() end },
+			{ self.config.keymaps.jump,          function() self.jump_branchnode({ fargs = {} }) end },
+			{ self.config.keymaps.create_branch, function() self.create_branch() end },
+			{ self.config.keymaps.refresh,       function() self.get_branches() end },
+			{ self.config.keymaps.hide,          function() self.hide() end },
+			{ self.config.keymaps.details,       function() self.details() end },
+			{ self.config.keymaps.pull,          function() self.pull_branch() end },
+			{ self.config.keymaps.push,          function() self.push_branch() end },
+			{ self.config.keymaps.set_upstream,  function() self.set_upstream() end },
+			{ self.config.keymaps.help,          function() self.help_keymaps() end },
+		}
+
 		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
-					self.expand()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
-					self.collapse()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
-					self.collapse_all()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
-					self.jump_branchnode({ fargs = {} })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.create_branch, "", {
-				silent = true,
-				callback = function()
-					self.create_branch()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.refresh, "", {
-				silent = true,
-				callback = function()
-					self.get_branches()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
-					self.hide()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
-				silent = true,
-				callback = function()
-					self.details()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.pull, "", {
-				silent = true,
-				callback = function()
-					self.pull_branch()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.push, "", {
-				silent = true,
-				callback = function()
-					self.push_branch()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.set_upstream, "", {
-				silent = true,
-				callback = function()
-					self.set_upstream()
-				end,
-			})
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf

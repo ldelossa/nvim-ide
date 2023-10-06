@@ -144,4 +144,16 @@ function Buf.get_unique_filename(filename)
 	return string.reverse(string.sub(filename, 1, index))
 end
 
+-- Opinionated way of setting per-buffer keymaps, this is the typical
+-- usage for nvim-ide components.
+function Buf.set_keymap_normal(buf, keymap, cb)
+			vim.api.nvim_buf_set_keymap(
+				buf,
+				"n",
+				keymap,
+				"",
+				{ silent = true, callback = cb }
+			)
+end
+
 return Buf

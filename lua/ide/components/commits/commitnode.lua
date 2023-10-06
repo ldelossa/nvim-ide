@@ -85,6 +85,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 			if tab then
 				vim.cmd("tabnew")
 				local buf = vim.api.nvim_get_current_buf()
+				vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
 				vim.api.nvim_buf_set_lines(buf, 0, #lines, false, lines)
 				vim.api.nvim_buf_set_option(buf, "modifiable", false)
 				vim.api.nvim_buf_set_name(buf, commit.sha .. " details")

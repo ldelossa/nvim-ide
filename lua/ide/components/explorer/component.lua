@@ -74,106 +74,39 @@ ExplorerComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
+		-- map defined keymaps to their callback functions
+		local keymaps = {
+			{self.config.keymaps.expand, self.expand},
+			{self.config.keymaps.collapse, self.collapse},
+			{self.config.keymaps.collapse_all, self.collapse_all},
+			{self.config.keymaps.edit, function()
+				self.open_filenode({ fargs = {} })
+			end},
+			{self.config.keymaps.edit_split, function()
+				self.open_filenode({ fargs = { "split" } })
+			end},
+			{self.config.keymaps.edit_vsplit, function()
+				self.open_filenode({ fargs = { "vsplit" } })
+			end},
+			{self.config.keymaps.edit_tab, function()
+				self.open_filenode({ fargs = { "tab" } })
+			end},
+			{self.config.keymaps.hide, self.hide},
+			{self.config.keymaps.new_file, self.touch},
+			{self.config.keymaps.delete_file, self.rm},
+			{self.config.keymaps.new_dir, self.mkdir},
+			{self.config.keymaps.rename_file, self.rename},
+			{self.config.keymaps.move_file, self.mv},
+			{self.config.keymaps.copy_file, self.cp},
+			{self.config.keymaps.select_file, self.select},
+			{self.config.keymaps.deselect_file, self.unselect},
+			{self.config.keymaps.help, self.help_keymaps},
+		}
+
 		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.expand,
-				"",
-				{ silent = true, callback = self.expand }
-			)
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = self.collapse,
-			})
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.collapse_all,
-				"",
-				{ silent = true, callback = self.collapse_all }
-			)
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit, "", {
-				silent = true,
-				callback = function()
-					self.open_filenode({ fargs = {} })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_split, "", {
-				silent = true,
-				callback = function()
-					self.open_filenode({ fargs = { "split" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_vsplit, "", {
-				silent = true,
-				callback = function()
-					self.open_filenode({ fargs = { "vsplit" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit_tab, "", {
-				silent = true,
-				callback = function()
-					self.open_filenode({ fargs = { "tab" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", { silent = true, callback = self.hide })
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.new_file,
-				"",
-				{ silent = true, callback = self.touch }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.delete_file,
-				"",
-				{ silent = true, callback = self.rm }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.new_dir,
-				"",
-				{ silent = true, callback = self.mkdir }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.rename_file,
-				"",
-				{ silent = true, callback = self.rename }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.move_file,
-				"",
-				{ silent = true, callback = self.mv }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.copy_file,
-				"",
-				{ silent = true, callback = self.cp }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.select_file,
-				"",
-				{ silent = true, callback = self.select }
-			)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				self.config.keymaps.deselect_file,
-				"",
-				{ silent = true, callback = self.unselect }
-			)
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf

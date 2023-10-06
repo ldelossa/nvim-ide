@@ -1,42 +1,43 @@
 local Presets = {}
 
 Presets.default = {
-	expand = "zo",
+	change_dir = "cd",
+	close = "X",
 	collapse = "zc",
 	collapse_all = "zM",
+	copy_file = "p",
+	delete_file = "D",
+	deselect_file = "<Space><Space>",
 	edit = "<CR>",
 	edit_split = "s",
-	edit_vsplit = "v",
 	edit_tab = "t",
-	hide = "<C-[>",
-	close = "X",
-	new_file = "n",
-	delete_file = "D",
-	new_dir = "d",
-	rename_file = "r",
-	move_file = "m",
-	copy_file = "p",
-	select_file = "<Space>",
-	deselect_file = "<Space><Space>",
-	change_dir = "cd",
-	up_dir = "..",
+	edit_vsplit = "v",
+	expand = "zo",
 	file_details = "i",
-	toggle_exec_perm = "*",
+	help = "?",
+	hide = "<C-[>",
 	maximize = "+",
 	minimize = "-",
+	move_file = "m",
+	new_dir = "d",
+	new_file = "n",
+	rename_file = "r",
+	select_file = "<Space>",
+	toggle_exec_perm = "*",
+	up_dir = "..",
 }
 
 Presets.nvim_tree = vim.tbl_deep_extend("force", Presets.default, {
 	-- new_file can be used to create direcotries
 	-- by just ending with a `/`, like in nvim_tree
-	new_dir = "<NOP>",
-	new_file = "a",
-	hide = "<NOP>",
+	collapse_all = "W",
 	delete_file = "d",
 	edit_split = "<C-x>",
-	edit_vsplit = "<C-v>",
 	edit_tab = "<C-t>",
-	collapse_all = "W",
+	edit_vsplit = "<C-v>",
+	hide = "<NOP>",
+	new_dir = "<NOP>",
+	new_file = "a",
 })
 
 return Presets

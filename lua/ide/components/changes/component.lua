@@ -17,21 +17,19 @@ local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
 	keymaps = {
-		expand = "zo",
-		collapse = "zc",
-		collapse_all = "zM",
-		restore = "r",
 		add = "s",
 		amend = "a",
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
 		commit = "c",
-		edit = "e",
 		diff = "<CR>",
 		diff_tab = "t",
+		edit = "e",
+		expand = "zo",
+		help = "?",
 		hide = "<C-[>",
-		close = "X",
-		-- deprecated, here for backwards compat
-		jump = "<CR>",
-		jump_tab = "t",
+		restore = "r",
 	},
 }
 
@@ -77,87 +75,85 @@ ChangesComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
-		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
+		local keymaps = {
+			{
+				self.config.keymaps.expand,
+				function()
 					self.expand()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse,
+				function()
 					self.collapse()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse_all,
+				function()
 					self.collapse_all()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.restore, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.restore,
+				function()
 					self.restore({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.add, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.add,
+				function()
 					self.add({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.amend, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.amend,
+				function()
 					self.amend({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.commit, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.commit,
+				function()
 					self.commit({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.edit, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.edit,
+				function()
 					self.edit()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.diff,
+				function()
 					self.diff({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.diff_tab, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.diff_tab,
+				function()
 					self.diff({ fargs = { "tab" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.hide,
+				function()
 					self.hide()
 				end,
-			})
+			},
+			{
+				self.config.keymaps.help,
+				function()
+					self.help_keymaps()
+				end,
+			},
+		}
 
-			-- deprecated, here for backwards compat
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
-					self.diff({ fargs = {} })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {
-				silent = true,
-				callback = function()
-					self.diff({ fargs = { "tab" } })
-				end,
-			})
+		if not self.config.disable_keymaps then
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf

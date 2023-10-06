@@ -17,16 +17,17 @@ local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
 	keymaps = {
-		expand = "zo",
+		close = "X",
 		collapse = "zc",
 		collapse_all = "zM",
+		details = "d",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
 		jump = "<CR>",
 		jump_split = "s",
-		jump_vsplit = "v",
 		jump_tab = "t",
-		hide = "<C-[>",
-		close = "X",
-		details = "d",
+		jump_vsplit = "v",
 	},
 }
 
@@ -108,49 +109,61 @@ TimelineComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
-		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
+		local keymaps = {
+			{
+				key = self.config.keymaps.expand,
+				cb = function()
 					self.expand()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.collapse,
+				cb = function()
 					self.collapse()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.collapse_all,
+				cb = function()
 					self.collapse_all()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.jump,
+				cb = function()
 					self.jump_timelinenode({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.jump_tab,
+				cb = function()
 					self.jump_timelinenode({ fargs = { "tab" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.hide,
+				cb = function()
 					self.hide()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				key = self.config.keymaps.details,
+				cb = function()
 					self.details()
 				end,
-			})
+			},
+			{
+				key = self.config.keymaps.help,
+				cb = function()
+					self.help_keymaps()
+				end,
+			},
+		}
+
+		if not self.config.disable_keymaps then
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap.key, keymap.cb)
+			end
 		end
 
 		return buf

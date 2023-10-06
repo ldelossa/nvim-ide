@@ -25,6 +25,7 @@ local config_prototype = {
 		close = "X",
 		next_reference = "n",
 		switch_directions = "s",
+		help = "?",
 	},
 }
 
@@ -68,61 +69,23 @@ CallHierarchyComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
+		local keymaps = {
+			{ self.config.keymaps.expand, function() self.expand() end },
+			{ self.config.keymaps.collapse, function() self.collapse() end },
+			{ self.config.keymaps.collapse_all, function() self.collapse_all() end },
+			{ self.config.keymaps.jump, function() self.jump_callnode({ fargs = {} }) end },
+			{ self.config.keymaps.jump_split, function() self.jump_callnode({ fargs = { "split" } }) end },
+			{ self.config.keymaps.jump_vsplit, function() self.jump_callnode({ fargs = { "vsplit" } }) end },
+			{ self.config.keymaps.jump_tab, function() self.jump_callnode({ fargs = { "tab" } }) end },
+			{ self.config.keymaps.next_reference, function() self.next_reference() end },
+			{ self.config.keymaps.hide, function() self.hide() end },
+			{ self.config.keymaps.help, function() self.help_keymaps() end },
+		}
+
 		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
-					self.expand()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
-					self.collapse()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
-					self.collapse_all()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
-					self.jump_callnode({ fargs = {} })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "", {
-				silent = true,
-				callback = function()
-					self.jump_callnode({ fargs = { "split" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "", {
-				silent = true,
-				callback = function()
-					self.jump_callnode({ fargs = { "vsplit" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {
-				silent = true,
-				callback = function()
-					self.jump_callnode({ fargs = { "tab" } })
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.next_reference, "", {
-				silent = true,
-				callback = function()
-					self.next_reference()
-				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
-					self.hide()
-				end,
-			})
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf

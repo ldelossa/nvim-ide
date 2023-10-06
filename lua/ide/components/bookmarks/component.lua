@@ -2,6 +2,7 @@ local base = require("ide.panels.component")
 local commands = require("ide.components.bookmarks.commands")
 local logger = require("ide.logger.logger")
 local libwin = require("ide.lib.win")
+local libbuf = require("ide.lib.buf")
 local icons = require("ide.icons")
 local notebook = require("ide.components.bookmarks.notebook")
 local base64 = require("ide.lib.encoding.base64")
@@ -14,17 +15,18 @@ local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
 	keymaps = {
-		expand = "zo",
+		close = "X",
 		collapse = "zc",
 		collapse_all = "zM",
+		details = "d",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
 		jump = "<CR>",
-		jump_tab = "t",
 		jump_split = "s",
+		jump_tab = "t",
 		jump_vsplit = "v",
 		remove_bookmark = "D",
-		details = "d",
-		hide = "<C-[>",
-		close = "X",
 	},
 }
 
@@ -64,67 +66,79 @@ BookmarksComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "textwidth", 0)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
-		if not self.config.disable_keymaps then
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.expand, "", {
-				silent = true,
-				callback = function()
+		local keymaps = {
+			{
+				self.config.keymaps.expand,
+				function()
 					self.expand()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse,
+				function()
 					self.collapse()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.collapse_all, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.collapse_all,
+				function()
 					self.collapse_all()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.jump,
+				function()
 					self.jump_bookmarknode({ fargs = {} })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_tab, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.jump_tab,
+				function()
 					self.jump_bookmarknode({ fargs = { "tab" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_split, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.jump_split,
+				function()
 					self.jump_bookmarknode({ fargs = { "split" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.jump_vsplit, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.jump_vsplit,
+				function()
 					self.jump_bookmarknode({ fargs = { "vsplit" } })
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.remove_bookmark, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.remove_bookmark,
+				function()
 					self.remove_bookmark()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.details,
+				function()
 					self.details()
 				end,
-			})
-			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.hide, "", {
-				silent = true,
-				callback = function()
+			},
+			{
+				self.config.keymaps.hide,
+				function()
 					self.hide()
 				end,
-			})
+			},
+			{
+				self.config.keymaps.help,
+				function()
+					self.help_keymaps()
+				end,
+			},
+		}
+
+		if not self.config.disable_keymaps then
+			for _, keymap in ipairs(keymaps) do
+				libbuf.set_keymap_normal(buf, keymap[1], keymap[2])
+			end
 		end
 
 		return buf
