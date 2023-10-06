@@ -5,6 +5,9 @@ local Git = {}
 Git.RECORD_SEP = "␞"
 Git.GROUP_SEP = "␝"
 
+local is_repo = nil
+local last_dir = ""
+
 -- Compares two shas by truncating each one to the min character length
 -- provided and performing a string comparison.
 --
@@ -26,8 +29,13 @@ function Git.compare_sha(sha_a, sha_b)
 end
 
 function Git.in_git_repo()
-	vim.fn.system("git rev-parse --is-inside-work-tree")
-	return (vim.v.shell_error == 0)
+	local cwd = vim.fn.getcwd()
+	if is_repo == nil or cwd ~= last_dir then
+		vim.fn.system("git rev-parse --is-inside-work-tree")
+		is_repo = (vim.v.shell_error == 0)
+		last_dir = cwd
+	end
+	return is_repo
 end
 
 function Git.repo_has_commits()
@@ -52,15 +60,20 @@ Git.new = function()
 	end
 
 	function self.if_in_git_repo(cb)
-		self.make_request(string.format("rev-parse --is-inside-work-tree"), nil, function(resp)
-			if resp == nil then
-				return
-			end
-			if resp.error then
-				return
-			end
+		local cwd = vim.fn.getcwd()
+		if is_repo == nil or cwd ~= last_dir then
+			self.make_request(string.format("rev-parse --is-inside-work-tree"), nil, function(resp)
+				last_dir = cwd
+				if resp == nil or resp.error then
+					is_repo = false
+					return
+				end
+				is_repo = true
+				cb()
+			end)
+		elseif is_repo then
 			cb()
-		end)
+		end
 	end
 
 	-- issues a git log with a specified --format string.
@@ -154,7 +167,7 @@ Git.new = function()
 	--          date    - @string, full date at which the commit was created.
 	function self.log_commits(skip, n, cb)
 		self.log_format(
-		-- abbrev sha, author name, subject, relative date.
+			-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d", skip, n),
 			function(stdout)
@@ -195,7 +208,7 @@ Git.new = function()
 	--                    the commit was created.
 	function self.log_file_history(path, skip, n, cb)
 		self.log_format(
-		-- abbrev sha, author name, subject, relative date.
+			-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d -- %s", skip, n, path),
 			function(stdout)

@@ -369,12 +369,12 @@ ChangesComponent.new = function(name, config)
 			local dbuff = diff_buf.new()
 			dbuff.setup()
 			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines({}, "a", o)
+			dbuff.write_lines({}, "b", o)
 
 			local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
 
-			dbuff.buffer_a.set_name(buf_name)
-			dbuff.open_buffer(node.path, "b")
+			dbuff.buffer_b.set_name(buf_name)
+			dbuff.open_buffer(node.path, "a")
 			dbuff.diff()
 
 			vim.api.nvim_set_current_win(self.win)
@@ -396,11 +396,11 @@ ChangesComponent.new = function(name, config)
 			local dbuff = diff_buf.new()
 			dbuff.setup()
 			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines(file, "a", o)
+			dbuff.write_lines(file, "b", o)
 			local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
 
-			dbuff.buffer_a.set_name(buf_name)
-			dbuff.open_buffer(node.path, "b")
+			dbuff.buffer_b.set_name(buf_name)
+			dbuff.open_buffer(node.path, "a")
 			dbuff.diff()
 
 			vim.api.nvim_set_current_win(self.win)
@@ -414,6 +414,10 @@ ChangesComponent.new = function(name, config)
 
 	vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold" }, {
 		callback = function()
+			if not self.is_displayed then
+				return
+			end
+
 			if not libws.is_current_ws(self.workspace) then
 				return
 			end

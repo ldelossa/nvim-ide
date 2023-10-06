@@ -193,7 +193,7 @@ CommitsComponent.new = function(name, config)
 			vim.api.nvim_buf_set_keymap(buf, "n", self.config.keymaps.details_tab, "", {
 				silent = true,
 				callback = function()
-					self.details(nil, true)
+					self.details(true)
 				end,
 			})
 
@@ -499,7 +499,7 @@ CommitsComponent.new = function(name, config)
 			restore_win()
 		end
 
-		git.show_file(pcommit.sha, node.file, function(file_a)
+		git.show_file(node.sha, node.file, function(file_a)
 			if file_a == nil then
 				return
 			end
@@ -509,7 +509,7 @@ CommitsComponent.new = function(name, config)
 				do_diff_local(file_a, node.file, pcommit.sha, node.file)
 				return
 			end
-			git.show_file(node.sha, node.file, function(file_b)
+			git.show_file(pcommit.sha, node.file, function(file_b)
 				if file_b == nil then
 					return
 				end
