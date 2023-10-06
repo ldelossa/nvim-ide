@@ -238,10 +238,12 @@ ExplorerComponent.new = function(name, config)
 	function self.focus_with_expand()
 		local last_win = self.workspace.get_win()
 		if not libwin.win_is_valid(last_win) then
+			self.focus()
 			return
 		end
 		local last_buf = libwin.get_buf(last_win)
 		if not libbuf.is_regular_buffer(last_buf) then
+			self.focus()
 			return
 		end
 		self.focus()

@@ -360,7 +360,7 @@ CommitsComponent.new = function(name, config)
 		end
 
 		local function do_diff(file_a, sha_a, path)
-			local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
+			local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), sha_a, path)
 
 			local tab = false
 			for _, arg in ipairs(args.fargs) do
@@ -429,24 +429,8 @@ CommitsComponent.new = function(name, config)
 	end
 
 	function self.diff(args)
+
 		local log = self.logger.logger_from(nil, "Component.jump_commitnode")
-
-		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
-		if node == nil then
-			return
-		end
-		if not node.is_file then
-			return
-		end
-		local commit = node.parent
-
-		-- we need to find the parent node, but this is a list where all commits
-		-- are at depth one,
-		local _, i = self.tree.depth_table.search(commit.depth, commit.key)
-		if i == nil then
-			error("failed to find index of node in depth table")
-		end
-		local pcommit = self.tree.depth_table.table[commit.depth][i + 1]
 
 		local restore_win = function()
 			vim.api.nvim_set_current_win(self.win)
@@ -466,9 +450,27 @@ CommitsComponent.new = function(name, config)
 			end
 		end
 
-		local function do_diff(file_a, file_b, sha_a, sha_b, path)
-			local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
-			local buf_name_b = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_b, path)
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+		if not node.is_file then
+			return
+		end
+		local commit_node = node.parent
+
+		-- find the index our commit_node in the flat representation of the commit 
+		-- tree and then increment by one to get parent of the commit_node.
+		local _, i = self.tree.depth_table.search(commit_node.depth, commit_node.key)
+		if i == nil then
+			error("failed to find index of node in depth table")
+		end
+		local parent_commit_node = self.tree.depth_table.table[commit_node.depth][i + 1]
+
+		git.show_file(parent_commit_node.sha, node.file, function(file_a) 
+			git.show_file(commit_node.sha, node.file, function(file_b)
+			local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), parent_commit_node.sha, node.file)
+			local buf_name_b = string.format("diff:///%d/%s/%s", vim.fn.rand(), commit_node.sha, node.file)
 
 			_do_tabnew()
 
@@ -482,38 +484,6 @@ CommitsComponent.new = function(name, config)
 			dbuff.buffer_b.set_name(buf_name_b)
 			dbuff.diff()
 			restore_win()
-		end
-
-		local function do_diff_local(file_a, buffer_b, sha_a, path)
-			local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path)
-
-			_do_tabnew()
-
-			local dbuff = diff_buf.new()
-			dbuff.setup()
-			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines(file_a, "a", o)
-			dbuff.open_buffer(buffer_b, "b")
-			dbuff.buffer_a.set_name(buf_name_a)
-			dbuff.diff()
-			restore_win()
-		end
-
-		git.show_file(node.sha, node.file, function(file_a)
-			if file_a == nil then
-				return
-			end
-			if commit.is_head then
-				-- if the commit is the current commit, we can open the the local
-				-- file
-				do_diff_local(file_a, node.file, pcommit.sha, node.file)
-				return
-			end
-			git.show_file(pcommit.sha, node.file, function(file_b)
-				if file_b == nil then
-					return
-				end
-				do_diff(file_a, file_b, pcommit.sha, node.sha, node.file)
 			end)
 		end)
 	end

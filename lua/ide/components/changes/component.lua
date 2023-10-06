@@ -51,6 +51,14 @@ ChangesComponent.new = function(name, config)
 	-- a logger that will be used across this class and its base class methods.
 	self.logger = logger.new("changes")
 
+	-- a map between node node paths to statusnodes, used to determine if an
+	-- unstaged node has a cooresponding staged node
+	self.staged = {}
+
+	self.unstaged = {}
+
+	self.untracked = {}
+
 	-- seup config, use default and merge in user config if not nil
 	self.config = vim.deepcopy(config_prototype)
 	if config ~= nil then
@@ -225,6 +233,16 @@ ChangesComponent.new = function(name, config)
 	end
 
 	local function _build_tree(stats)
+		self.staged = (function()
+			return {}
+		end)()
+		self.unstaged = (function()
+			return {}
+		end)()
+		self.untracked = (function()
+			return {}
+		end)()
+
 		local root = statusnode.new("", vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), false, 0)
 		local staged = statusnode.new("", "Staged Changes", false)
 		local unstaged = statusnode.new("", "Unstaged Changes", false)
@@ -234,22 +252,23 @@ ChangesComponent.new = function(name, config)
 
 		for _, stat in ipairs(stats) do
 			if stat.unstaged_status == "?" or stat.staged_status == "?" then
-				self.tree.add_node(
-					untracked,
-					{ statusnode.new(stat.unstaged_status, stat.path, false) },
-					{ append = true }
-				)
+				local node = statusnode.new(stat.unstaged_status, stat.path, false)
+
+				self.tree.add_node(untracked, { node }, { append = true })
+				self.unstracked[stat.path] = node
+
 				goto continue
 			end
 			if stat.staged_status ~= " " then
-				self.tree.add_node(staged, { statusnode.new(stat.staged_status, stat.path, true) }, { append = true })
+				local node = statusnode.new(stat.staged_status, stat.path, true)
+				self.tree.add_node(staged, { node }, { append = true })
+				self.staged[stat.path] = node
 			end
 			if stat.unstaged_status ~= " " then
-				self.tree.add_node(
-					unstaged,
-					{ statusnode.new(stat.unstaged_status, stat.path, false) },
-					{ append = true }
-				)
+				local node = statusnode.new(stat.unstaged_status, stat.path, false)
+
+				self.tree.add_node(unstaged, { node }, { append = true })
+				self.unstaged[stat.path] = node
 			end
 			::continue::
 		end
@@ -364,47 +383,96 @@ ChangesComponent.new = function(name, config)
 			vim.cmd("tabnew")
 		end
 
+		if node.staged then
+			git.show_file("HEAD~1", node.path, function(file_a)
+				local dbuff = diff_buf.new()
+				dbuff.setup()
+				local o = { listed = false, scratch = true, modifiable = false }
+
+				dbuff.write_lines(file_a, "a", o)
+				local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "HEAD~1" .. "/" .. node.path
+				dbuff.buffer_a.set_name(buf_name)
+
+				-- if the file is staged, and there aren't any unstaged edits
+				-- we can diff on an editable file on the file system.
+				if self.untracked[node.path] == nil and self.unstaged[node.path] == nil then
+					dbuff.open_buffer(node.path, "b")
+					dbuff.diff()
+					vim.api.nvim_set_current_win(self.win)
+					return
+				end
+
+				-- otherwise, diff against the staging area directly since theres
+				-- unstaged changes for this file.
+				git.show_file(nil, node.path, function(file_b)
+					dbuff.write_lines(file_b, "b", o)
+					local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "STAGING" .. "/" .. node.path
+					dbuff.buffer_b.set_name(buf_name)
+					dbuff.diff()
+					vim.notify("This file has unstaged changes, cannot modify diff", vim.log.levels.INFO, {})
+					vim.api.nvim_set_current_win(self.win)
+				end, true)
+			end)
+			return
+		end
+
 		-- if its untracked make it look like a new file diff.
 		if node.status == "?" or node.status == "A" then
 			local dbuff = diff_buf.new()
 			dbuff.setup()
 			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines({}, "b", o)
 
-			local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
+			dbuff.write_lines({}, "a", o)
+			local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "NOTFOUND" .. "/" .. node.path
+			dbuff.buffer_a.set_name(buf_name)
 
-			dbuff.buffer_b.set_name(buf_name)
-			dbuff.open_buffer(node.path, "a")
+			dbuff.open_buffer(node.path, "b")
 			dbuff.diff()
 
 			vim.api.nvim_set_current_win(self.win)
 			return
 		end
 
-		local rev = ""
+		-- if not staged, check if we need to diff against a staged version of
+		-- ourselves
+		if self.staged[node.path] ~= nil then
+			git.show_file(nil, node.path, function(file)
+				if file == nil then
+					return
+				end
+				local dbuff = diff_buf.new()
+				dbuff.setup()
+				local o = { listed = false, scratch = true, modifiable = false }
 
-		-- if the commit is staged, compare against the version in HEAD.
-		if node.staged then
-			rev = "HEAD"
+				dbuff.write_lines(file, "a", o)
+				local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "STAGING" .. "/" .. node.path
+				dbuff.buffer_a.set_name(buf_name)
+
+				dbuff.open_buffer(node.path, "b")
+				dbuff.diff()
+
+				vim.api.nvim_set_current_win(self.win)
+			end, true)
+			return
 		end
 
-		-- if not staged, compare against current version.
-		git.show_file(rev, node.path, function(file)
+		git.show_file("HEAD~1", node.path, function(file)
 			if file == nil then
 				return
 			end
 			local dbuff = diff_buf.new()
 			dbuff.setup()
 			local o = { listed = false, scratch = true, modifiable = false }
-			dbuff.write_lines(file, "b", o)
-			local buf_name = "diff://" .. vim.fn.rand() .. "/" .. node.path
 
-			dbuff.buffer_b.set_name(buf_name)
-			dbuff.open_buffer(node.path, "a")
+			dbuff.write_lines(file, "a", o)
+			local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "HEAD~1" .. "/" .. node.path
+			dbuff.buffer_a.set_name(buf_name)
+
+			dbuff.open_buffer(node.path, "b")
 			dbuff.diff()
 
 			vim.api.nvim_set_current_win(self.win)
-		end)
+		end, node.staged)
 	end
 
 	function self.get_commands()

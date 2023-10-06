@@ -239,8 +239,15 @@ Git.new = function()
 	-- @cb      - function(table|nil), a callback called with an array of strings,
 	--            each of which are a line within `path` at `rev`.
 	--            nil if a non-zero exit code is encountered.
-	function self.show_file(rev, path, cb)
-		self.make_nl_request(string.format("show %s:%s", rev, path), nil, function(req)
+	function self.show_file(rev, path, cb, staging)
+		local req = ""
+		if staging then
+			req = string.format("show :0:%s", path)
+		else
+			req = string.format("show %s:%s", rev, path)
+		end
+
+		self.make_nl_request(req, nil, function(req)
 			-- if we encounter an error, it most likely means the file is
 			-- not present at rev, so return empty file contents.
 			if req.error then

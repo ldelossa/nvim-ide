@@ -55,12 +55,12 @@ DiffBuffer.new = function(path_a, path_b)
 			end
 		end
 
-		self.win_b = vim.api.nvim_get_current_win()
 
+		self.win_a = vim.api.nvim_get_current_win()
 		-- vertical split to get win_b
 		vim.cmd("vsplit")
 
-		self.win_a = vim.api.nvim_get_current_win()
+		self.win_b = vim.api.nvim_get_current_win()
 	end
 
 	-- Write a series of lines into either buffer_a or buffer_b.
@@ -134,8 +134,10 @@ DiffBuffer.new = function(path_a, path_b)
 			return
 		end
 		vim.api.nvim_set_current_win(self.win_b)
+		vim.cmd("filetype detect")
 		vim.cmd("diffthis")
 		vim.api.nvim_set_current_win(self.win_a)
+		vim.cmd("filetype detect")
 		vim.cmd("diffthis")
 	end
 

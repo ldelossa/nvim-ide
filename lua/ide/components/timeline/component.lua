@@ -314,8 +314,8 @@ TimelineComponent.new = function(name, config)
 				vim.cmd("tabnew")
 			end
 
-			local buf_name_a = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_a, path_a)
-			local buf_name_b = string.format("diff://%d/%s/%s", vim.fn.rand(), sha_b, path_b)
+			local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), sha_a, path_a)
+			local buf_name_b = string.format("diff:///%d/%s/%s", vim.fn.rand(), sha_b, path_b)
 
 			local dbuff = diff_buf.new()
 			dbuff.setup()
