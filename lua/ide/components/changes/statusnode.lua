@@ -1,5 +1,6 @@
 local node = require("ide.trees.node")
 local icons = require("ide.icons")
+local libpopup = require("ide.lib.popup")
 
 local StatusNode = {}
 
@@ -33,6 +34,13 @@ StatusNode.new = function(status, path, staged, depth)
 		local name = self.path
 		local detail = self.status
 		return icon, name, detail
+	end
+
+	function self.details()
+		local lines = {}
+		table.insert(lines, string.format("%s %s %s", icons.global_icon_set.get_icon("File"), self.path, self.status))
+
+		libpopup.until_cursor_move(lines)
 	end
 
 	return self

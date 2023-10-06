@@ -23,6 +23,7 @@ local config_prototype = {
 		collapse = "zc",
 		collapse_all = "zM",
 		commit = "c",
+		details= "d",
 		diff = "<CR>",
 		diff_tab = "t",
 		edit = "e",
@@ -122,6 +123,12 @@ ChangesComponent.new = function(name, config)
 				self.config.keymaps.edit,
 				function()
 					self.edit()
+				end,
+			},
+			{
+				self.config.keymaps.details,
+				function()
+					self.details()
 				end,
 			},
 			{
@@ -356,6 +363,21 @@ ChangesComponent.new = function(name, config)
 
 		vim.api.nvim_set_current_win(self.workspace.get_win())
 		vim.cmd("edit " .. node.path)
+	end
+
+	function self.details(args)
+		local log = self.logger.logger_from(nil, "Component.details")
+
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+
+		if node.depth == 0 then
+			return
+		end
+
+		node.details()
 	end
 
 	function self.diff(args)
