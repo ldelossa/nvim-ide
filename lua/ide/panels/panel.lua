@@ -260,7 +260,7 @@ Panel.new = function(tab, position, components)
 		-- place non-hidden components, we already have the sidebar window, so
 		-- only split after the first attached component.
 		local attached = 1
-		self.layout = {}
+		self.layout = (function() return {} end)()
 		for _, rc in ipairs(self.components) do
 			if not rc.is_hidden() then
 				if attached ~= 1 then
