@@ -258,7 +258,7 @@ ChangesComponent.new = function(name, config)
 				local node = statusnode.new(stat.unstaged_status, stat.path, false)
 
 				self.tree.add_node(untracked, { node }, { append = true })
-				self.unstracked[stat.path] = node
+				self.untracked[stat.path] = node
 
 				goto continue
 			end

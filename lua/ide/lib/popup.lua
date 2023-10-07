@@ -1,5 +1,6 @@
 local buffer = require("ide.buffers.buffer")
 local icons = require("ide.icons")
+local libwin = require('ide.lib.win')
 
 local Popup = {}
 
@@ -71,8 +72,9 @@ function Popup.until_cursor_move(lines)
 	local aucmd = nil
 	aucmd = vim.api.nvim_create_autocmd({ "CursorMoved" }, {
 		callback = function()
-			local cur_win = vim.api.nvim_get_current_win()
-			vim.api.nvim_win_close(win, true)
+			if libwin.win_is_valid(win) then
+				vim.api.nvim_win_close(win, true)
+			end
 			vim.api.nvim_del_autocmd(aucmd)
 		end,
 	})

@@ -13,7 +13,6 @@ FileNode.new = function(path, kind, perms, depth, opts)
 	local self = node.new("file", path, path, depth)
 	-- node options
 	self.opts = vim.tbl_deep_extend("keep", opts or {}, {
-		list_directories_first = false,
 		show_file_permissions = true,
 	})
 	-- the path to this file
@@ -82,8 +81,89 @@ FileNode.new = function(path, kind, perms, depth, opts)
 		end
 	end
 
+	-- Expands a filenode async
+	-- This can also be used to refresh the contents of a directory.
+	--
+	-- It is faster then self.expand() however to save time it will not try to
+	-- retore any expanded nodes under `self`.
+	--
+	-- @opts - @table, options for the expand
+	--         refresh_only - @bool, if true only refresh node's children, do not
+	--                        set the node's expanded field to true.
+	--
+	-- return: void
+	function self.expand_async(opts, cb)
+		local log = self.logger.logger_from("explorer", "FileNode.expand_async")
+		log.debug("expanding filenode %s", self.path)
+		if opts == nil then
+			opts = {
+				refresh_only = false,
+			}
+		end
+		if self.kind ~= "dir" then
+			return
+		end
+		local handle = nil
+		vim.uv.fs_opendir(self.path, function(err, dir)
+			if err then
+				return
+			end
+			vim.uv.fs_readdir(dir, function(err, entries)
+				if err then
+					return
+				end
+
+				if entries == nil or #entries == 0 then
+					self.expanded = true
+					if cb ~= nil then
+						cb()
+					end
+					return
+				end
+
+				local children = {}
+				for _, entry in ipairs(entries) do
+					local child_path = self.path .. "/" .. entry.name
+					local child_kind = "file"
+					if entry.type == "directory" then
+						child_kind = "dir"
+					end
+					local child_perms = vim.fn.getfperm(child_path)
+					local fnode = FileNode.new(child_path, child_kind, child_perms, nil, vim.deepcopy(self.opts))
+					table.insert(children, fnode)
+				end
+
+				sort(children, function(first, second)
+					return first ~= second and first.kind == "dir" and second.kind ~= "dir"
+				end)
+
+				-- refresh our children in the tree.
+				self.tree.add_node(self, children)
+
+				-- if we only wanted to refresh the underlying tree, not expand the node
+				-- return here.
+				if opts.refresh_only then
+					return
+				end
+				self.expanded = true
+
+				if cb ~= nil then
+					cb()
+				end
+
+				dir:closedir()
+			end)
+		end, math.pow(2, 16) - 1)
+	end
+
 	-- Expands a filenode.
 	-- This can also be used to refresh the contents of a directory.
+	--
+	-- It is a slow synchronous function but it can also restore any previously
+	-- expanded directories below `self`, unlike self.expand_async
+	--
+	-- Therefore, this is good to use after file operations on a specific directory
+	-- as it won't collapse child directories on next marshal
 	--
 	-- @opts - @table, options for the expand
 	--         refresh_only - @bool, if true only refresh node's children, do not
@@ -93,15 +173,18 @@ FileNode.new = function(path, kind, perms, depth, opts)
 	function self.expand(opts)
 		local log = self.logger.logger_from("explorer", "FileNode.expand")
 		log.debug("expanding filenode %s", self.path)
+
 		if opts == nil then
 			opts = {
 				refresh_only = false,
 			}
 		end
+
 		if self.kind ~= "dir" then
 			log.debug("filenode is not a directory, returning")
 			return
 		end
+
 		local children = {}
 		for _, child in ipairs(vim.fn.readdir(self.path)) do
 			local child_path = self.path .. "/" .. child
@@ -120,18 +203,19 @@ FileNode.new = function(path, kind, perms, depth, opts)
 		end
 		log.debug("found %d children", #children)
 
-		if self.opts.list_directories_first then
-			sort(children, function(first, second)
-				return first ~= second and first.kind == "dir" and second.kind ~= "dir"
-			end)
-		end
+		sort(children, function(first, second)
+			return first ~= second and first.kind == "dir" and second.kind ~= "dir"
+		end)
+
 		-- refresh our children in the tree.
 		self.tree.add_node(self, children)
+
 		-- if we only wanted to refresh the underlying tree, not expand the node
 		-- return here.
 		if opts.refresh_only then
 			return
 		end
+
 		log.debug("filenode set to expanded")
 		self.expanded = true
 	end
@@ -145,10 +229,12 @@ FileNode.new = function(path, kind, perms, depth, opts)
 	function self.touch(name, opts)
 		local log = self.logger.logger_from("explorer", "FileNode.touch")
 		log.debug("request to create file %s in %s", vim.inspect(name), self.path)
+
 		if self.kind ~= "dir" then
 			log.debug("filenode is not a directory, returning")
 			return
 		end
+
 		local function touch(path, overwrite)
 			if file_exists(path) then
 				log.debug(
@@ -271,6 +357,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
 			return {}
 		end)()
 		self.parent.children = new_children
+		self.parent.expand()
 	end
 
 	-- Recursively copy this filenode to the provided directory filenode.
@@ -323,7 +410,7 @@ FileNode.new = function(path, kind, perms, depth, opts)
 			dir_node.expand()
 
 			-- expand self to get latest children we'll be copying over to new_dir.
-			-- self.expand(EXPAND_REFRESH_ONLY)
+			self.expand(EXPAND_REFRESH_ONLY)
 
 			-- get new_dir node so we can copy our children into it.
 			local new_dir = dir_node.get_child(to)

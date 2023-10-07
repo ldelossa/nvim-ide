@@ -40,6 +40,7 @@ local prototype = {
 		GitPullRequest = "",
 		GitRepo = "",
 		IndentGuide = "│",
+		IndentGuideEnd = "┕",
 		Info = "",
 		Interface = "",
 		Key = "",

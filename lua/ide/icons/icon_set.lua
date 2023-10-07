@@ -40,6 +40,7 @@ local prototype = {
 		GitRepo = "🕮",
 		History = "⟲",
 		IndentGuide = "│",
+		IndentGuideEnd = "┕",
 		Info = "🛈",
 		Interface = "I",
 		Key = "",

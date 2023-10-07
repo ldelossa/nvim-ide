@@ -12,8 +12,6 @@ local icons = require("ide.icons")
 local ExplorerComponent = {}
 
 local config_prototype = {
-	-- prefer sorting directories above normal files
-	list_directories_first = false,
 	-- show file permissions as virtual text on the right hand side.
 	show_file_permissions = true,
 	-- open the file on create in an editor window.
@@ -76,31 +74,43 @@ ExplorerComponent.new = function(name, config)
 
 		-- map defined keymaps to their callback functions
 		local keymaps = {
-			{self.config.keymaps.expand, self.expand},
-			{self.config.keymaps.collapse, self.collapse},
-			{self.config.keymaps.collapse_all, self.collapse_all},
-			{self.config.keymaps.edit, function()
-				self.open_filenode({ fargs = {} })
-			end},
-			{self.config.keymaps.edit_split, function()
-				self.open_filenode({ fargs = { "split" } })
-			end},
-			{self.config.keymaps.edit_vsplit, function()
-				self.open_filenode({ fargs = { "vsplit" } })
-			end},
-			{self.config.keymaps.edit_tab, function()
-				self.open_filenode({ fargs = { "tab" } })
-			end},
-			{self.config.keymaps.hide, self.hide},
-			{self.config.keymaps.new_file, self.touch},
-			{self.config.keymaps.delete_file, self.rm},
-			{self.config.keymaps.new_dir, self.mkdir},
-			{self.config.keymaps.rename_file, self.rename},
-			{self.config.keymaps.move_file, self.mv},
-			{self.config.keymaps.copy_file, self.cp},
-			{self.config.keymaps.select_file, self.select},
-			{self.config.keymaps.deselect_file, self.unselect},
-			{self.config.keymaps.help, self.help_keymaps},
+			{ self.config.keymaps.expand,       self.expand },
+			{ self.config.keymaps.collapse,     self.collapse },
+			{ self.config.keymaps.collapse_all, self.collapse_all },
+			{
+				self.config.keymaps.edit,
+				function()
+					self.open_filenode({ fargs = {} })
+				end,
+			},
+			{
+				self.config.keymaps.edit_split,
+				function()
+					self.open_filenode({ fargs = { "split" } })
+				end,
+			},
+			{
+				self.config.keymaps.edit_vsplit,
+				function()
+					self.open_filenode({ fargs = { "vsplit" } })
+				end,
+			},
+			{
+				self.config.keymaps.edit_tab,
+				function()
+					self.open_filenode({ fargs = { "tab" } })
+				end,
+			},
+			{ self.config.keymaps.hide,          self.hide },
+			{ self.config.keymaps.new_file,      self.touch },
+			{ self.config.keymaps.delete_file,   self.rm },
+			{ self.config.keymaps.new_dir,       self.mkdir },
+			{ self.config.keymaps.rename_file,   self.rename },
+			{ self.config.keymaps.move_file,     self.mv },
+			{ self.config.keymaps.copy_file,     self.cp },
+			{ self.config.keymaps.select_file,   self.select },
+			{ self.config.keymaps.deselect_file, self.unselect },
+			{ self.config.keymaps.help,          self.help_keymaps },
 		}
 
 		if not self.config.disable_keymaps then
@@ -125,7 +135,6 @@ ExplorerComponent.new = function(name, config)
 		local kind = vim.fn.getftype(cwd)
 		local perms = vim.fn.getfperm(cwd)
 		local root = filenode.new(cwd, kind, perms, 0, {
-			list_directories_first = self.config.list_directories_first,
 			show_file_permissions = self.config.show_file_permissions,
 		})
 		self.tree = tree.new("file")
@@ -180,7 +189,7 @@ ExplorerComponent.new = function(name, config)
 			return
 		end
 		self.focus()
-		self.expand_to_file(vim.api.nvim_buf_get_name(last_buf))
+		self.expand_to_file_async(self.tree.root, vim.api.nvim_buf_get_name(last_buf))
 	end
 
 	-- implements @Component interface
@@ -254,7 +263,7 @@ ExplorerComponent.new = function(name, config)
 	-- @args - @table, user command table as described in ":h nvim_create_user_command()"
 	-- @fnode - @FileNode, an override which expands the given @FileNode, ignoring the
 	--          node under the current position.
-	function self.expand(args, fnode)
+	function self.expand(args, fnode, cb, no_marshal)
 		local log = self.logger.logger_from(nil, "Component.expand")
 		if not libwin.win_is_valid(self.win) then
 			return
@@ -268,11 +277,19 @@ ExplorerComponent.new = function(name, config)
 		if fnode.kind ~= "dir" then
 			return
 		end
-		fnode.expand()
-		self.register_fsevent(fnode)
-
-		self.tree.marshal({ virt_text_pos = "right_align" })
-		self.state["cursor"].restore()
+		fnode.expand_async(
+			nil,
+			vim.schedule_wrap(function()
+				self.register_fsevent(fnode)
+				if not no_marshal then
+					self.tree.marshal({ virt_text_pos = "right_align" })
+					self.state["cursor"].restore()
+				end
+				if cb ~= nil then
+					cb()
+				end
+			end)
+		)
 	end
 
 	-- Collapse the @FileNode at the current cursor location
@@ -396,17 +413,17 @@ ExplorerComponent.new = function(name, config)
 			end
 			prompts.get_file_rename(fnode.path, function(input)
 				fnode.rename(input)
+				self.tree.marshal({ virt_text_pos = "right_align" })
+				self.state["cursor"].restore()
 			end)
 		end
 
 		if #self.selected > 0 then
-			_iterate_selected(rename)
+			vim.notify("cannot rename multiple files, please unselect files", vim.log.levels.ERROR, {})
 		else
 			local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
 			rename(fnode)
 		end
-		self.tree.marshal({ virt_text_pos = "right_align" })
-		self.state["cursor"].restore()
 	end
 
 	-- Remove the file at the current cursor.
@@ -419,27 +436,36 @@ ExplorerComponent.new = function(name, config)
 			return
 		end
 
+		local function rm_do(fnode)
+			if fnode == nil then
+				return
+			end
+			fnode.rm()
+			-- cleanup if we have a dir watcher
+			if fnode.kind == "dir" then
+				self.unregister_fsevent(fnode)
+			end
+			self.tree.marshal({ virt_text_pos = "right_align" })
+			self.state["cursor"].restore()
+		end
+
 		local function rm(fnode)
 			if fnode == nil then
 				return
 			end
 			prompts.should_delete(fnode.path, function()
-				fnode.rm()
+				rm_do(fnode)
 			end)
 		end
 
 		if #self.selected > 0 then
-			_iterate_selected(rm)
+			prompts.should_delete(#self.selected, function() 
+				_iterate_selected(rm_do)
+			end)
 		else
 			local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
 			rm(fnode)
-			-- cleanup if we have a dir watcher
-			if fnode.kind == "dir" then
-				self.unregister_fsevent(fnode)
-			end
 		end
-		self.tree.marshal({ virt_text_pos = "right_align" })
-		self.state["cursor"].restore()
 	end
 
 	-- Copy any currently selected nodes to the directory at the current cursor
@@ -452,10 +478,10 @@ ExplorerComponent.new = function(name, config)
 		end
 		_iterate_selected(function(fnode2)
 			fnode2.cp(fnode)
+			fnode.expand()
+			self.tree.marshal({ virt_text_pos = "right_align" })
+			self.state["cursor"].restore()
 		end)
-		fnode.expand()
-		self.tree.marshal({ virt_text_pos = "right_align" })
-		self.state["cursor"].restore()
 	end
 
 	-- Move any currently selected nodes to the directory at the current cursor
@@ -468,10 +494,10 @@ ExplorerComponent.new = function(name, config)
 		end
 		_iterate_selected(function(fnode2)
 			fnode2.mv(fnode)
+			fnode.expand()
+			self.tree.marshal({ virt_text_pos = "right_align" })
+			self.state["cursor"].restore()
 		end)
-		fnode.expand()
-		self.tree.marshal({ virt_text_pos = "right_align" })
-		self.state["cursor"].restore()
 	end
 
 	-- Select the file at the current cursor.
@@ -574,63 +600,35 @@ ExplorerComponent.new = function(name, config)
 		vim.cmd("edit " .. vim.fn.fnamemodify(fnode.path, ":."))
 	end
 
-	function self.expand_to_file(path)
+	function self.expand_to_file_async(root, path)
 		if not self.is_displayed or self.tree == nil then
 			return
 		end
 
 		local dest = vim.fn.fnamemodify(path, ":.")
-
-		local function recursive_expand(root, path)
-			-- ignore root node, we want to start searching at children.
-			if root.depth == 0 then
-				for _, child in ipairs(root.children) do
-					if recursive_expand(child, path) then
-						return true
-					end
-				end
-				return false
+		local current = vim.fn.fnamemodify(root.path, ":.")
+		if current == dest then
+			if libwin.win_is_valid(self.win) then
+				self.tree.marshal({ virt_text_pos = "right_align" })
+				vim.api.nvim_win_set_cursor(self.win, { root.line, 1 })
+				vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line - 1, 0, -1)
 			end
-
-			local current = vim.fn.fnamemodify(root.path, ":.")
-			if root.kind == "directory" then
-				current = current .. "/"
-			end
-
-			if vim.fn.strpart(dest, 0, #current) == current then
-				if not self.tree.root.expanded then
-					self.expand(nil, self.tree.root)
-				end
-				-- expanding will set a node's children to collapsed, so only do
-				-- this if the node is not currently expanded, this allows the
-				-- tree to keep existing open directories open but still snap to
-				-- the currently opened file.
-				if not root.expanded then
-					-- call self.expand so we setup an fs_event watcher
-					self.expand(nil, root)
-				end
-
-				-- we expanded to our destination, marshal the tree and set cursor.
-				if current == dest then
-					if libwin.win_is_valid(self.win) then
-						self.tree.marshal({ virt_text_pos = "right_align" })
-						vim.api.nvim_win_set_cursor(self.win, { root.line, 1 })
-						vim.api.nvim_buf_add_highlight(self.tree.buffer, -1, "CursorLine", root.line - 1, 0, -1)
-					end
-					return true
-				end
-
-				-- not at destination yet, continue walking the tree.
-				for _, child in ipairs(root.children) do
-					if recursive_expand(child, path) then
-						return true
-					end
-				end
-			end
-			return false
+			return
 		end
 
-		recursive_expand(self.tree.root, path)
+		if not root.expanded then
+			self.expand(nil, root, function()
+				self.expand_to_file_async(root, path)
+			end, true)
+			return
+		end
+
+		for _, child in ipairs(root.children) do
+			local next = vim.fn.fnamemodify(child.path, ":.")
+			if vim.fn.strpart(dest, 0, #next) == next then
+				self.expand_to_file_async(child, path)
+			end
+		end
 	end
 
 	function self.expand_to_file_aucmd(args)
@@ -663,7 +661,7 @@ ExplorerComponent.new = function(name, config)
 
 		local buf_name = vim.api.nvim_buf_get_name(0)
 		log.debug("expanding tree to current file %s", buf_name)
-		self.expand_to_file(buf_name)
+		self.expand_to_file_async(self.tree.root, buf_name)
 	end
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = self.expand_to_file_aucmd })
