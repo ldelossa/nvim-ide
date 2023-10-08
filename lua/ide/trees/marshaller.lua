@@ -63,14 +63,9 @@ Marshaller.new = function()
 			buffer_line = ""
 		end
 
-		local indent_guide = icon_set.get_icon('IndentGuide')
-		if (node.parent ~= nil and node.parent.children[#node.parent.children].key == node.key) then
-			indent_guide = icon_set.get_icon('IndentGuideEnd')
-		end
-
 		for i = 1, node.depth do
 			if node.depth > 1 and i > 1 then
-				buffer_line = buffer_line .. indent_guide .. icon_set.get_icon("Space")
+				buffer_line = buffer_line .. icon_set.get_icon('IndentGuide') .. icon_set.get_icon("Space")
 				goto continue
 			end
 			buffer_line = buffer_line .. icon_set.get_icon("Space")
