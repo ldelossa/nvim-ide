@@ -2,6 +2,7 @@ local base = require("ide.panels.component")
 local tree = require("ide.trees.tree")
 local git = require("ide.lib.git.client").new()
 local libbuf = require("ide.lib.buf")
+local libwin = require("ide.lib.win")
 local libws = require("ide.lib.workspace")
 local gitutil = require("ide.lib.git.client")
 local branchnode = require("ide.components.branches.branchnode")
@@ -219,6 +220,63 @@ BranchesComponent.new = function(name, config)
 	function self.get_commands()
 		log = self.logger.logger_from(nil, "Component.get_commands")
 		return commands.new(self).get()
+	end
+
+	function self.expand(args)
+		local log = self.logger.logger_from(nil, "Component.expand")
+		if not libwin.win_is_valid(self.win) then
+			return
+		end
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+		self.tree.expand_node(node)
+		self.tree.marshal({ no_guides_leaf = true, virt_text_pos = "right_align" })
+		self.state["cursor"].restore()
+	end
+
+	function self.collapse(args)
+		local log = self.logger.logger_from("Branches", "Component.collapse")
+		if not libwin.win_is_valid(self.win) then
+			return
+		end
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+		self.tree.collapse_node(node)
+		self.tree.marshal({ no_guides_leaf = true, virt_text_pos = "right_align" })
+		self.state["cursor"].restore()
+	end
+
+	function self.collapse_all(args)
+		local log = self.logger.logger_from("Branches", "Component.collapse_all")
+		if not libwin.win_is_valid(self.win) then
+			return
+		end
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+		self.tree.collapse_subtree(self.tree.root)
+		self.tree.marshal({ no_guides_leaf = true, virt_text_pos = "right_align" })
+		self.state["cursor"].restore()
+	end
+
+	function self.details(args)
+		local log = self.logger.logger_from("Branches", "Component.details")
+
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+
+		if node.depth == 0 then
+			return
+		end
+
+		node.details()
 	end
 
 	function self.get_branches()

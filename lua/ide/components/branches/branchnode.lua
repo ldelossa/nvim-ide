@@ -1,5 +1,8 @@
 local node = require("ide.trees.node")
 local icons = require("ide.icons")
+local gitutil = require("ide.lib.git.client")
+local git = require("ide.lib.git.client").new()
+local libpopup = require("ide.lib.popup")
 
 local BranchNode = {}
 
@@ -37,25 +40,45 @@ BranchNode.new = function(sha, branch, is_head, depth)
 			name = "* " .. name
 		end
 
-		if self.remote_ref ~= nil then
+		if self.remote_ref ~= nil and self.remote_ref ~= "" then
 			detail = self.remote_ref
 		else
-			detail = "NO UPSTREAM"
+			detail = "~untracked"
 		end
 
 		if self.tracking ~= "" then
 			if self.tracking == "ahead" then
-				detail = detail .. "↑"
+				detail = detail .. " ↑"
 			end
 			if self.tracking == "behind" then
-				detail = detail .. "↓"
+				detail = detail .. " ↓"
 			end
 			if self.tracking == "diverged" then
-				detail = detail .. "↑" .. "↓"
+				detail = detail .. " ↑" .. "↓"
 			end
 		end
 
 		return icon, name, detail, ""
+	end
+
+	function self.details()
+		git.log(self.sha, 1, function(commits)
+			local commit = commits[1]
+			local lines = {}
+			local head = " "
+			if self.is_head then
+				head = "(HEAD)"
+			end
+			local remote_ref = self.remote_ref
+			if self.remote_ref == nil and self.remote_ref == "" then
+				remote_ref = "~untracked"
+			end
+			table.insert(
+				lines,
+				string.format("%s %s %7s [%s] %s", head, self.branch, gitutil.short_sha(self.sha), remote_ref, commit.subject)
+			)
+			libpopup.until_cursor_move(lines)
+		end)
 	end
 
 	return self

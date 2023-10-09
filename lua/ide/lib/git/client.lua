@@ -28,6 +28,10 @@ function Git.compare_sha(sha_a, sha_b)
 	return (sha_a == sha_b)
 end
 
+function Git.short_sha(sha)
+	return sha:sub(1, 7)
+end
+
 function Git.in_git_repo()
 	local cwd = vim.fn.getcwd()
 	if is_repo == nil or cwd ~= last_dir then
@@ -167,7 +171,7 @@ Git.new = function()
 	--          date    - @string, full date at which the commit was created.
 	function self.log_commits(skip, n, cb)
 		self.log_format(
-		-- abbrev sha, author name, subject, relative date.
+			-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d", skip, n),
 			function(stdout)
@@ -208,7 +212,7 @@ Git.new = function()
 	--                    the commit was created.
 	function self.log_file_history(path, skip, n, cb)
 		self.log_format(
-		-- abbrev sha, author name, subject, relative date.
+			-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d -- %s", skip, n, path),
 			function(stdout)
