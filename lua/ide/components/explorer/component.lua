@@ -74,8 +74,8 @@ ExplorerComponent.new = function(name, config)
 
 		-- map defined keymaps to their callback functions
 		local keymaps = {
-			{ self.config.keymaps.expand,       self.expand },
-			{ self.config.keymaps.collapse,     self.collapse },
+			{ self.config.keymaps.expand, self.expand },
+			{ self.config.keymaps.collapse, self.collapse },
 			{ self.config.keymaps.collapse_all, self.collapse_all },
 			{
 				self.config.keymaps.edit,
@@ -101,16 +101,16 @@ ExplorerComponent.new = function(name, config)
 					self.open_filenode({ fargs = { "tab" } })
 				end,
 			},
-			{ self.config.keymaps.hide,          self.hide },
-			{ self.config.keymaps.new_file,      self.touch },
-			{ self.config.keymaps.delete_file,   self.rm },
-			{ self.config.keymaps.new_dir,       self.mkdir },
-			{ self.config.keymaps.rename_file,   self.rename },
-			{ self.config.keymaps.move_file,     self.mv },
-			{ self.config.keymaps.copy_file,     self.cp },
-			{ self.config.keymaps.select_file,   self.select },
+			{ self.config.keymaps.hide, self.hide },
+			{ self.config.keymaps.new_file, self.touch },
+			{ self.config.keymaps.delete_file, self.rm },
+			{ self.config.keymaps.new_dir, self.mkdir },
+			{ self.config.keymaps.rename_file, self.rename },
+			{ self.config.keymaps.move_file, self.mv },
+			{ self.config.keymaps.copy_file, self.cp },
+			{ self.config.keymaps.select_file, self.select },
 			{ self.config.keymaps.deselect_file, self.unselect },
-			{ self.config.keymaps.help,          self.help_keymaps },
+			{ self.config.keymaps.help, self.help_keymaps },
 		}
 
 		if not self.config.disable_keymaps then
@@ -419,7 +419,9 @@ ExplorerComponent.new = function(name, config)
 		end
 
 		if #self.selected > 0 then
-			vim.notify("cannot rename multiple files, please unselect files", vim.log.levels.ERROR, {})
+			vim.notify("cannot rename multiple files, please unselect files", vim.log.levels.ERROR, {
+				title = "Explorer",
+			})
 		else
 			local fnode = self.tree.unmarshal(self.state["cursor"].cursor[1])
 			rename(fnode)
@@ -459,7 +461,7 @@ ExplorerComponent.new = function(name, config)
 		end
 
 		if #self.selected > 0 then
-			prompts.should_delete(#self.selected, function() 
+			prompts.should_delete(#self.selected, function()
 				_iterate_selected(rm_do)
 			end)
 		else

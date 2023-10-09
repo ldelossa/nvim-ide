@@ -130,7 +130,9 @@ Notebook.new = function(buf, name, file, bookmarks_component)
 	function self.create_bookmark()
 		local buf = vim.api.nvim_get_current_buf()
 		if not libbuf.is_regular_buffer(buf) then
-			vim.notify("Can only create bookmarks on source code buffers.", vim.log.levels.Error)
+			vim.notify("Can only create bookmarks on source code buffers.", vim.log.levels.Error, {
+					title = "Bookmarks",
+				})
 			return
 		end
 		local file = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":.")

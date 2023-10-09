@@ -353,7 +353,9 @@ BookmarksComponent.new = function(name, config)
 
 	function self.create_bookmark(args)
 		if self.notebook == nil then
-			vim.notify("A notebook must be opened first.", vim.log.levels.Error)
+			vim.notify("A notebook must be opened first.", vim.log.levels.Error, {
+				title = "Bookmarks",
+			})
 			return
 		end
 		self.notebook.create_bookmark(args)
@@ -361,7 +363,9 @@ BookmarksComponent.new = function(name, config)
 
 	function self.remove_bookmark(args)
 		if self.notebook == nil then
-			vim.notify("A notebook must be opened first.", vim.log.levels.Error)
+			vim.notify("A notebook must be opened first.", vim.log.levels.Error, {
+				title = "Bookmarks",
+			})
 			return
 		end
 		local node = self.notebook.tree.unmarshal(self.state["cursor"].cursor[1])

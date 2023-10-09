@@ -23,7 +23,7 @@ local config_prototype = {
 		collapse = "zc",
 		collapse_all = "zM",
 		commit = "c",
-		details= "d",
+		details = "d",
 		diff = "<CR>",
 		diff_tab = "t",
 		edit = "e",
@@ -430,7 +430,9 @@ ChangesComponent.new = function(name, config)
 					local buf_name = "diff:///" .. vim.fn.rand() .. "/" .. "STAGING" .. "/" .. node.path
 					dbuff.buffer_b.set_name(buf_name)
 					dbuff.diff()
-					vim.notify("This file has unstaged changes, cannot modify diff", vim.log.levels.INFO, {})
+					vim.notify("This file has unstaged changes, cannot modify diff", vim.log.levels.INFO, {
+						title = "Changes",
+					})
 					vim.api.nvim_set_current_win(self.win)
 				end, true)
 			end)

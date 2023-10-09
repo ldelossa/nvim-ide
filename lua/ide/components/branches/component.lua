@@ -211,7 +211,7 @@ BranchesComponent.new = function(name, config)
 
 	function self.create_branch(args)
 		if not gitutil.in_git_repo() then
-			vim.notify("Must be in a git repo to create a branch", "error", {
+			vim.notify("Must be in a git repo to create a branch", vim.log.levels.ERROR, {
 				title = "Branches",
 			})
 			return
@@ -231,7 +231,7 @@ BranchesComponent.new = function(name, config)
 
 	function self.pull_branch(args)
 		if not gitutil.in_git_repo() then
-			vim.notify("Must be in a git repo to create a branch", "error", {
+			vim.notify("Must be in a git repo to create a branch", vim.log.levels.ERROR, {
 				title = "Branches",
 			})
 			return
@@ -243,9 +243,10 @@ BranchesComponent.new = function(name, config)
 		end
 
 		if node.remote == "" or node.remote == nil then
-			vim.notify("Local branch is not tracking remote branch.", "error", {
+			vim.notify("Local branch is not tracking remote branch.", vim.log.levels.Info, {
 				title = "Branches",
 			})
+			self.set_upstream()
 			return
 		end
 
@@ -254,7 +255,7 @@ BranchesComponent.new = function(name, config)
 				return
 			end
 			self.get_branches()
-			vim.notify(string.format("Pulled latest branch: %s from remote: %s", node.branch, node.remote), "info", {
+			vim.notify(string.format("Pulled latest branch: %s from remote: %s", node.branch, node.remote), vim.log.levels.INFO, {
 				title = "Branches",
 			})
 		end)
@@ -262,7 +263,7 @@ BranchesComponent.new = function(name, config)
 
 	function self.push_branch(args)
 		if not gitutil.in_git_repo() then
-			vim.notify("Must be in a git repo to create a branch", "error", {
+			vim.notify("Must be in a git repo to create a branch", vim.log.levels.ERROR, {
 				title = "Branches",
 			})
 			return
@@ -274,9 +275,10 @@ BranchesComponent.new = function(name, config)
 		end
 
 		if node.remote == "" or node.remote == nil then
-			vim.notify("Local branch is not tracking remote branch.", "error", {
+			vim.notify("Local branch is not tracking remote branch.", vim.log.levels.INFO, {
 				title = "Branches",
 			})
+			self.set_upstream(nil, node)
 			return
 		end
 
@@ -285,23 +287,25 @@ BranchesComponent.new = function(name, config)
 				return
 			end
 			self.get_branches()
-			vim.notify(string.format("Pushed branch: %s to remote: %s", node.branch, node.remote), "info", {
+			vim.notify(string.format("Pushed branch: %s to remote: %s", node.branch, node.remote), vim.log.levels.INFO, {
 				title = "Branches",
 			})
 		end)
 	end
 
-	function self.set_upstream(args)
+	function self.set_upstream(args, node)
 		if not gitutil.in_git_repo() then
-			vim.notify("Must be in a git repo to create a branch", "error", {
+			vim.notify("Must be in a git repo to create a branch", vim.log.levels.ERROR, {
 				title = "Branches",
 			})
 			return
 		end
 
-		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
-		if node == nil then
-			return
+		if (not node) then
+			node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+			if node == nil then
+				return
+			end
 		end
 
 		vim.ui.input({

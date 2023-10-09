@@ -93,7 +93,9 @@ CommitsComponent.new = function(name, config)
 		if name == nil or name == "" then
 			return
 		end
-		vim.notify("loading more commits...", vim.log.levels.INFO)
+		vim.notify("loading more commits...", vim.log.levels.INFO, {
+			title = "Commits",
+		})
 		git.log_commits(self.paging[name], 25, function(commits)
 			if commits == nil then
 				return

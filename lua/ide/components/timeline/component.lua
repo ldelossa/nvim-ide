@@ -71,7 +71,9 @@ TimelineComponent.new = function(name, config)
 		if name == nil or name == "" then
 			return
 		end
-		vim.notify("loading more commits...", vim.log.levels.INFO)
+		vim.notify("loading more commits...", vim.log.levels.INFO, {
+			title = "Timeline",
+		})
 		git.log_file_history(name, self.paging[name], 25, function(commits)
 			if commits == nil then
 				return
