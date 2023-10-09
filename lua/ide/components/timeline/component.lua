@@ -351,6 +351,7 @@ TimelineComponent.new = function(name, config)
 					return
 				end
 				do_diff({ "" }, file_b, "", node.sha, "", node.file)
+				vim.api.nvim_set_current_win(self.win)
 			end)
 			return
 		end
@@ -361,6 +362,7 @@ TimelineComponent.new = function(name, config)
 					return
 				end
 				do_diff(file_a, file_b, pnode.sha, node.sha, pnode.file, node.file)
+				vim.api.nvim_set_current_win(self.win)
 			end)
 		end)
 	end

@@ -133,10 +133,10 @@ DiffBuffer.new = function(path_a, path_b)
 		if not libwin.win_is_valid(self.win_a) or not libwin.win_is_valid(self.win_b) then
 			return
 		end
-		vim.api.nvim_set_current_win(self.win_b)
+		vim.api.nvim_set_current_win(self.win_a)
 		vim.cmd("filetype detect")
 		vim.cmd("diffthis")
-		vim.api.nvim_set_current_win(self.win_a)
+		vim.api.nvim_set_current_win(self.win_b)
 		vim.cmd("filetype detect")
 		vim.cmd("diffthis")
 	end

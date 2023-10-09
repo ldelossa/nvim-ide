@@ -31,6 +31,7 @@ function Buf.is_regular_buffer(buf)
 	if not Buf.buf_is_valid(buf) then
 		return false
 	end
+
 	-- only consider normal buffers with files loaded into them.
 	if vim.api.nvim_buf_get_option(buf, "buftype") ~= "" then
 		return false
