@@ -167,7 +167,7 @@ Git.new = function()
 	--          date    - @string, full date at which the commit was created.
 	function self.log_commits(skip, n, cb)
 		self.log_format(
-			-- abbrev sha, author name, subject, relative date.
+		-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d", skip, n),
 			function(stdout)
@@ -208,7 +208,7 @@ Git.new = function()
 	--                    the commit was created.
 	function self.log_file_history(path, skip, n, cb)
 		self.log_format(
-			-- abbrev sha, author name, subject, relative date.
+		-- abbrev sha, author name, subject, relative date.
 			{ "%H", "%an", "%s", "%cr" },
 			string.format("--skip=%d -n %d -- %s", skip, n, path),
 			function(stdout)
@@ -465,6 +465,16 @@ Git.new = function()
 			handle_req(function(rev)
 				rev = vim.fn.trim(rev, "\n")
 				cb(rev)
+			end)
+		)
+	end
+
+	function self.remotes(cb)
+		self.make_nl_request(
+			string.format("remote"),
+			nil,
+			handle_req(function(remotes)
+				cb(remotes)
 			end)
 		)
 	end

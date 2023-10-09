@@ -27,7 +27,7 @@ local config_prototype = {
 		pull = "p",
 		push = "P",
 		set_upstream = "s",
-		help = "?"
+		help = "?",
 	},
 }
 
@@ -114,18 +114,78 @@ BranchesComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
 		local keymaps = {
-			{ self.config.keymaps.expand,        function() self.expand() end },
-			{ self.config.keymaps.collapse,      function() self.collapse() end },
-			{ self.config.keymaps.collapse_all,  function() self.collapse_all() end },
-			{ self.config.keymaps.jump,          function() self.jump_branchnode({ fargs = {} }) end },
-			{ self.config.keymaps.create_branch, function() self.create_branch() end },
-			{ self.config.keymaps.refresh,       function() self.get_branches() end },
-			{ self.config.keymaps.hide,          function() self.hide() end },
-			{ self.config.keymaps.details,       function() self.details() end },
-			{ self.config.keymaps.pull,          function() self.pull_branch() end },
-			{ self.config.keymaps.push,          function() self.push_branch() end },
-			{ self.config.keymaps.set_upstream,  function() self.set_upstream() end },
-			{ self.config.keymaps.help,          function() self.help_keymaps() end },
+			{
+				self.config.keymaps.expand,
+				function()
+					self.expand()
+				end,
+			},
+			{
+				self.config.keymaps.collapse,
+				function()
+					self.collapse()
+				end,
+			},
+			{
+				self.config.keymaps.collapse_all,
+				function()
+					self.collapse_all()
+				end,
+			},
+			{
+				self.config.keymaps.jump,
+				function()
+					self.jump_branchnode({ fargs = {} })
+				end,
+			},
+			{
+				self.config.keymaps.create_branch,
+				function()
+					self.create_branch()
+				end,
+			},
+			{
+				self.config.keymaps.refresh,
+				function()
+					self.get_branches()
+				end,
+			},
+			{
+				self.config.keymaps.hide,
+				function()
+					self.hide()
+				end,
+			},
+			{
+				self.config.keymaps.details,
+				function()
+					self.details()
+				end,
+			},
+			{
+				self.config.keymaps.pull,
+				function()
+					self.pull_branch()
+				end,
+			},
+			{
+				self.config.keymaps.push,
+				function()
+					self.push_branch()
+				end,
+			},
+			{
+				self.config.keymaps.set_upstream,
+				function()
+					self.set_upstream()
+				end,
+			},
+			{
+				self.config.keymaps.help,
+				function()
+					self.help_keymaps()
+				end,
+			},
 		}
 
 		if not self.config.disable_keymaps then
@@ -243,10 +303,13 @@ BranchesComponent.new = function(name, config)
 		end
 
 		if node.remote == "" or node.remote == nil then
-			vim.notify("Local branch is not tracking remote branch.", vim.log.levels.Info, {
-				title = "Branches",
-			})
-			self.set_upstream()
+			vim.notify(
+				"Local branch is not tracking remote branch.\nPlease push the local branch to a remote",
+				vim.log.levels.Info,
+				{
+					title = "Branches",
+				}
+			)
 			return
 		end
 
@@ -255,9 +318,13 @@ BranchesComponent.new = function(name, config)
 				return
 			end
 			self.get_branches()
-			vim.notify(string.format("Pulled latest branch: %s from remote: %s", node.branch, node.remote), vim.log.levels.INFO, {
-				title = "Branches",
-			})
+			vim.notify(
+				string.format("Pulled latest branch: %s from remote: %s", node.branch, node.remote),
+				vim.log.levels.INFO,
+				{
+					title = "Branches",
+				}
+			)
 		end)
 	end
 
@@ -274,23 +341,52 @@ BranchesComponent.new = function(name, config)
 			return
 		end
 
-		if node.remote == "" or node.remote == nil then
-			vim.notify("Local branch is not tracking remote branch.", vim.log.levels.INFO, {
-				title = "Branches",
-			})
-			self.set_upstream(nil, node)
-			return
+		local function push(remote, remote_branch, cb)
+			git.push(remote, remote_branch, function(success)
+				if success == nil then
+					return
+				end
+				vim.notify(
+					string.format("Pushed branch: %s to remote: %s", remote_branch, remote),
+					vim.log.levels.INFO,
+					{
+						title = "Branches",
+					}
+				)
+				self.get_branches()
+				if cb ~= nil then
+					cb()
+				end
+			end)
 		end
 
-		git.push(node.remote, node.remote_branch, function(success)
-			if success == nil then
-				return
-			end
-			self.get_branches()
-			vim.notify(string.format("Pushed branch: %s to remote: %s", node.branch, node.remote), vim.log.levels.INFO, {
+		if node.remote == "" or node.remote == nil then
+			vim.notify("Local branch does not belong to any remote", vim.log.levels.INFO, {
 				title = "Branches",
 			})
-		end)
+			git.remotes(function(remotes)
+				vim.ui.select(remotes, { prompt = "Select a remote to push to" }, function(remote)
+					push(remote, node.branch, function()
+						git.set_upstream(node.branch, string.format("%s/%s", remote, node.branch), function()
+							vim.notify(
+								string.format(
+									"Local branch %s set to track upstream %s/%s",
+									node.branch,
+									remote,
+									node.branch
+								),
+								vim.log.levels.INFO,
+								{
+									title = "Branches",
+								}
+							)
+						end)
+					end)
+				end)
+			end)
+			return
+		end
+		push(node.remote, node.remote_branch)
 	end
 
 	function self.set_upstream(args, node)
@@ -301,7 +397,7 @@ BranchesComponent.new = function(name, config)
 			return
 		end
 
-		if (not node) then
+		if not node then
 			node = self.tree.unmarshal(self.state["cursor"].cursor[1])
 			if node == nil then
 				return
