@@ -190,6 +190,9 @@ ChangesComponent.new = function(name, config)
 			end
 		end
 
+		-- we can kick of an initial creation of the tree on load.
+		self.event_handler(nil)
+
 		icons.global_icon_set.set_win_highlights()
 	end
 

@@ -323,21 +323,24 @@ navigating to the `Bookmarks` subcommand.
 
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            jump = "<CR>",
-            jump_tab = "t",
-            hide = "<C-[>",
-            close = "X",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
+		details = "d",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		jump = "<CR>",
+		jump_split = "s",
+		jump_tab = "t",
+		jump_vsplit = "v",
+		remove_bookmark = "D",
+	},
+}
 <
 
 ====================================================================================
@@ -362,24 +365,25 @@ equivalent of performing 'git branch {branch} --set-upstream-to:'
 
 Config:
 >
-    default_height = nil,
-    disabled_keymaps = false,
-    keymaps = {
-        expand = "zo",
-        collapse = "zc",
-        collapse_all = "zM",
-        jump = "<CR>",
-        create_branch = "c",
-        refresh = "r",
-        hide = "<C-[>",
-        close = "X",
-        details = "d",
-        maximize = "+",
-        minimize = "-",
-        pull = "p",
-        push = "P"
-        set_upstream = "s"
-    },
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		expand = "zo",
+		collapse = "zc",
+		collapse_all = "zM",
+		jump = "<CR>",
+		create_branch = "c",
+		refresh = "r",
+		hide = "<C-[>",
+		close = "X",
+		details = "d",
+		pull = "p",
+		push = "P",
+		set_upstream = "s",
+		help = "?"
+	},
+}
 <
 
 ====================================================================================
@@ -396,24 +400,22 @@ navigating to the `BufferList` subcommand.
 
 Config:
 >
-    {
-      default_height = nil,
-      -- float the current buffer to the top of list
-      current_buffer_top = false,
-      -- disable all keymaps
-      disabled_keymaps = false,
-      keymaps = {
-          edit = "<CR>",
-          edit_split = "s",
-          edit_vsplit = "v",
-          delete = "d",
-          hide = "<C-[>",
-          close = "X",
-          details = "d",
-          maximize = "+",
-          minimize = "-"
-      },
-  }
+{
+	default_height = nil,
+	-- float the current buffer to the top of list
+	current_buffer_top = false,
+	-- disable all keymaps
+	disabled_keymaps = false,
+	keymaps = {
+		edit = "<CR>",
+		edit_split = "s",
+		edit_vsplit = "v",
+		delete = "d",
+		hide = "<C-[>",
+		close = "X",
+		details = "d",
+	},
+}
 <
 
 ====================================================================================
@@ -432,24 +434,24 @@ navigating to the `CallHierarchy` subcommand.
 
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            jump = "<CR>",
-            jump_split = "s",
-            jump_vsplit = "v",
-            jump_tab = "t",
-            hide = "<C-[>",
-            close = "X",
-            next_reference = "n",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		expand = "zo",
+		collapse = "zc",
+		collapse_all = "zM",
+		jump = "<CR>",
+		jump_split = "s",
+		jump_vsplit = "v",
+		jump_tab = "t",
+		hide = "<C-[>",
+		close = "X",
+		next_reference = "n",
+		switch_directions = "s",
+		help = "?",
+	},
+}
 <
 
 ====================================================================================
@@ -464,26 +466,26 @@ navigating to the `Changes` subcommand.
 
 Config:
 >
-	{
-		default_height = nil,
-		disabled_keymaps = false,
-		keymaps = {
-			expand = "zo",
-			collapse = "zc",
-			collapse_all = "zM",
-			restore = "r",
-			add = "s",
-			amend = "a",
-			commit = "c",
-			edit = "e",
-			diff = "<CR>",
-			diff_tab = "t",
-			hide = "<C-[>",
-			close = "X",
-			maximize = "+",
-			minimize = "-"
-		},
-	}
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		add = "s",
+		amend = "a",
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
+		commit = "c",
+		details= "d",
+		diff = "<CR>",
+		diff_tab = "t",
+		edit = "e",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		restore = "r",
+	},
+}
 <
 
 ====================================================================================
@@ -508,27 +510,26 @@ navigating to the `Commits` subcommand.
 Config:
 
 >
-	{
-		default_height = nil,
-		disabled_keymaps = false,
-		keymaps = {
-			expand = "zo",
-			collapse = "zc",
-			collapse_all = "zM",
-			checkout = "c",
-			diff = "<CR>",
-			diff_split = "s",
-			diff_vsplit = "v",
-			diff_tab = "t",
-			refresh = "r",
-			hide = "<C-[>",
-			close = "X",
-			details = "d",
-			details_tab = "D",
-			maximize = "+",
-			minimize = "-"
-		},
-	}
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		checkout = "c",
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
+		details = "d",
+		details_tab = "D",
+		diff = "<CR>",
+		diff_split = "s",
+		diff_tab = "t",
+		diff_vsplit = "v",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		refresh = "r",
+	},
+}
 <
 
 ====================================================================================
@@ -544,17 +545,57 @@ navigating to the `Explorer` subcommand.
 
 Config:
 >
-    {
-        -- show file permissions as virtual text on the right hand side.
-        show_file_permissions = true,
-        -- open the file on create in an editor window.
-        edit_on_create = true,
-        -- default height for component window
-        default_height = nil,
-        -- disable all keymaps for the Explorer component.
-        disabled_keymaps = false,
-        keymaps = require('ide.explorer.components.presets').default
-    }
+{
+	-- show file permissions as virtual text on the right hand side.
+	show_file_permissions = true,
+	-- open the file on create in an editor window.
+	edit_on_create = true,
+	-- default component height
+	default_height = nil,
+	-- disable all keymaps for the Explorer component.
+	disabled_keymaps = false,
+	keymaps = presets.default,
+}
+
+Presets.default = {
+	change_dir = "cd",
+	close = "X",
+	collapse = "zc",
+	collapse_all = "zM",
+	copy_file = "p",
+	delete_file = "D",
+	deselect_file = "<Space><Space>",
+	edit = "<CR>",
+	edit_split = "s",
+	edit_tab = "t",
+	edit_vsplit = "v",
+	expand = "zo",
+	file_details = "i",
+	help = "?",
+	hide = "<C-[>",
+	maximize = "+",
+	minimize = "-",
+	move_file = "m",
+	new_dir = "d",
+	new_file = "n",
+	rename_file = "r",
+	select_file = "<Space>",
+	toggle_exec_perm = "*",
+	up_dir = "..",
+}
+
+Presets.nvim_tree = vim.tbl_deep_extend("force", Presets.default, {
+	-- new_file can be used to create direcotries
+	-- by just ending with a `/`, like in nvim_tree
+	collapse_all = "W",
+	delete_file = "d",
+	edit_split = "<C-x>",
+	edit_tab = "<C-t>",
+	edit_vsplit = "<C-v>",
+	hide = "<NOP>",
+	new_dir = "<NOP>",
+	new_file = "a",
+})
 <
 
 The following keymapping presets are available in the
@@ -630,23 +671,23 @@ navigating to the `Outline` subcommand.
 
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            jump = "<CR>",
-            jump_split = "s",
-            jump_vsplit = "v",
-            jump_tab = "t",
-            hide = "<C-[>",
-            close = "X",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
+		details = "d",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		jump = "<CR>",
+		jump_split = "s",
+		jump_tab = "t",
+		jump_vsplit = "v",
+	},
+}
 <
 
 ====================================================================================
@@ -665,19 +706,17 @@ navigating to the `TerminalBrowser` subcommand.
 Config:
 <
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            new = "n",
-            jump = "<CR>",
-            hide = "<C-[>",
-            delete = "D",
-            rename = "r",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		new = "n",
+		jump = "<CR>",
+		hide = "<C-[>",
+		delete = "D",
+		rename = "r",
+	},
+}
 <
 
 ====================================================================================
@@ -693,24 +732,23 @@ navigating to the `Timeline` subcommand.
 
 Config:
 >
-    {
-        default_height = nil,
-        disabled_keymaps = false,
-        keymaps = {
-            expand = "zo",
-            collapse = "zc",
-            collapse_all = "zM",
-            jump = "<CR>",
-            jump_split = "s",
-            jump_vsplit = "v",
-            jump_tab = "t",
-            hide = "<C-[>",
-            close = "X",
-            details = "d",
-            maximize = "+",
-            minimize = "-"
-        },
-    }
+{
+	default_height = nil,
+	disabled_keymaps = false,
+	keymaps = {
+		close = "X",
+		collapse = "zc",
+		collapse_all = "zM",
+		details = "d",
+		expand = "zo",
+		help = "?",
+		hide = "<C-[>",
+		jump = "<CR>",
+		jump_split = "s",
+		jump_tab = "t",
+		jump_vsplit = "v",
+	},
+}
 <
 
 ====================================================================================
