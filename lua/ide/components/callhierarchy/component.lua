@@ -70,16 +70,66 @@ CallHierarchyComponent.new = function(name, config)
 		vim.api.nvim_buf_set_option(buf, "wrapmargin", 0)
 
 		local keymaps = {
-			{ self.config.keymaps.expand, function() self.expand() end },
-			{ self.config.keymaps.collapse, function() self.collapse() end },
-			{ self.config.keymaps.collapse_all, function() self.collapse_all() end },
-			{ self.config.keymaps.jump, function() self.jump_callnode({ fargs = {} }) end },
-			{ self.config.keymaps.jump_split, function() self.jump_callnode({ fargs = { "split" } }) end },
-			{ self.config.keymaps.jump_vsplit, function() self.jump_callnode({ fargs = { "vsplit" } }) end },
-			{ self.config.keymaps.jump_tab, function() self.jump_callnode({ fargs = { "tab" } }) end },
-			{ self.config.keymaps.next_reference, function() self.next_reference() end },
-			{ self.config.keymaps.hide, function() self.hide() end },
-			{ self.config.keymaps.help, function() self.help_keymaps() end },
+			{
+				self.config.keymaps.expand,
+				function()
+					self.expand()
+				end,
+			},
+			{
+				self.config.keymaps.collapse,
+				function()
+					self.collapse()
+				end,
+			},
+			{
+				self.config.keymaps.collapse_all,
+				function()
+					self.collapse_all()
+				end,
+			},
+			{
+				self.config.keymaps.jump,
+				function()
+					self.jump_callnode({ fargs = {} })
+				end,
+			},
+			{
+				self.config.keymaps.jump_split,
+				function()
+					self.jump_callnode({ fargs = { "split" } })
+				end,
+			},
+			{
+				self.config.keymaps.jump_vsplit,
+				function()
+					self.jump_callnode({ fargs = { "vsplit" } })
+				end,
+			},
+			{
+				self.config.keymaps.jump_tab,
+				function()
+					self.jump_callnode({ fargs = { "tab" } })
+				end,
+			},
+			{
+				self.config.keymaps.next_reference,
+				function()
+					self.next_reference()
+				end,
+			},
+			{
+				self.config.keymaps.hide,
+				function()
+					self.hide()
+				end,
+			},
+			{
+				self.config.keymaps.help,
+				function()
+					self.help_keymaps()
+				end,
+			},
 		}
 
 		if not self.config.disable_keymaps then
@@ -288,28 +338,6 @@ CallHierarchyComponent.new = function(name, config)
 	end
 
 	function self.next_reference()
-		if self.state["jumped_node"] == nil then
-			return
-		end
-		local callnode = self.state["jumped_node"]
-		if self.state["reference_index"] > #callnode.call_hierarchy_item_call.fromRanges then
-			self.state["reference_index"] = 1
-		end
-		local call_hierarchy_item =
-			liblsp.call_hierarchy_call_to_item(callnode.direction, callnode.call_hierarchy_item_call)
-		if call_hierarchy_item == nil then
-			return
-		end
-		vim.api.nvim_set_current_win(self.state["win_with_reference"])
-		vim.lsp.util.jump_to_location(
-			{ uri = call_hierarchy_item.uri, range = call_hierarchy_item.selectionRange },
-			"utf-8",
-			true
-		)
-		vim.api.nvim_set_current_win(self.win)
-	end
-
-	function self.next_reference()
 		if not libwin.win_is_valid(self.state["jumped_win"]) then
 			return
 		end
@@ -378,7 +406,7 @@ CallHierarchyComponent.new = function(name, config)
 				range = callnode.call_hierarchy_item_call.fromRanges[1],
 			})
 			self.state["reference_index"] = 2
-			self.state["ranges"] = callnode.call_hierarchy_item_call.fromRanges
+			self.state["ranges"] = vim.deepcopy(callnode.call_hierarchy_item_call.fromRanges)
 		else
 			vim.cmd("edit " .. vim.fn.fnamemodify(vim.uri_to_fname(call_hierarchy_item.uri), ":."))
 			vim.lsp.util.jump_to_location(
@@ -386,7 +414,7 @@ CallHierarchyComponent.new = function(name, config)
 				"utf-8"
 			)
 			self.state["reference_index"] = 1
-			self.state["ranges"] = callnode.call_hierarchy_item_call.fromRanges
+			self.state["ranges"] = vim.deepcopy(callnode.call_hierarchy_item_call.fromRanges)
 			table.insert(self.state["ranges"], call_hierarchy_item.selectionRange)
 		end
 		local clear_hl = liblsp.highlight_call_hierarchy_call(0, callnode.direction, callnode.call_hierarchy_item_call)
