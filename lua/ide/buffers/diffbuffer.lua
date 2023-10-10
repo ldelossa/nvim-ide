@@ -1,5 +1,7 @@
 local libwin = require("ide.lib.win")
+local libbuf = require("ide.lib.buf")
 local buffer = require("ide.buffers.buffer")
+local workspace_registry = require("ide.workspaces.workspace_registry")
 
 local DiffBuffer = {}
 
@@ -54,7 +56,6 @@ DiffBuffer.new = function(path_a, path_b)
 				vim.api.nvim_win_close(w, true)
 			end
 		end
-
 
 		self.win_a = vim.api.nvim_get_current_win()
 		-- vertical split to get win_b
@@ -139,16 +140,59 @@ DiffBuffer.new = function(path_a, path_b)
 		vim.api.nvim_set_current_win(self.win_b)
 		vim.cmd("filetype detect")
 		vim.cmd("diffthis")
-	end
 
-	function self.end_diff()
-		if not libwin.win_is_valid(self.win_a) or not libwin.win_is_valid(self.win_b) then
-			return
-		end
-		vim.api.nvim_set_current_win(self.win_b)
-		vim.cmd("diffoff")
-		vim.api.nvim_set_current_win(self.win_a)
-		vim.cmd("diffoff")
+		-- setup autcommands which rip the entire diff buffer down on :q of either
+		-- a or b
+		local aucmd_a = nil
+		local aucmd_b = nil
+
+		aucmd_a = vim.api.nvim_create_autocmd("QuitPre", {
+			callback = function(args)
+				local win = vim.api.nvim_get_current_win()
+				if libwin.win_is_valid(win) and win == self.win_a then
+					-- win_a is going to close so lets recover from diff in win_a
+					local buf_to_use = libbuf.next_regular_buffer()
+					if buf_to_use == nil then
+						buf_to_use = vim.api.nvim_create_buf(false, false)
+					end
+					if libwin.win_is_valid(self.win_b) then
+						vim.api.nvim_win_set_buf(self.win_b, buf_to_use)
+					end
+					if libbuf.buf_is_valid(self.buffer_a.buf) then
+						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
+					end
+					if libbuf.buf_is_valid(self.buffer_b.buf) then
+						vim.api.nvim_buf_delete(self.buffer_b.buf, { force = true })
+					end
+					vim.api.nvim_del_autocmd(aucmd_a)
+					vim.api.nvim_del_autocmd(aucmd_b)
+				end
+			end,
+		})
+
+		aucmd_b = vim.api.nvim_create_autocmd("QuitPre", {
+			callback = function(args)
+				local win = vim.api.nvim_get_current_win()
+				if libwin.win_is_valid(win) and win == self.win_b then
+					-- win_b is going to close so lets recover from diff in win_a
+					local buf_to_use = libbuf.next_regular_buffer()
+					if buf_to_use == nil then
+						buf_to_use = vim.api.nvim_create_buf(false, false)
+					end
+					if libwin.win_is_valid(self.win_a) then
+						vim.api.nvim_win_set_buf(self.win_a, buf_to_use)
+					end
+					if libbuf.buf_is_valid(self.buffer_a.buf) then
+						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
+					end
+					if libbuf.buf_is_valid(self.buffer_b.buf) then
+						vim.api.nvim_buf_delete(self.buffer_b.buf, { force = true })
+					end
+					vim.api.nvim_del_autocmd(aucmd_a)
+					vim.api.nvim_del_autocmd(aucmd_b)
+				end
+			end,
+		})
 	end
 
 	return self

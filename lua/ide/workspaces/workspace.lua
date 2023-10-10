@@ -86,7 +86,7 @@ Workspace.new = function(tab)
 		local groups = {}
 		for group, _ in pairs(self.panel_groups) do
 			if -- filter our groups we don't want to let users swap.
-				group ~= "terminal"
+					group ~= "terminal"
 			then
 				table.insert(groups, group)
 			end
@@ -123,7 +123,7 @@ Workspace.new = function(tab)
 						-- merge the global keymap before construction.
 						local comp_config = (config.components[name] or {})
 						comp_config.keymaps =
-							vim.tbl_extend("force", config.components.global_keymaps, (comp_config.keymaps or {}))
+								vim.tbl_extend("force", config.components.global_keymaps, (comp_config.keymaps or {}))
 
 						table.insert(components, constructor(name, comp_config))
 					end
@@ -339,10 +339,13 @@ Workspace.new = function(tab)
 			if vim.api.nvim_buf_get_option(buf, "buftype") ~= "" then
 				goto continue
 			end
-			if vim.fn.match("component://", buf_name) == 0 then
+			if string.sub(buf_name, 1, 7) == "diff://" then
+				goto continue
+			end
+			if not string.sub(buf_name, 1, 12) == "component://" then                                                     
 				log.debug("found valid window %d with buffer %d %s, returning window to use.", w, buf, buf_name)
 				return w
-			end
+			end 
 			::continue::
 		end
 		log.debug("failed to find a usable window, creating a new one")

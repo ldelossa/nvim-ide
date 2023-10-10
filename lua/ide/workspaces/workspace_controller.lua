@@ -1,8 +1,8 @@
-local workspace           = require('ide.workspaces.workspace')
-local workspace_registry  = require('ide.workspaces.workspace_registry')
-local libcmd              = require('ide.lib.commands')
-local libwin              = require('ide.lib.win')
-local logger              = require('ide.logger.logger')
+local workspace = require("ide.workspaces.workspace")
+local workspace_registry = require("ide.workspaces.workspace_registry")
+local libcmd = require("ide.lib.commands")
+local libwin = require("ide.lib.win")
+local logger = require("ide.logger.logger")
 
 local WorkspaceController = {}
 
@@ -33,8 +33,8 @@ function WorkspaceController.new(config)
 		auto_close_autocmd_id = nil,
 
 		config = {
-			auto_close = nil
-		}
+			auto_close = nil,
+		},
 	}
 
 	if config then
@@ -77,7 +77,9 @@ function WorkspaceController.new(config)
 
 	local function ws_handler_completion(arglead, cmdline, cursorpos)
 		local log = logger.new("workspaces", "WorkspaceController.ws_handler_completion")
-		log.debug(string.format("starting completion. arglead: %s cmdline: %s cursorpos: %d", arglead, cmdline, cursorpos))
+		log.debug(
+			string.format("starting completion. arglead: %s cmdline: %s cursorpos: %d", arglead, cmdline, cursorpos)
+		)
 		local cur_tab = vim.api.nvim_get_current_tabpage()
 		local ws = workspace_registry.get_workspace(cur_tab)
 		if ws == nil then
@@ -109,27 +111,23 @@ function WorkspaceController.new(config)
 
 		local function recursive_fuzzy_selection(cmds, fargs)
 			log.debug("recursive fuzzy selection: prompting user for input")
-			vim.ui.select(
-				cmds,
-				{
-					prompt = "Select a command: ",
-					format_item = function(cmd)
-						return string.format("%s - %s", cmd.shortname, cmd.opts.desc)
-					end,
-				},
-				function(cmd)
-					log.debug("user input: %s", cmd.shortname)
-					if cmd.kind == libcmd.KIND_ACTION then
-						log.debug("issuing %s command's action", cmd.shortname)
-						cmd.callback(fargs)
-						return
-					end
-					if cmd.kind == libcmd.KIND_SUBCOMMAND then
-						log.debug("getting %s command's subcommands", cmd.shortname)
-						recursive_fuzzy_selection(cmd.callback(), fargs)
-					end
+			vim.ui.select(cmds, {
+				prompt = "Select a command: ",
+				format_item = function(cmd)
+					return string.format("%s - %s", cmd.shortname, cmd.opts.desc)
+				end,
+			}, function(cmd)
+				log.debug("user input: %s", cmd.shortname)
+				if cmd.kind == libcmd.KIND_ACTION then
+					log.debug("issuing %s command's action", cmd.shortname)
+					cmd.callback(fargs)
+					return
 				end
-			)
+				if cmd.kind == libcmd.KIND_SUBCOMMAND then
+					log.debug("getting %s command's subcommands", cmd.shortname)
+					recursive_fuzzy_selection(cmd.callback(), fargs)
+				end
+			end)
 		end
 
 		local function recursive_argument_selection(cmds, args, arg_index)
@@ -187,6 +185,11 @@ function WorkspaceController.new(config)
 			return
 		end
 
+		if string.sub(args.file, 1, 7) == "diff://" then
+			log.debug("event was for a diff window, returning.")
+			return
+		end
+
 		-- only consider normal buffers with files loaded into them.
 		if vim.api.nvim_buf_get_option(buf, "buftype") ~= "" then
 			log.debug("event was for non file buffer. returning")
@@ -236,7 +239,6 @@ function WorkspaceController.new(config)
 	function self.init()
 		local log = logger.new("workspaces", "WorkspaceController.init")
 
-
 		log.info("WorkspaceController init starting...")
 
 		-- do this little dance to ensure we get back to the initial empty buffer
@@ -256,11 +258,11 @@ function WorkspaceController.new(config)
 			-- check if manpager
 			local args = vim.v.argv or {}
 			for idx, arg in ipairs(args) do
-				if arg == '-c' and (args[idx + 1] == 'Man' or args[idx + 1] == 'Man!') then
+				if arg == "-c" and (args[idx + 1] == "Man" or args[idx + 1] == "Man!") then
 					return
 				end
 
-				if arg == '+Man' or arg == '+Man!' then
+				if arg == "+Man" or arg == "+Man!" then
 					return
 				end
 			end
@@ -282,25 +284,24 @@ function WorkspaceController.new(config)
 			})
 		end
 
-
 		self.tabnew_autocmd_id = vim.api.nvim_create_autocmd({ "TabNewEntered" }, {
-			callback = self.tabnew_autocmd
+			callback = self.tabnew_autocmd,
 		})
 		log.info("WorkspaceController now handling new tab events.")
 
 		self.tabclosed_autocmd_id = vim.api.nvim_create_autocmd({ "TabClosed" }, {
-			callback = self.tabclosed_autocmd
+			callback = self.tabclosed_autocmd,
 		})
 		log.info("WorkspaceController now handling closed tab events.")
 
 		self.win_history_autocmd_id = vim.api.nvim_create_autocmd({ "WinEnter" }, {
-			callback = self.win_history_autocmd
+			callback = self.win_history_autocmd,
 		})
 		log.info("WorkspaceController now handling recording viewed window history")
 
 		vim.api.nvim_create_user_command("Workspace", ws_handler, {
 			nargs = "*",
-			complete = ws_handler_completion
+			complete = ws_handler_completion,
 		})
 
 		log.info("Workspace command now registered.")

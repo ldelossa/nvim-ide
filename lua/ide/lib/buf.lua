@@ -36,7 +36,29 @@ function Buf.is_regular_buffer(buf)
 	if vim.api.nvim_buf_get_option(buf, "buftype") ~= "" then
 		return false
 	end
+
+	local buf_name = vim.api.nvim_buf_get_name(buf)
+
+	-- component buffers are not regular buffers
+	if string.sub(buf_name, 1, 12) == "component://" then
+		return false
+	end
+
+	-- diff buffers are not regular buffers
+	if string.sub(buf_name, 1, 7) == "diff://" then
+		return false
+	end
+
 	return true
+end
+
+function Buf.next_regular_buffer()
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if (Buf.is_regular_buffer(buf)) then
+			return buf
+		end
+	end
+	return nil
 end
 
 function Buf.truncate_buffer(buf)
@@ -148,13 +170,7 @@ end
 -- Opinionated way of setting per-buffer keymaps, this is the typical
 -- usage for nvim-ide components.
 function Buf.set_keymap_normal(buf, keymap, cb)
-			vim.api.nvim_buf_set_keymap(
-				buf,
-				"n",
-				keymap,
-				"",
-				{ silent = true, callback = cb }
-			)
+	vim.api.nvim_buf_set_keymap(buf, "n", keymap, "", { silent = true, callback = cb })
 end
 
 return Buf
