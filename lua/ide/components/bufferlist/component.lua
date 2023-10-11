@@ -23,6 +23,7 @@ local config_prototype = {
 		hide = "<C-[>",
 		close = "X",
 		details = "d",
+		help = "?"
 	},
 }
 
@@ -91,6 +92,7 @@ BufferListComponent.new = function(name, config)
 
 		if not self.config.disable_keymaps then
 			for _, keymap in ipairs(keymaps) do
+				print(vim.inspect(keymap))
 				libbuf.set_keymap_normal(buf, keymap.key, keymap.cb)
 			end
 		end
