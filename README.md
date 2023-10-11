@@ -8,7 +8,7 @@
 ```
 ![nvim-ide](./contrib/screenshot.png)
 
-*[LazyVim](https://github.com/LazyVim/LazyVim) + NVIM-IDE + [Github NVIM Theme](https://github.com/projekt0n/github-nvim-theme)*
+<p align="center">LazyVim+ NVIM-IDE + Github NVIM Theme</p>
 
 [Workflow Video](https://youtu.be/GcoHnB5DoFA)
 

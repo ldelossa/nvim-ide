@@ -157,6 +157,8 @@ DiffBuffer.new = function(path_a, path_b)
 					end
 					if libwin.win_is_valid(self.win_b) then
 						vim.api.nvim_win_set_buf(self.win_b, buf_to_use)
+						-- weird but sometimes we loose the filetype when switching back
+						vim.cmd("filetype detect")
 					end
 					if libbuf.buf_is_valid(self.buffer_a.buf) then
 						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
@@ -181,6 +183,8 @@ DiffBuffer.new = function(path_a, path_b)
 					end
 					if libwin.win_is_valid(self.win_a) then
 						vim.api.nvim_win_set_buf(self.win_a, buf_to_use)
+						-- weird but sometimes we loose the filetype when switching back
+						vim.cmd("filetype detect")
 					end
 					if libbuf.buf_is_valid(self.buffer_a.buf) then
 						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
