@@ -8,6 +8,8 @@
 ```
 ![nvim-ide](./contrib/screenshot.png)
 
+*[LazyVim](https://github.com/LazyVim/LazyVim) + NVIM-IDE + [Github NVIM Theme](https://github.com/projekt0n/github-nvim-theme)*
+
 [Workflow Video](https://youtu.be/GcoHnB5DoFA)
 
 `nvim-ide` is a complete IDE layer for Neovim, heavily inspired by `vscode`.
