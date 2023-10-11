@@ -16,6 +16,7 @@ local ChangesComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		add = "s",
 		amend = "a",
@@ -63,6 +64,8 @@ ChangesComponent.new = function(name, config)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	local function setup_buffer()
 		local log = self.logger.logger_from(nil, "Component._setup_buffer")

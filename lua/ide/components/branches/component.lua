@@ -15,6 +15,7 @@ local BranchesComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		expand = "zo",
 		collapse = "zc",
@@ -55,7 +56,7 @@ BranchesComponent.new = function(name, config)
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
 
-	self.hidden = false
+	self.hidden = self.config.hidden
 
 	self.refresh_aucmd = nil
 

@@ -11,6 +11,7 @@ local TerminalBrowserComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		new = "n",
 		jump = "<CR>",
@@ -26,13 +27,14 @@ TerminalBrowserComponent.new = function(name, config)
 	-- a logger that will be used across this class and its base class methods.
 	self.logger = logger.new("terminalbrowser")
 
-	self.hidden = true
 
 	-- seup config, use default and merge in user config if not nil
 	self.config = vim.deepcopy(config_prototype)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	local function setup_buffer()
 		local buf = vim.api.nvim_create_buf(false, true)

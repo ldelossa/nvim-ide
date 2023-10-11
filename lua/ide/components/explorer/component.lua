@@ -21,6 +21,7 @@ local config_prototype = {
 	-- disable all keymaps for the Explorer component.
 	disabled_keymaps = false,
 	keymaps = presets.default,
+	hidden = false,
 }
 
 -- ExplorerComponent is a derived @Component implementing a file explorer.
@@ -58,6 +59,8 @@ ExplorerComponent.new = function(name, config)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	local function setup_buffer()
 		local log = self.logger.logger_from(nil, "Component._setup_buffer")

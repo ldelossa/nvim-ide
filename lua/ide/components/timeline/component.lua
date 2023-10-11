@@ -16,6 +16,7 @@ local TimelineComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		close = "X",
 		collapse = "zc",
@@ -53,6 +54,8 @@ TimelineComponent.new = function(name, config)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	-- a map of file names to the number of commits to skip to obtain the next
 	-- page.

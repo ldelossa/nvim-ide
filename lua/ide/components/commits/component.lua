@@ -16,6 +16,7 @@ local CommitsComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		checkout = "c",
 		close = "X",
@@ -64,7 +65,7 @@ CommitsComponent.new = function(name, config)
 	-- keep track of last created commits, and don't refresh listing
 	self.last_commits = ""
 
-	self.hidden = false
+	self.hidden = self.config.hidden
 
 	function self.marshal_tree(cb)
 		git.head(function(head)

@@ -15,6 +15,7 @@ local config_prototype = {
 	current_buffer_top = false,
 	-- disable all keymaps
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		edit = "<CR>",
 		edit_split = "s",
@@ -38,6 +39,8 @@ BufferListComponent.new = function(name, config)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	local function setup_buffer()
 		local log = self.logger.logger_from(nil, "Component._setup_buffer")

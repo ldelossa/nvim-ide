@@ -14,6 +14,7 @@ local OutlineComponent = {}
 local config_prototype = {
 	default_height = nil,
 	disabled_keymaps = false,
+	hidden = false,
 	keymaps = {
 		close = "X",
 		collapse = "zc",
@@ -55,6 +56,8 @@ OutlineComponent.new = function(name, config)
 	if config ~= nil then
 		self.config = vim.tbl_deep_extend("force", config_prototype, config)
 	end
+
+	self.hidden = self.config.hidden
 
 	self.debouncing = false
 
