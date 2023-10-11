@@ -465,6 +465,23 @@ CommitsComponent.new = function(name, config)
 		local parent_commit_node = self.tree.depth_table.table[commit_node.depth][i + 1]
 
 		git.show_file(parent_commit_node.sha, node.file, function(file_a)
+			if commit_node.is_head then
+				local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), parent_commit_node.sha, node.file)
+
+				_do_tabnew()
+
+				local dbuff = diff_buf.new()
+				dbuff.setup()
+				local o = { listed = false, scratch = true, modifiable = false }
+				dbuff.write_lines(file_a, "a", o)
+				dbuff.open_buffer(node.file, "b", {})
+
+				dbuff.buffer_a.set_name(buf_name_a)
+				dbuff.diff()
+				restore_win()
+				return
+			end
+
 			git.show_file(commit_node.sha, node.file, function(file_b)
 				local buf_name_a = string.format("diff:///%d/%s/%s", vim.fn.rand(), parent_commit_node.sha, node.file)
 				local buf_name_b = string.format("diff:///%d/%s/%s", vim.fn.rand(), commit_node.sha, node.file)
