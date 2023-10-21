@@ -401,8 +401,6 @@ ChangesComponent.new = function(name, config)
 			end
 		end
 
-		local win = self.workspace.get_win()
-
 		if tab then
 			vim.cmd("tabnew")
 		end
@@ -482,7 +480,7 @@ ChangesComponent.new = function(name, config)
 			return
 		end
 
-		git.show_file("HEAD~1", node.path, function(file)
+		git.show_file("HEAD", node.path, function(file)
 			if file == nil then
 				return
 			end
