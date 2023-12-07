@@ -565,7 +565,7 @@ Config:
 <
 
 The following keymapping presets are available in the
-`require('ide.explorer.components.presets')` module:
+`require('ide.components.explorer.presets')` module:
 
 >
 
