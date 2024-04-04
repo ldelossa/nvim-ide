@@ -260,7 +260,7 @@ Tree.new = function(type)
 
 	function self.marshal(opts)
 		if self.buffer == nil or (not vim.api.nvim_buf_is_valid(self.buffer)) then
-			error("cannot call marshal without a valid buffer")
+			return
 		end
 		self.marshaller.marshal(self, opts)
 	end

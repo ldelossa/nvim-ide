@@ -291,9 +291,13 @@ Panel.new = function(tab, position, components)
 		-- if the layout is exactly the same as previous, restore dimensions.
 		local restore_dimensions = true
 		for i, c in ipairs(old_layout) do
+			if not self.layout[i] then
+				goto continue
+			end
 			if self.layout[i].name ~= c.name then
 				restore_dimensions = false
 			end
+			::continue::
 		end
 		if restore_dimensions then
 			for _, c in ipairs(self.layout) do
