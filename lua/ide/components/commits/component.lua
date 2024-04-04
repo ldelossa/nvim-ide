@@ -336,7 +336,7 @@ CommitsComponent.new = function(name, config)
 
 	function self.checkout_commitnode(args)
 		if not gitutil.in_git_repo() then
-			vim.notify("Must be in a git repo to checkout commits", "error", {
+			vim.notify("Must be in a git repo to checkout commits", vim.log.levels.ERROR, {
 				title = "Commits",
 			})
 			return

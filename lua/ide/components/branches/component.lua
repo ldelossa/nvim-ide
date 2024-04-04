@@ -364,7 +364,7 @@ BranchesComponent.new = function(name, config)
 		if node.remote == "" or node.remote == nil then
 			vim.notify(
 				"Local branch is not tracking remote branch.\nPlease push the local branch to a remote",
-				vim.log.levels.Info,
+				vim.log.levels.INFO,
 				{
 					title = "Branches",
 				}

@@ -308,7 +308,7 @@ CallHierarchyComponent.new = function(name, config)
 	function self.incoming_calls(args)
 		local callback = function(direction, call_hierarchy_item, call_hierarchy_calls)
 			if call_hierarchy_calls == nil then
-				vim.notify(string.format("%s\n", "LSP returned zero incoming calls."), "warn", {
+				vim.notify(string.format("%s\n", "LSP returned zero incoming calls."), vim.log.levels.WARN, {
 					title = "CallHierarchy",
 				})
 				return
@@ -324,7 +324,7 @@ CallHierarchyComponent.new = function(name, config)
 	function self.outgoing_calls(args)
 		local callback = function(direction, call_hierarchy_item, call_hierarchy_calls)
 			if call_hierarchy_calls == nil then
-				vim.notify(string.format("%s\n", "LSP returned zero outgoing calls."), "warn", {
+				vim.notify(string.format("%s\n", "LSP returned zero outgoing calls."), vim.log.levels.WARN, {
 					title = "CallHierarchy",
 				})
 				return

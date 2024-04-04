@@ -53,7 +53,7 @@ Git.new = function()
 	local function handle_req(callback)
 		return function(req)
 			if req.error then
-				vim.notify(string.format("%s\n%s", req.reason, req.stderr), "error", {
+				vim.notify(string.format("%s\n%s", req.reason, req.stderr), vim.log.levels.ERROR, {
 					title = "git",
 				})
 				callback(nil)
