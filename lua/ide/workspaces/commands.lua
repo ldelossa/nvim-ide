@@ -19,8 +19,8 @@ Commands.new = function(ws)
     --         @name - @string, A unique name of the command used outside the context
     --         of a sub command
     --         @callback - @function(args), A callback function which implements
-    --         the command, args a table described in ":h nvim_create_user_command()" 
-    --         @opts - @table, the options table as described in ":h nvim_create_user_command()"  
+    --         the command, args a table described in ":h nvim_create_user_command()"
+    --         @opts - @table, the options table as described in ":h nvim_create_user_command()"
     function self.get()
         local commands = {
             libcmd.new(
@@ -43,6 +43,27 @@ Commands.new = function(ws)
                 "BottomPanelToggle",
                 function(_) ws.toggle_panel(panel.PANEL_POS_BOTTOM) end,
                 { desc = "Toggles the top panel in the current workspace."}
+            ),
+            libcmd.new(
+                libcmd.KIND_ACTION,
+                "WorkspaceLeftPanelClose",
+                "LeftPanelClose",
+                function(_) ws.close_panel(panel.PANEL_POS_LEFT) end,
+                { desc = "Closes the left panel in the current workspace."}
+            ),
+            libcmd.new(
+                libcmd.KIND_ACTION,
+                "WorkspaceRightPanelClose",
+                "RightPanelClose",
+                function(_) ws.close_panel(panel.PANEL_POS_RIGHT) end,
+                { desc = "Closes the right panel in the current workspace."}
+            ),
+            libcmd.new(
+                libcmd.KIND_ACTION,
+                "WorkspaceBottomPanelClose",
+                "BottomPanelClose",
+                function(_) ws.close_panel(panel.PANEL_POS_BOTTOM) end,
+                { desc = "Closes the bottom panel in the current workspace."}
             ),
             libcmd.new(
                 libcmd.KIND_ACTION,

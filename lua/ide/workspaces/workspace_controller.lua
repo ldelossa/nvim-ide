@@ -304,6 +304,17 @@ function WorkspaceController.new(config)
 			complete = ws_handler_completion,
 		})
 
+		-- add an autocommand which closes all panels before vim exits.
+		-- this plays nice with most session manager plugins and ensures nvim-ide
+		-- windows are not saved in sessions on vim's exit.
+		vim.api.nvim_create_autocmd("VimLeavePre", {
+			callback = function()
+				vim.api.nvim_command("Workspace LeftPanelClose")
+				vim.api.nvim_command("Workspace RightPanelClose")
+				vim.api.nvim_command("Workspace BottomPanelClose")
+			end
+		})
+
 		log.info("Workspace command now registered.")
 	end
 
