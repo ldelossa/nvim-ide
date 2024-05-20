@@ -225,7 +225,7 @@ OutlineComponent.new = function(name, config)
 			cur_buf,
 			vim.api.nvim_buf_get_name(cur_buf)
 		)
-		if #vim.lsp.get_active_clients({ bufnr = cur_buf }) == 0 then
+		if #vim.lsp.get_clients({ bufnr = cur_buf }) == 0 then
 			log.debug("buffer had no LSP client attached, returning.")
 			return
 		end
@@ -242,7 +242,7 @@ OutlineComponent.new = function(name, config)
 		local supports_method = #(
 				vim.tbl_filter(function(client)
 					return client.supports_method(lsp_method)
-				end, vim.lsp.buf_get_clients(cur_buf))
+				end, vim.lsp.get_clients({ bufnr = cur_buf }))
 			) > 0
 		if not supports_method then
 			return

@@ -78,7 +78,7 @@ function Buf.toggle_modifiable(buf)
 end
 
 function Buf.has_lsp_clients(buf)
-	if #vim.lsp.get_active_clients({ bufnr = buf }) > 0 then
+	if #vim.lsp.get_clients({ bufnr = buf }) > 0 then
 		return true
 	end
 	return false
