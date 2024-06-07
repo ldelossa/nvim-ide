@@ -15,7 +15,7 @@ local config_prototype = {
 	keymaps = {
 		new = "n",
 		jump = "<CR>",
-		hide = "<C-[>",
+		hide = "H",
 		delete = "D",
 		rename = "r",
 	},

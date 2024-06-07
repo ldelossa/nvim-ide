@@ -30,7 +30,7 @@ local config_prototype = {
 		edit = "e",
 		expand = "zo",
 		help = "?",
-		hide = "<C-[>",
+		hide = "H",
 		restore = "r",
 	},
 }

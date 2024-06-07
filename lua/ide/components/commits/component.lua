@@ -28,9 +28,10 @@ local config_prototype = {
 		diff_split = "s",
 		diff_tab = "t",
 		diff_vsplit = "v",
+		edit = "e",
 		expand = "zo",
 		help = "?",
-		hide = "<C-[>",
+		hide = "H",
 		refresh = "r",
 	},
 }
@@ -140,6 +141,12 @@ CommitsComponent.new = function(name, config)
 				self.config.keymaps.expand,
 				function()
 					self.expand()
+				end,
+			},
+			{
+				self.config.keymaps.edit,
+				function()
+					self.edit()
 				end,
 			},
 			{
@@ -259,6 +266,18 @@ CommitsComponent.new = function(name, config)
 				self.state["cursor"].restore()
 			end)
 		end)
+	end
+
+	function self.edit(args)
+		local log = self.logger.logger_from(nil, "Component.edit")
+
+		local node = self.tree.unmarshal(self.state["cursor"].cursor[1])
+		if node == nil then
+			return
+		end
+
+		vim.api.nvim_set_current_win(self.workspace.get_win())
+		vim.cmd("edit " .. node.file)
 	end
 
 	-- Collapse the @CallNode at the current cursor location
