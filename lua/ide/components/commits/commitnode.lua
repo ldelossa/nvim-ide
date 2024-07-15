@@ -6,7 +6,7 @@ local libpopup = require("ide.lib.popup")
 
 local CommitNode = {}
 
-CommitNode.new = function(sha, file, subject, author, date, depth)
+CommitNode.new = function(sha, file, subject, author, date, tags, depth)
 	-- extends 'ide.trees.Node' fields.
 
 	local key = string.format("%s:%s:%s:%s:%s", sha, file, subject, author, date)
@@ -20,6 +20,7 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 	self.subject = subject
 	self.author = author
 	self.date = date
+	self.tags = tags
 	self.is_file = false
 	self.is_head = false
 
@@ -48,6 +49,9 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 			name = "* " .. name
 		end
 		local detail = string.format("%s %s", self.author, self.date)
+		if self.tags then
+			detail = string.format("%s %s %s", self.tags, self.author, self.date)
+		end
 		if self.is_file then
 			return icon, name, detail, ""
 		end
@@ -68,6 +72,9 @@ CommitNode.new = function(sha, file, subject, author, date, depth)
 
 			local lines = {}
 			table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("GitCommit"), commit.sha))
+			if (self.tags) then
+				table.insert(lines, string.format("%s%s", icons.global_icon_set.get_icon("GitCommit"), self.tags))
+			end
 			table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Account"), commit.author))
 			table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Calendar"), commit.date))
 			table.insert(lines, "")

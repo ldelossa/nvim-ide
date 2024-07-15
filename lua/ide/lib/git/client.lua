@@ -172,7 +172,7 @@ Git.new = function()
 	function self.log_commits(skip, n, cb)
 		self.log_format(
 			-- abbrev sha, author name, subject, relative date.
-			{ "%H", "%an", "%s", "%cr" },
+			{ "%H", "%an", "%s", "%cr", "%d"},
 			string.format("--skip=%d -n %d", skip, n),
 			function(stdout)
 				if stdout == nil then
@@ -187,6 +187,7 @@ Git.new = function()
 						author = parts[2],
 						subject = parts[3],
 						date = parts[4],
+						tags = parts[5]
 					})
 				end
 				cb(commits)
