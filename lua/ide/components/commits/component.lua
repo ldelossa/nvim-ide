@@ -427,6 +427,11 @@ CommitsComponent.new = function(name, config)
 		end
 
 		if not node.is_file then
+			git.checkout(commit.sha, function(ok)
+				self.marshal_tree()
+				restore_win()
+				self.state["cursor"].restore()
+			end)
 			return
 		end
 
