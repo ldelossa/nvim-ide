@@ -24,15 +24,21 @@ SymbolNode.new = function(document_symbol, depth)
 	end
 
 	local key =
-		string.format("%s:%s:%s", document_symbol.name, document_symbol.range["start"], document_symbol.range["end"])
+			string.format("%s:%s:%s", document_symbol.name, document_symbol.range["start"], document_symbol.range["end"])
 	local self = node.new("symbol", document_symbol.name, key, depth)
+
+	if depth == 0 then
+		self.expanded = true
+	else
+		self.expanded = false
+	end
 
 	-- clear the child's field of document_symbol, it'll be duplicate info once
 	-- this node is in a @Tree.
 	local symbol = vim.deepcopy(document_symbol)
 	symbol.children = (function()
-		return {}
-	end)()
+				return {}
+			end)()
 
 	self.document_symbol = symbol
 
@@ -72,7 +78,7 @@ SymbolNode.new = function(document_symbol, depth)
 		end
 		table.insert(lines, string.format(""))
 		if (self.document_symbol.detail ~= nil) then
-					table.insert(lines, string.format("%s", self.document_symbol.detail))
+			table.insert(lines, string.format("%s", self.document_symbol.detail))
 		end
 
 		libpopup.until_cursor_move(lines)

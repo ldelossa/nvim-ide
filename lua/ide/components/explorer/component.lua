@@ -606,7 +606,7 @@ ExplorerComponent.new = function(name, config)
 	end
 
 	function self.expand_to_file_async(root, path)
-		if not self.is_displayed or self.tree == nil then
+		if not self.is_displayed() or self.tree == nil then
 			return
 		end
 

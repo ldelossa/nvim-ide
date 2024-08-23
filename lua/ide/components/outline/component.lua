@@ -240,10 +240,10 @@ OutlineComponent.new = function(name, config)
 		local lsp_method = "textDocument/documentSymbol"
 
 		local supports_method = #(
-			vim.tbl_filter(function(client)
-				return client.supports_method(lsp_method)
-			end, vim.lsp.get_clients({ bufnr = cur_buf }))
-		) > 0
+				vim.tbl_filter(function(client)
+					return client.supports_method(lsp_method)
+				end, vim.lsp.get_clients({ bufnr = cur_buf }))
+				) > 0
 		if not supports_method then
 			return
 		end
@@ -337,13 +337,32 @@ OutlineComponent.new = function(name, config)
 		})
 	end
 
+	function self._expand_to_symbol(node, exact)
+		local function expand_recursively(parent)
+			if exact then
+				parent.expanded = true
+			else
+				if parent.parent == nil then
+					parent.expanded = true
+				end
+			end
+
+			if parent.parent ~= nil then
+				expand_recursively(parent.parent)
+			end
+		end
+		expand_recursively(node)
+		self.tree.marshal({ no_guides_leaf = true })
+	end
+
 	function self.sync_symbol_buffer()
 		local log = self.logger.logger_from(nil, "Component.sync_symbol_buffer")
-
 		local cursor = vim.api.nvim_win_get_cursor(0)
+
 		local prev_node = nil
 		local exact_match = nil
 		local diff = nil
+
 		self.tree.walk_subtree(self.tree.root, function(node)
 			local range = liblsp.get_document_symbol_range(node.document_symbol)
 			if range == nil then
@@ -354,6 +373,9 @@ OutlineComponent.new = function(name, config)
 			if node.depth == 0 then
 				return true
 			end
+
+			node.expanded = false
+
 			local start_line = range["start"]["line"] + 1
 			diff = cursor[1] - start_line
 			-- exact match
@@ -371,25 +393,25 @@ OutlineComponent.new = function(name, config)
 				return false
 			end
 		end)
+
 		if exact_match ~= nil then
-			if libwin.win_is_valid(self.win) then
-				vim.api.nvim_win_set_cursor(self.win, { exact_match.line, 1 })
-			end
-			-- didn't find an exact match, so grab the closet node and find its parent
-			-- to keep the symbol buffer in scope.
-		elseif prev_node ~= nil then
-			if libwin.win_is_valid(self.win) then
-				if prev_node.parent.depth ~= 0 then
-					vim.api.nvim_win_set_cursor(self.win, { prev_node.parent.line, 1 })
-				else
-					vim.api.nvim_win_set_cursor(self.win, { prev_node.line, 1 })
-				end
+			self._expand_to_symbol(exact_match, true)
+			vim.api.nvim_win_set_cursor(self.win, { exact_match.line, 1 })
+			return
+		end
+
+		if prev_node ~= nil then
+			self._expand_to_symbol(prev_node, false)
+			if prev_node.parent.depth ~= 0 then
+				vim.api.nvim_win_set_cursor(self.win, { prev_node.parent.line, 1 })
+			else
+				vim.api.nvim_win_set_cursor(self.win, { prev_node.line, 1 })
 			end
 		end
 	end
 
 	function self.event_handler(args)
-		if not self.is_displayed then
+		if not self.is_displayed() then
 			return
 		end
 

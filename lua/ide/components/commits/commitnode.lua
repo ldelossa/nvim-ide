@@ -71,6 +71,11 @@ CommitNode.new = function(sha, file, subject, author, date, tags, depth)
 			end
 
 			local lines = {}
+
+			if self.is_file then
+				table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("File"), self.file))
+			end
+
 			table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("GitCommit"), commit.sha))
 			if (self.tags) then
 				table.insert(lines, string.format("%s%s", icons.global_icon_set.get_icon("GitCommit"), self.tags))

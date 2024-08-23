@@ -506,7 +506,7 @@ ChangesComponent.new = function(name, config)
 
 	vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold" }, {
 		callback = function()
-			if not self.is_displayed then
+			if not self.is_displayed() then
 				return
 			end
 

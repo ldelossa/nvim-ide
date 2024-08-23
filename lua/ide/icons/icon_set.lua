@@ -106,6 +106,11 @@ IconSet.new = function()
 
 	function self.set_win_highlights()
 		for name, icon in pairs(self.list_icons()) do
+			if name == "IndentGuide" then
+				vim.cmd(string.format("syn match %s /%s/", 'Conceal', icon))
+				goto continue
+			end
+
 			local hi = string.format("%s%s", "TS", name)
 			if vim.fn.hlexists(hi) ~= 0 then
 				vim.cmd(string.format("syn match %s /%s/", hi, icon))
