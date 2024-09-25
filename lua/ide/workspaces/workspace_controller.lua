@@ -2,6 +2,7 @@ local workspace = require("ide.workspaces.workspace")
 local workspace_registry = require("ide.workspaces.workspace_registry")
 local libcmd = require("ide.lib.commands")
 local libwin = require("ide.lib.win")
+local libbuf = require("ide.lib.buf")
 local logger = require("ide.logger.logger")
 
 local WorkspaceController = {}
@@ -316,6 +317,31 @@ function WorkspaceController.new(config)
 		})
 
 		log.info("Workspace command now registered.")
+
+		-- add an autocommand which always splits a new window if nvim-ide panels
+		-- are open and the last window is attempting to be closed.
+		--
+		-- this solves the issue where the last window is closed and the panels
+		-- take up the full width of the screen.
+		local function create_win_if_last()
+		end
+
+		vim.api.nvim_create_autocmd("QuitPre", {
+			callback = function(args)
+				local wins = vim.api.nvim_list_wins()
+				local non_component_wins = 0
+				for _, w in ipairs(wins) do
+					-- the relative bit checks for popup windows.
+					if not libwin.is_component_win(w) and vim.api.nvim_win_get_config(w).relative == "" then
+						non_component_wins = non_component_wins + 1
+					end
+				end
+				if non_component_wins == 1 and #wins > 1 then
+					vim.notify("nvim-ide panels are open, hide them to quit.")
+					vim.cmd("vsplit")
+				end
+			end,
+		})
 	end
 
 	-- Stops the WorkspaceController.

@@ -146,6 +146,12 @@ DiffBuffer.new = function(path_a, path_b)
 		local aucmd_a = nil
 		local aucmd_b = nil
 
+		function create_win_if_last(buf)
+			if not libbuf.buf_is_valid(buf) then
+				vim.cmd("vsplit")
+			end
+		end
+
 		aucmd_a = vim.api.nvim_create_autocmd("QuitPre", {
 			callback = function(args)
 				local win = vim.api.nvim_get_current_win()
@@ -160,12 +166,15 @@ DiffBuffer.new = function(path_a, path_b)
 						-- weird but sometimes we loose the filetype when switching back
 						vim.cmd("filetype detect")
 					end
+
 					if libbuf.buf_is_valid(self.buffer_a.buf) then
 						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
 					end
 					if libbuf.buf_is_valid(self.buffer_b.buf) then
 						vim.api.nvim_buf_delete(self.buffer_b.buf, { force = true })
 					end
+
+					create_win_if_last(buf_to_use)
 					vim.api.nvim_del_autocmd(aucmd_a)
 					vim.api.nvim_del_autocmd(aucmd_b)
 				end
@@ -186,12 +195,17 @@ DiffBuffer.new = function(path_a, path_b)
 						-- weird but sometimes we loose the filetype when switching back
 						vim.cmd("filetype detect")
 					end
+
+					create_win_if_last(buf_to_use)
+
 					if libbuf.buf_is_valid(self.buffer_a.buf) then
 						vim.api.nvim_buf_delete(self.buffer_a.buf, { force = true })
 					end
 					if libbuf.buf_is_valid(self.buffer_b.buf) then
 						vim.api.nvim_buf_delete(self.buffer_b.buf, { force = true })
 					end
+
+					create_win_if_last(buf_to_use)
 					vim.api.nvim_del_autocmd(aucmd_a)
 					vim.api.nvim_del_autocmd(aucmd_b)
 				end
