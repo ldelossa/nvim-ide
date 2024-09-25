@@ -69,6 +69,12 @@ M.config = {
 	workspaces = {
 		-- which panels to open by default, one of: 'left', 'right', 'both', 'none'
 		auto_open = "left",
+		-- How nvim-ide should handle a ":q" on the last regular (non nvim-ide, non popup) window.
+		-- "close" - when the last window is closed perform a ":wqa!", closing nvim-ide
+		-- panels as well
+		-- "block" - block the last window from closing by creating a new split.
+		-- nvim-ide panels must be hidden before closing the last window.
+		on_quit = "close",
 	},
 	-- default panel sizes
 	panel_sizes = {

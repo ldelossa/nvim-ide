@@ -1,3 +1,4 @@
+local config = require("ide.config").config
 local workspace = require("ide.workspaces.workspace")
 local workspace_registry = require("ide.workspaces.workspace_registry")
 local libcmd = require("ide.lib.commands")
@@ -23,7 +24,7 @@ local WorkspaceController = {}
 -- This command allows dynamic lookup of the current Workspaces components and
 -- subsequently those component's commands, along with some Workspace specific
 -- commands.
-function WorkspaceController.new(config)
+function WorkspaceController.new()
 	local self = {
 		-- The autocommand ID used to the newtab_assign autocommand.
 		tabnew_autocmd_id = nil,
@@ -38,9 +39,7 @@ function WorkspaceController.new(config)
 		},
 	}
 
-	if config then
-		self.config = vim.deepcopy(config)
-	end
+	self.config = vim.deepcopy(config)
 
 	local function recursive_ws_handler_completion(cmds, cmdline, cmdline_index)
 		local log = logger.new("workspaces", "WorkspaceController.recursive_ws_handler_completion")
@@ -323,9 +322,6 @@ function WorkspaceController.new(config)
 		--
 		-- this solves the issue where the last window is closed and the panels
 		-- take up the full width of the screen.
-		local function create_win_if_last()
-		end
-
 		vim.api.nvim_create_autocmd("QuitPre", {
 			callback = function(args)
 				local wins = vim.api.nvim_list_wins()
@@ -337,8 +333,12 @@ function WorkspaceController.new(config)
 					end
 				end
 				if non_component_wins == 1 and #wins > 1 then
-					vim.notify("nvim-ide panels are open, hide them to quit.")
-					vim.cmd("vsplit")
+					if self.config.workspaces.on_quit == "block" then
+						vim.notify("nvim-ide panels are open, hide them to quit.")
+						vim.cmd("vsplit")
+					else
+						vim.cmd(":wqa!")
+					end
 				end
 			end,
 		})

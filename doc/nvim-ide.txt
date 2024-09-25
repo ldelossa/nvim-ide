@@ -105,9 +105,9 @@ Next, add the setup function anywhere you configure your plugins:
         -- The global icon set to use.
         -- values: "nerd", "codicon", "default"
         icon_set = "default",
-		-- Set the log level for nvim-ide's log. Log can be accessed with 
-		-- 'Workspace OpenLog'. Values are 'debug', 'warn', 'info', 'error'
-		log_level = "info",
+        -- Set the log level for nvim-ide's log. Log can be accessed with 
+        -- 'Workspace OpenLog'. Values are 'debug', 'warn', 'info', 'error'
+        log_level = "info",
         -- Component specific configurations and default config overrides.
         components = {
             -- The global keymap is applied to all Components before construction.
@@ -142,7 +142,13 @@ Next, add the setup function anywhere you configure your plugins:
         -- workspaces config
         workspaces = {
             -- which panels to open by default, one of: 'left', 'right', 'both', 'none'
-            auto_open = 'left',
+            auto_open = "left",
+            -- How nvim-ide should handle a ":q" on the last regular (non nvim-ide, non popup) window.
+            -- "close" - when the last window is closed perform a ":wqa!", closing nvim-ide
+            -- panels as well
+            -- "block" - block the last window from closing by creating a new split.
+            -- nvim-ide panels must be hidden before closing the last window.
+            on_quit = "close",
         },
         -- default panel sizes for the different positions
         panel_sizes = {
@@ -324,22 +330,22 @@ navigating to the `Bookmarks` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	keymaps = {
-		close = "X",
-		collapse = "zc",
-		collapse_all = "zM",
-		details = "d",
-		expand = "zo",
-		help = "?",
-		hide = "H",
-		jump = "<CR>",
-		jump_split = "s",
-		jump_tab = "t",
-		jump_vsplit = "v",
-		remove_bookmark = "D",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    keymaps = {
+        close = "X",
+        collapse = "zc",
+        collapse_all = "zM",
+        details = "d",
+        expand = "zo",
+        help = "?",
+        hide = "H",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_tab = "t",
+        jump_vsplit = "v",
+        remove_bookmark = "D",
+    },
 }
 <
 
@@ -366,24 +372,24 @@ equivalent of performing 'git branch {branch} --set-upstream-to:'
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		expand = "zo",
-		collapse = "zc",
-		collapse_all = "zM",
-		jump = "<CR>",
-		create_branch = "c",
-		refresh = "r",
-		hide = "H",
-		close = "X",
-		details = "d",
-		pull = "p",
-		push = "P",
-		set_upstream = "s",
-		help = "?"
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        create_branch = "c",
+        refresh = "r",
+        hide = "H",
+        close = "X",
+        details = "d",
+        pull = "p",
+        push = "P",
+        set_upstream = "s",
+        help = "?"
+    },
 }
 <
 
@@ -402,21 +408,21 @@ navigating to the `BufferList` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	-- float the current buffer to the top of list
-	current_buffer_top = false,
-	-- disable all keymaps
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		edit = "<CR>",
-		edit_split = "s",
-		edit_vsplit = "v",
-		delete = "d",
-		hide = "H",
-		close = "X",
-		details = "d",
-	},
+    default_height = nil,
+    -- float the current buffer to the top of list
+    current_buffer_top = false,
+    -- disable all keymaps
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        edit = "<CR>",
+        edit_split = "s",
+        edit_vsplit = "v",
+        delete = "d",
+        hide = "H",
+        close = "X",
+        details = "d",
+    },
 }
 <
 
@@ -437,23 +443,23 @@ navigating to the `CallHierarchy` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		expand = "zo",
-		collapse = "zc",
-		collapse_all = "zM",
-		jump = "<CR>",
-		jump_split = "s",
-		jump_vsplit = "v",
-		jump_tab = "t",
-		hide = "H",
-		close = "X",
-		next_reference = "n",
-		switch_directions = "s",
-		help = "?",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_vsplit = "v",
+        jump_tab = "t",
+        hide = "H",
+        close = "X",
+        next_reference = "n",
+        switch_directions = "s",
+        help = "?",
+    },
 }
 <
 
@@ -470,25 +476,25 @@ navigating to the `Changes` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		add = "s",
-		amend = "a",
-		close = "X",
-		collapse = "zc",
-		collapse_all = "zM",
-		commit = "c",
-		details= "d",
-		diff = "<CR>",
-		diff_tab = "t",
-		edit = "e",
-		expand = "zo",
-		help = "?",
-		hide = "H",
-		restore = "r",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        add = "s",
+        amend = "a",
+        close = "X",
+        collapse = "zc",
+        collapse_all = "zM",
+        commit = "c",
+        details= "d",
+        diff = "<CR>",
+        diff_tab = "t",
+        edit = "e",
+        expand = "zo",
+        help = "?",
+        hide = "H",
+        restore = "r",
+    },
 }
 <
 
@@ -515,25 +521,25 @@ Config:
 
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		checkout = "c",
-		close = "X",
-		collapse = "zc",
-		collapse_all = "zM",
-		details = "d",
-		details_tab = "D",
-		diff = "<CR>",
-		diff_split = "s",
-		diff_tab = "t",
-		diff_vsplit = "v",
-		expand = "zo",
-		help = "?",
-		hide = "H",
-		refresh = "r",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        checkout = "c",
+        close = "X",
+        collapse = "zc",
+        collapse_all = "zM",
+        details = "d",
+        details_tab = "D",
+        diff = "<CR>",
+        diff_split = "s",
+        diff_tab = "t",
+        diff_vsplit = "v",
+        expand = "zo",
+        help = "?",
+        hide = "H",
+        refresh = "r",
+    },
 }
 <
 
@@ -551,16 +557,16 @@ navigating to the `Explorer` subcommand.
 Config:
 >
 {
-	-- show file permissions as virtual text on the right hand side.
-	show_file_permissions = true,
-	-- open the file on create in an editor window.
-	edit_on_create = true,
-	-- default component height
-	default_height = nil,
-	-- disable all keymaps for the Explorer component.
-	disabled_keymaps = false,
-	keymaps = presets.default,
-	hidden = false,
+    -- show file permissions as virtual text on the right hand side.
+    show_file_permissions = true,
+    -- open the file on create in an editor window.
+    edit_on_create = true,
+    -- default component height
+    default_height = nil,
+    -- disable all keymaps for the Explorer component.
+    disabled_keymaps = false,
+    keymaps = presets.default,
+    hidden = false,
 }
 <
 
@@ -570,56 +576,56 @@ The following keymapping presets are available in the
 >
 
     Presets.default = {
-		expand = "zo",
-		collapse = "zc",
-		collapse_all = "zM",
-		edit = "<CR>",
-		edit_split = "s",
-		edit_vsplit = "v",
-		edit_tab = "t",
-		hide = "H",
-		close = "X",
-		new_file = "n",
-		delete_file = "D",
-		new_dir = "d",
-		rename_file = "r",
-		move_file = "m",
-		copy_file = "p",
-		select_file = "<Space>",
-		deselect_file = "<Space><Space>",
-		change_dir = "cd",
-		up_dir = "..",
-		file_details = "i",
-		toggle_exec_perm = "*",
-		maximize = "+",
-		minimize = "-"
-	}
+        expand = "zo",
+        collapse = "zc",
+        collapse_all = "zM",
+        edit = "<CR>",
+        edit_split = "s",
+        edit_vsplit = "v",
+        edit_tab = "t",
+        hide = "H",
+        close = "X",
+        new_file = "n",
+        delete_file = "D",
+        new_dir = "d",
+        rename_file = "r",
+        move_file = "m",
+        copy_file = "p",
+        select_file = "<Space>",
+        deselect_file = "<Space><Space>",
+        change_dir = "cd",
+        up_dir = "..",
+        file_details = "i",
+        toggle_exec_perm = "*",
+        maximize = "+",
+        minimize = "-"
+    }
 
-	Presets.nvim_tree = {
-	  change_dir = "cd",
-	  close = "X",
-	  collapse = "zc",
-	  collapse_all = "W",
-	  copy_file = "p",
-	  delete_file = "d",
-	  deselect_file = "<Space><Space>",
-	  edit = "<CR>",
-	  edit_split = "<C-x>",
-	  edit_tab = "<C-t>",
-	  edit_vsplit = "<C-v>",
-	  expand = "zo",
-	  file_details = "i",
-	  hide = "<NOP>",
-	  maximize = "+",
-	  minimize = "-",
-	  move_file = "m",
-	  new_dir = "<NOP>",
-	  new_file = "a",
-	  rename_file = "r",
-	  select_file = "<Space>",
-	  toggle_exec_perm = "*",
-	  up_dir = ".."
-	}
+    Presets.nvim_tree = {
+      change_dir = "cd",
+      close = "X",
+      collapse = "zc",
+      collapse_all = "W",
+      copy_file = "p",
+      delete_file = "d",
+      deselect_file = "<Space><Space>",
+      edit = "<CR>",
+      edit_split = "<C-x>",
+      edit_tab = "<C-t>",
+      edit_vsplit = "<C-v>",
+      expand = "zo",
+      file_details = "i",
+      hide = "<NOP>",
+      maximize = "+",
+      minimize = "-",
+      move_file = "m",
+      new_dir = "<NOP>",
+      new_file = "a",
+      rename_file = "r",
+      select_file = "<Space>",
+      toggle_exec_perm = "*",
+      up_dir = ".."
+    }
 <
 
 ====================================================================================
@@ -638,22 +644,22 @@ navigating to the `Outline` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		close = "X",
-		collapse = "zc",
-		collapse_all = "zM",
-		details = "d",
-		expand = "zo",
-		help = "?",
-		hide = "H",
-		jump = "<CR>",
-		jump_split = "s",
-		jump_tab = "t",
-		jump_vsplit = "v",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        close = "X",
+        collapse = "zc",
+        collapse_all = "zM",
+        details = "d",
+        expand = "zo",
+        help = "?",
+        hide = "H",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_tab = "t",
+        jump_vsplit = "v",
+    },
 }
 <
 
@@ -674,16 +680,16 @@ Config:
 <
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		new = "n",
-		jump = "<CR>",
-		hide = "H",
-		delete = "D",
-		rename = "r",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        new = "n",
+        jump = "<CR>",
+        hide = "H",
+        delete = "D",
+        rename = "r",
+    },
 }
 <
 
@@ -701,27 +707,27 @@ navigating to the `Timeline` subcommand.
 Config:
 >
 {
-	default_height = nil,
-	disabled_keymaps = false,
-	hidden = false,
-	keymaps = {
-		close = "X",
-		collapse = "zc",
-		collapse_all = "zM",
-		details = "d",
-		expand = "zo",
-		help = "?",
-		hide = "H",
-		jump = "<CR>",
-		jump_split = "s",
-		jump_tab = "t",
-		jump_vsplit = "v",
-	},
+    default_height = nil,
+    disabled_keymaps = false,
+    hidden = false,
+    keymaps = {
+        close = "X",
+        collapse = "zc",
+        collapse_all = "zM",
+        details = "d",
+        expand = "zo",
+        help = "?",
+        hide = "H",
+        jump = "<CR>",
+        jump_split = "s",
+        jump_tab = "t",
+        jump_vsplit = "v",
+    },
 }
 <
 
 ====================================================================================
-Integration with other plugins   							*ide-plugin-integration*
+Integration with other plugins                              *ide-plugin-integration*
 
 
                                                             *ide-bufferline-integration*
@@ -729,16 +735,16 @@ bufferline.nvim (https://github.com/akinsho/bufferline.nvim), to offset the
 start of the first tab:
 >
   require("bufferline").setup({
-	options = {
-		offsets = {
-			{
-				filetype = "filetree",
-				text = "",
-				highlight = "Explorer",
-				text_align = "left",
-			}
-		},
-	},
+    options = {
+        offsets = {
+            {
+                filetype = "filetree",
+                text = "",
+                highlight = "Explorer",
+                text_align = "left",
+            }
+        },
+    },
   })
 <
 
@@ -750,26 +756,26 @@ debugging start:
   require('dapui').setup()
 
   local function close_nvim_ide_panels()
-	  if pcall(require, 'ide') then
-		  local ws = require('ide.workspaces.workspace_registry').get_workspace(vim.api.nvim_get_current_tabpage())
-		  if ws ~= nil then
-			  ws.close_panel(require('ide.panels.panel').PANEL_POS_BOTTOM)
-			  ws.close_panel(require('ide.panels.panel').PANEL_POS_LEFT)
-			  ws.close_panel(require('ide.panels.panel').PANEL_POS_RIGHT)
-		  end
-	  end
+      if pcall(require, 'ide') then
+          local ws = require('ide.workspaces.workspace_registry').get_workspace(vim.api.nvim_get_current_tabpage())
+          if ws ~= nil then
+              ws.close_panel(require('ide.panels.panel').PANEL_POS_BOTTOM)
+              ws.close_panel(require('ide.panels.panel').PANEL_POS_LEFT)
+              ws.close_panel(require('ide.panels.panel').PANEL_POS_RIGHT)
+          end
+      end
   end
 
   local dap, dapui = require("dap"), require("dapui")
   dap.listeners.after.event_initialized["dapui_config"] = function()
-	dapui.open()
-	close_nvim_ide_panels()
+    dapui.open()
+    close_nvim_ide_panels()
   end
   dap.listeners.before.event_terminated["dapui_config"] = function()
-	dapui.close()
+    dapui.close()
   end
   dap.listeners.before.event_exited["dapui_config"] = function()
-	dapui.close()
+    dapui.close()
   end
 <
 

@@ -20,7 +20,7 @@ function M.setup(user_config)
 	logger.set_log_level(config.config.log_level)
 
 	-- create and launch a workspace controller.
-	local wsctrl = require("ide.workspaces.workspace_controller").new(config.config.workspaces)
+	local wsctrl = require("ide.workspaces.workspace_controller").new()
 	wsctrl.init()
 end
 
