@@ -322,26 +322,28 @@ function WorkspaceController.new()
 		--
 		-- this solves the issue where the last window is closed and the panels
 		-- take up the full width of the screen.
-		vim.api.nvim_create_autocmd("QuitPre", {
-			callback = function(args)
-				local wins = vim.api.nvim_list_wins()
-				local non_component_wins = 0
-				for _, w in ipairs(wins) do
-					-- the relative bit checks for popup windows.
-					if not libwin.is_component_win(w) and vim.api.nvim_win_get_config(w).relative == "" then
-						non_component_wins = non_component_wins + 1
+		if not self.config.workspaces.on_quit or self.config.workspaces.on_quit ~= "disabled" then
+			vim.api.nvim_create_autocmd("QuitPre", {
+				callback = function(args)
+					local wins = vim.api.nvim_list_wins()
+					local non_component_wins = 0
+					for _, w in ipairs(wins) do
+						-- the relative bit checks for popup windows.
+						if not libwin.is_component_win(w) and vim.api.nvim_win_get_config(w).relative == "" then
+							non_component_wins = non_component_wins + 1
+						end
 					end
-				end
-				if non_component_wins == 1 and #wins > 1 then
-					if self.config.workspaces.on_quit == "block" then
-						vim.notify("nvim-ide panels are open, hide them to quit.")
-						vim.cmd("vsplit")
-					else
-						vim.cmd(":wqa!")
+					if non_component_wins == 1 and #wins > 1 then
+						if self.config.workspaces.on_quit == "block" then
+							vim.notify("nvim-ide panels are open, hide them to quit.")
+							vim.cmd("vsplit")
+						elseif self.config.workspaces.on_quit == "close" then
+							vim.cmd(":wqa!")
+						end
 					end
-				end
-			end,
-		})
+				end,
+			})
+		end
 	end
 
 	-- Stops the WorkspaceController.

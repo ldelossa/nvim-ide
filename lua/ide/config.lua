@@ -74,7 +74,10 @@ M.config = {
 		-- panels as well
 		-- "block" - block the last window from closing by creating a new split.
 		-- nvim-ide panels must be hidden before closing the last window.
-		on_quit = "close",
+		-- "disabled" - take no action, this may result in the panels existing
+		-- when you actually want to close neovim.
+		-- this is the default mode for backwards compatibility.
+		on_quit = "disabled",
 	},
 	-- default panel sizes
 	panel_sizes = {
