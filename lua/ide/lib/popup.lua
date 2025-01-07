@@ -72,12 +72,20 @@ function Popup.until_cursor_move(lines)
 	local aucmd = nil
 	aucmd = vim.api.nvim_create_autocmd({ "CursorMoved" }, {
 		callback = function()
+			-- if we are inside the popup window just return
+			local cur_win = vim.api.nvim_get_current_win()
+			if cur_win == win then
+				return
+			end
+
 			if libwin.win_is_valid(win) then
 				vim.api.nvim_win_close(win, true)
 			end
 			vim.api.nvim_del_autocmd(aucmd)
 		end,
 	})
+
+	return win
 end
 
 return Popup

@@ -2,6 +2,7 @@ local node = require("ide.trees.node")
 local icons = require("ide.icons")
 local liblsp = require("ide.lib.lsp")
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local SymbolNode = {}
 
@@ -37,12 +38,18 @@ SymbolNode.new = function(document_symbol, depth)
 	-- this node is in a @Tree.
 	local symbol = vim.deepcopy(document_symbol)
 	symbol.children = (function()
-				return {}
-			end)()
+		return {}
+	end)()
 
 	self.document_symbol = symbol
 
+	local popup_win = nil
 	function self.details()
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		local icon = " "
 		local kind = vim.lsp.protocol.SymbolKind[self.document_symbol.kind]
 		if kind ~= "" then
@@ -81,7 +88,7 @@ SymbolNode.new = function(document_symbol, depth)
 			table.insert(lines, string.format("%s", self.document_symbol.detail))
 		end
 
-		libpopup.until_cursor_move(lines)
+		popup_win = libpopup.until_cursor_move(lines)
 	end
 
 	-- Marshal a symbolnode into a buffer line.

@@ -1,6 +1,7 @@
 local node = require("ide.trees.node")
 local icons = require("ide.icons")
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local BookmarkNode = {}
 
@@ -86,7 +87,13 @@ BookmarkNode.new = function(file, start_line, end_line, title, note, depth)
 		)
 	end
 
+	local popup_win = nil
 	function self.details()
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		local lines = {}
 
 		table.insert(lines, string.format("%s %s", icons.global_icon_set.get_icon("Bookmark"), self.title))
@@ -95,7 +102,7 @@ BookmarkNode.new = function(file, start_line, end_line, title, note, depth)
 			string.format("%s %s", icons.global_icon_set.get_icon("File"), self.file .. ":" .. self.start_line)
 		)
 
-		libpopup.until_cursor_move(lines)
+		popup_win = libpopup.until_cursor_move(lines)
 	end
 
 	return self

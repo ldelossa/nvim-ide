@@ -3,6 +3,7 @@ local icons = require("ide.icons")
 local gitutil = require("ide.lib.git.client")
 local git = require("ide.lib.git.client").new()
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local BranchNode = {}
 
@@ -61,7 +62,13 @@ BranchNode.new = function(sha, branch, is_head, depth)
 		return icon, name, detail, ""
 	end
 
+	local popup_win = nil
 	function self.details()
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		git.log(self.sha, 1, function(commits)
 			local commit = commits[1]
 			local lines = {}
@@ -77,7 +84,7 @@ BranchNode.new = function(sha, branch, is_head, depth)
 				lines,
 				string.format("%s %s %7s [%s] %s", head, self.branch, gitutil.short_sha(self.sha), remote_ref, commit.subject)
 			)
-			libpopup.until_cursor_move(lines)
+			popup_win = libpopup.until_cursor_move(lines)
 		end)
 	end
 

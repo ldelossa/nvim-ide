@@ -3,6 +3,7 @@ local icons = require("ide.icons")
 local logger = require("ide.logger.logger")
 local git = require("ide.lib.git.client").new()
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local CommitNode = {}
 
@@ -59,7 +60,13 @@ CommitNode.new = function(sha, file, subject, author, date, tags, depth)
 		return icon, name, detail
 	end
 
+	local popup_win = nil
 	function self.details(tab)
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		git.log(self.sha, 1, function(data)
 			if data == nil then
 				return
@@ -105,6 +112,8 @@ CommitNode.new = function(sha, file, subject, author, date, tags, depth)
 			end
 
 			libpopup.until_cursor_move(lines)
+
+			popup_win = libpopup.until_cursor_move(lines)
 		end)
 	end
 

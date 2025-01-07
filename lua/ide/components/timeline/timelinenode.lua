@@ -2,6 +2,7 @@ local node = require("ide.trees.node")
 local icons = require("ide.icons")
 local git = require("ide.lib.git.client").new()
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local TimelineNode = {}
 
@@ -35,7 +36,13 @@ TimelineNode.new = function(sha, file, subject, author, date, depth)
 		return icon, name, detail
 	end
 
+	local popup_win = nil
 	function self.details()
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		git.log(self.sha, 1, function(data)
 			if data == nil then
 				return
@@ -62,7 +69,7 @@ TimelineNode.new = function(sha, file, subject, author, date, depth)
 				table.insert(lines, l)
 			end
 
-			libpopup.until_cursor_move(lines)
+			popup_win = libpopup.until_cursor_move(lines)
 		end)
 	end
 

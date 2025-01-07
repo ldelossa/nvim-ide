@@ -1,6 +1,7 @@
 local node = require("ide.trees.node")
 local icons = require("ide.icons")
 local libpopup = require("ide.lib.popup")
+local libwin = require("ide.lib.win")
 
 local StatusNode = {}
 
@@ -36,11 +37,17 @@ StatusNode.new = function(status, path, staged, depth)
 		return icon, name, detail
 	end
 
+	local popup_win = nil
 	function self.details()
+		if libwin.win_is_valid(popup_win) then
+			vim.api.nvim_set_current_win(popup_win)
+			return
+		end
+
 		local lines = {}
 		table.insert(lines, string.format("%s %s %s", icons.global_icon_set.get_icon("File"), self.path, self.status))
 
-		libpopup.until_cursor_move(lines)
+		popup_win = libpopup.until_cursor_move(lines)
 	end
 
 	return self
