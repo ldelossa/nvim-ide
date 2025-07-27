@@ -241,7 +241,7 @@ OutlineComponent.new = function(name, config)
 
 		local supports_method = #(
 				vim.tbl_filter(function(client)
-					return client.supports_method(lsp_method)
+					return client:supports_method(lsp_method)
 				end, vim.lsp.get_clients({ bufnr = cur_buf }))
 				) > 0
 		if not supports_method then
